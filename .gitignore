@@ -1,0 +1,8 @@
+*.db
+*.pyc
+build/
+dist/
+data/
+test*.py
+Output/
+*.spec

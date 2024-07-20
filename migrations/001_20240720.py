@@ -1,4 +1,4 @@
-"""Peewee migrations -- 001_20240719.py.
+"""Peewee migrations -- 001_20240720.py.
 
 Some examples (model - class or model name)::
 
@@ -50,6 +50,8 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         doi = pw.CharField(max_length=255)
         url = pw.CharField(max_length=255)
         zotero_key = pw.CharField(max_length=255)
+        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True)
+        abbreviation = pw.CharField(max_length=255, null=True)
         created_at = pw.DateTimeField()
         modified_at = pw.DateTimeField()
 
@@ -63,7 +65,6 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         rank = pw.CharField(max_length=255)
         author = pw.CharField(max_length=255)
         year = pw.CharField(max_length=255)
-        reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'])
         junior_synonym_of = pw.ForeignKeyField(column_name='junior_synonym_of_id', field='id', model='self', null=True)
         parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True)
         created_at = pw.DateTimeField()
@@ -78,8 +79,8 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         file_name = pw.CharField(max_length=255)
         file_path = pw.CharField(max_length=255)
         figure_number = pw.CharField(max_length=255)
-        reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'])
-        taxon = pw.ForeignKeyField(column_name='taxon_id', field='id', model=migrator.orm['fgtaxon'])
+        reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], null=True)
+        taxon = pw.ForeignKeyField(column_name='taxon_id', field='id', model=migrator.orm['fgtaxon'], null=True)
         parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True)
         created_at = pw.DateTimeField()
         modified_at = pw.DateTimeField()

@@ -2,6 +2,7 @@ pyqt5
 peewee
 Pillow
 peewee-migrate
+pyinstaller
 
 conda create -n Figurist python pip
-pip install pyqt5 peewee Pillow peewee-migrate
+pip install pyqt5 peewee Pillow peewee-migrate pyinstaller

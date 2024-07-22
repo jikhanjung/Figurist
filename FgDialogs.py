@@ -369,3 +369,114 @@ class PreferencesDialog(QDialog):
         self.lblZoteroKey.setText(self.tr("Zotero Key"))
         self.btnOkay.setText(self.tr("OK"))
         self.update()
+
+class TaxonDialog(QDialog):
+    # NewDatasetDialog shows new dataset dialog.
+    def __init__(self,parent):
+        super().__init__()
+        self.setWindowTitle(self.tr("Figurist - Taxon Information"))
+        self.parent = parent
+        self.taxon = None
+        #print(self.parent.pos())
+        #self.setGeometry(QRect(100, 100, 600, 400))
+        self.remember_geometry = True
+        self.m_app = QApplication.instance()
+        self.read_settings()
+        #self.move(self.parent.pos()+QPoint(100,100))
+        close_shortcut = QShortcut(QKeySequence("Ctrl+W"), self)
+        close_shortcut.activated.connect(self.close) 
+
+        self.initUI()
+        #self.prepare_database()
+
+    def read_settings(self):
+        settings = QSettings()
+        if settings.contains("geometry") and self.remember_geometry:
+            self.setGeometry(settings.value("geometry"))
+        else:
+            self.setGeometry(QRect(100, 100, 600, 400))
+
+    def initUI(self):
+        ''' initialize UI '''
+        self.lblReference = QLabel(self.tr("Reference"))
+        self.edtReference = QLineEdit()
+        self.lblFigure = QLabel(self.tr("Figure(s)"))
+        # figure list in listbox
+        self.lstFigure = QListWidget()
+        self.lblTaxonName = QLabel(self.tr("Taxon Name"))
+        self.edtTaxonName = QLineEdit()
+        self.lblTaxonRank = QLabel(self.tr("Taxon Rank"))
+        self.edtTaxonRank = QLineEdit()
+        self.lblParentTaxon = QLabel(self.tr("Parent Taxon"))
+        self.edtParentTaxon = QLineEdit()
+        self.btnSave = QPushButton(self.tr("Save"))
+        self.btnSave.clicked.connect(self.on_btn_save_clicked)
+        self.btnCancel = QPushButton(self.tr("Cancel"))
+        self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
+
+        self.btn_widget = QWidget()
+        self.btn_layout = QHBoxLayout()
+        self.btn_layout.addWidget(self.btnSave)
+        self.btn_layout.addWidget(self.btnCancel)
+        self.btn_widget.setLayout(self.btn_layout)
+
+        #self.statusBar = QStatusBar()
+        #self.setStatusBar(self.statusBar)
+        self.all_layout = QVBoxLayout()
+
+        self.form_widget = QWidget()
+        self.form_layout = QFormLayout()
+        self.form_layout.addRow(self.lblReference, self.edtReference)
+        self.form_layout.addRow(self.lblFigure, self.lstFigure)
+        self.form_layout.addRow(self.lblTaxonName, self.edtTaxonName)
+        self.form_layout.addRow(self.lblTaxonRank, self.edtTaxonRank)
+        self.form_layout.addRow(self.lblParentTaxon, self.edtParentTaxon)
+        #self.form_layout.addRow(self.btnSave, self.btnCancel)
+        self.form_widget.setLayout(self.form_layout)
+        #self.layout.addRow(self.btnSave, self.btnCancel)
+        self.all_layout.addWidget(self.form_widget)
+        self.all_layout.addWidget(self.btn_widget)
+        self.setLayout(self.all_layout)
+
+    def set_reference(self, ref):
+        self.reference = ref
+        self.edtReference.setText(ref.get_abbr())
+
+    def set_figures(self, figure_list):
+        #self.figure_list = figure_list
+        self.figure_list = []
+        for figure in figure_list:
+            item = QListWidgetItem(figure.figure_number)
+            self.lstFigure.addItem(item)
+            self.figure_list.append(figure)
+
+    def on_btn_save_clicked(self):
+        #print("Save clicked")
+        if self.taxon is None:
+            self.taxon = FgTaxon()
+        #self.taxon = FgTaxon()
+        self.taxon.name = self.edtTaxonName.text()
+        self.taxon.rank = self.edtTaxonRank.text()
+        self.taxon.parent = None
+        self.taxon.save()
+
+        for fig in self.figure_list:
+            fig.taxon = self.taxon
+            fig.save()
+
+        taxref = TaxonReference()
+        taxref.taxon = self.taxon
+        taxref.reference = self.reference
+        taxref.save()
+
+        for fig in self.figure_list:
+            taxfig = TaxonFigure()
+            taxfig.taxon = self.taxon
+            taxfig.figure = fig
+            taxfig.save()
+
+        self.accept()
+    
+    def on_btn_cancel_clicked(self):
+        print("Cancel clicked")
+        self.reject()

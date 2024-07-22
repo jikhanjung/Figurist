@@ -40,24 +40,21 @@ class FgReference(Model):
         fig.add_file(file_path)
         return fig
 
+    def get_abbr(self):
+        if self.abbreviation is not None:
+            return self.abbreviation
+        else:
+            return self.author + " (" + str(self.year) + ")"
+        #return self.author + " (" + str(self.year) + ")"
+
 
 class FgTaxon(Model):
     name = CharField()
-    rank = CharField()
-    author = CharField()
-    year = CharField()
+    rank = CharField(null=True)
+    author = CharField(null=True)
+    year = CharField(null=True)
     junior_synonym_of = ForeignKeyField('self', backref='synonyms', null=True)
     parent = ForeignKeyField('self', backref='children', null=True)
-    created_at = DateTimeField(default=datetime.datetime.now)
-    modified_at = DateTimeField(default=datetime.datetime.now)
-
-    class Meta:
-        database = gDatabase
-
-class TaxonReference(Model):
-    taxon = ForeignKeyField(FgTaxon, backref='related_references')
-    reference = ForeignKeyField(FgReference, backref='related_taxa')
-    reltype = CharField()
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
 
@@ -176,3 +173,23 @@ class FgFigure(Model):
         afile.close()
         md5hash = hasher.hexdigest()
         return md5hash, image_data
+
+class TaxonReference(Model):
+    taxon = ForeignKeyField(FgTaxon, backref='related_references')
+    reference = ForeignKeyField(FgReference, backref='related_taxa')
+    reltype = CharField(null=True)
+    created_at = DateTimeField(default=datetime.datetime.now)
+    modified_at = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        database = gDatabase
+
+class TaxonFigure(Model):
+    taxon = ForeignKeyField(FgTaxon, backref='related_figures')
+    figure = ForeignKeyField(FgFigure, backref='related_taxa')
+    reltype = CharField(null=True)
+    created_at = DateTimeField(default=datetime.datetime.now)
+    modified_at = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        database = gDatabase

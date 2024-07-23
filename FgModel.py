@@ -74,6 +74,12 @@ class FgFigure(Model):
     class Meta:
         database = gDatabase
 
+    def get_figure_name(self):
+        name = self.figure_number
+        if self.taxon:
+            name += " " + self.taxon.name
+        return name
+
     def parse_file_name(self, file_path):
         self.file_name = Path(file_path).name
         self.file_path = file_path
@@ -116,7 +122,7 @@ class FgFigure(Model):
         #print("add file:", file_name)
         self.load_file_info(file_name)
         new_filepath = self.get_file_path()
-        print("new file:", new_filepath)
+        #print("new file:", new_filepath)
         if not os.path.exists(os.path.dirname(new_filepath)):
             os.makedirs(os.path.dirname(new_filepath))
         #print("new file:", new_filepath)
@@ -175,8 +181,8 @@ class FgFigure(Model):
         return md5hash, image_data
 
 class TaxonReference(Model):
-    taxon = ForeignKeyField(FgTaxon, backref='related_references')
-    reference = ForeignKeyField(FgReference, backref='related_taxa')
+    taxon = ForeignKeyField(FgTaxon, backref='related_references',on_delete="CASCADE")
+    reference = ForeignKeyField(FgReference, backref='related_taxa',on_delete="CASCADE")
     reltype = CharField(null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
@@ -185,8 +191,8 @@ class TaxonReference(Model):
         database = gDatabase
 
 class TaxonFigure(Model):
-    taxon = ForeignKeyField(FgTaxon, backref='related_figures')
-    figure = ForeignKeyField(FgFigure, backref='related_taxa')
+    taxon = ForeignKeyField(FgTaxon, backref='related_figures',on_delete="CASCADE")
+    figure = ForeignKeyField(FgFigure, backref='related_taxa',on_delete="CASCADE")
     reltype = CharField(null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)

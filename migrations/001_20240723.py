@@ -1,4 +1,4 @@
-"""Peewee migrations -- 001_20240720.py.
+"""Peewee migrations -- 001_20240723.py.
 
 Some examples (model - class or model name)::
 
@@ -62,9 +62,9 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     class FgTaxon(pw.Model):
         id = pw.AutoField()
         name = pw.CharField(max_length=255)
-        rank = pw.CharField(max_length=255)
-        author = pw.CharField(max_length=255)
-        year = pw.CharField(max_length=255)
+        rank = pw.CharField(max_length=255, null=True)
+        author = pw.CharField(max_length=255, null=True)
+        year = pw.CharField(max_length=255, null=True)
         junior_synonym_of = pw.ForeignKeyField(column_name='junior_synonym_of_id', field='id', model='self', null=True)
         parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True)
         created_at = pw.DateTimeField()
@@ -88,10 +88,38 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         class Meta:
             table_name = "fgfigure"
 
+    @migrator.create_model
+    class TaxonFigure(pw.Model):
+        id = pw.AutoField()
+        taxon = pw.ForeignKeyField(column_name='taxon_id', field='id', model=migrator.orm['fgtaxon'], on_delete='CASCADE')
+        figure = pw.ForeignKeyField(column_name='figure_id', field='id', model=migrator.orm['fgfigure'], on_delete='CASCADE')
+        reltype = pw.CharField(max_length=255, null=True)
+        created_at = pw.DateTimeField()
+        modified_at = pw.DateTimeField()
+
+        class Meta:
+            table_name = "taxonfigure"
+
+    @migrator.create_model
+    class TaxonReference(pw.Model):
+        id = pw.AutoField()
+        taxon = pw.ForeignKeyField(column_name='taxon_id', field='id', model=migrator.orm['fgtaxon'], on_delete='CASCADE')
+        reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], on_delete='CASCADE')
+        reltype = pw.CharField(max_length=255, null=True)
+        created_at = pw.DateTimeField()
+        modified_at = pw.DateTimeField()
+
+        class Meta:
+            table_name = "taxonreference"
+
 
 def rollback(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your rollback migrations here."""
     
+    migrator.remove_model('taxonreference')
+
+    migrator.remove_model('taxonfigure')
+
     migrator.remove_model('fgfigure')
 
     migrator.remove_model('fgtaxon')

@@ -19,7 +19,7 @@ from FgModel import *
 from FgDialogs import *
 from peewee_migrate import Router
 import traceback
-from FgComponents import FigureTableModel, FigureItemDelegate, FigureProxyModel
+from FgComponents import FgFigureView
 from FgLogger import setup_logger
 logger = setup_logger(fg.PROGRAM_NAME)
 
@@ -40,7 +40,7 @@ class FiguristMainWindow(QMainWindow):
 
     def initUI(self):
         ''' initialize UI '''
-        self.figureView = QTableView()
+        self.figureView = FgFigureView()
         self.referenceView = QTreeView()
         self.taxonView = QTreeView()
 
@@ -48,10 +48,13 @@ class FiguristMainWindow(QMainWindow):
         self.figure_model = None
         self.taxon_model = None
 
+        self.toggle_button = QPushButton(self.tr("Toggle View"))
         self.right_widget = QWidget()
         self.right_layout = QVBoxLayout()
         self.right_widget.setLayout(self.right_layout)
         self.right_layout.addWidget(self.figureView)
+        self.right_layout.addWidget(self.toggle_button)
+        self.toggle_button.clicked.connect(self.toggle_view)
 
         self.left_widget = QWidget()
         self.left_layout = QVBoxLayout()
@@ -72,12 +75,14 @@ class FiguristMainWindow(QMainWindow):
 
 
         self.referenceView.doubleClicked.connect(self.on_referenceView_doubleClicked)
+        self.taxonView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.taxonView.customContextMenuRequested.connect(self.open_taxonView_menu)
         self.figureView.setContextMenuPolicy(Qt.CustomContextMenu)
         self.figureView.customContextMenuRequested.connect(self.open_figureView_menu)
-        self.figureView.horizontalHeader().sectionResized.connect(self.update_icon_mode_columns)
+        #self.figureView.horizontalHeader().sectionResized.connect(self.update_icon_mode_columns)
         self.item_size = 220  # Default size (including spacing)
-        self.figure_model = FigureTableModel([])
-        self.figure_delegate = FigureItemDelegate()        
+        #self.figure_model = FigureTableModel([])
+        #self.figure_delegate = FigureItemDelegate()        
 
         #self.model = CustomTableModel(self.data)
         #self.delegate = CustomItemDelegate()
@@ -118,15 +123,22 @@ class FiguristMainWindow(QMainWindow):
         self.m_app = QApplication.instance()
         self.read_settings()
 
-        self.figureView.setDragEnabled(True)
-        self.figureView.setAcceptDrops(True)
-        #print("tableview accept drops:", self.tableView.acceptDrops())
-        self.figureView.setDropIndicatorShown(True)
-        self.figureView.dropEvent = self.figureView_drop_event
-        self.figureView.dragEnterEvent = self.figureView_drag_enter_event
-        self.figureView.dragMoveEvent = self.figureView_drag_move_event
+        #self.figureView.setDragEnabled(True)
+        self.figureView.tableView.setAcceptDrops(True)
+        self.figureView.tableView.setDropIndicatorShown(True)
+        self.figureView.tableView.dropEvent = self.figureView_drop_event
+        self.figureView.tableView.dragEnterEvent = self.figureView_drag_enter_event
+        self.figureView.tableView.dragMoveEvent = self.figureView_drag_move_event
+
+        self.figureView.listView.setAcceptDrops(True)
+        self.figureView.listView.setDropIndicatorShown(True)
+        self.figureView.listView.dropEvent = self.figureView_drop_event
+        self.figureView.listView.dragEnterEvent = self.figureView_drag_enter_event
+        self.figureView.listView.dragMoveEvent = self.figureView_drag_move_event
+        '''
         self.figureView.horizontalHeader().hide()
         self.figureView.verticalHeader().hide()
+        '''
         self.toggle_view(True)
 
     def update_icon_mode_columns(self):
@@ -136,7 +148,12 @@ class FiguristMainWindow(QMainWindow):
             self.figure_model.update_columns(view_width, self.item_size)
 
     def toggle_view(self, icon_mode):
-        self.icon_mode = icon_mode #not self.icon_mode
+        if icon_mode:
+            self.icon_mode = icon_mode #not self.icon_mode
+        else:
+            self.icon_mode = not self.icon_mode
+        self.figureView.set_icon_mode(self.icon_mode)
+        return
 
         self.figure_model.set_icon_mode(self.icon_mode)
         self.figure_delegate.set_icon_mode(self.icon_mode)
@@ -211,10 +228,19 @@ class FiguristMainWindow(QMainWindow):
         # Ensure the view updates
         self.figureView.reset()
         self.figure_model.layoutChanged.emit()
+    def toggle_view(self, icon_mode):
+        self.figureView.set_icon_mode(icon_mode)
+    def toggle_view(self, icon_mode):
+        if icon_mode:
+            self.icon_mode = icon_mode #not self.icon_mode
+        else:
+            self.icon_mode = not self.icon_mode
+        self.figureView.set_icon_mode(self.icon_mode)
+        return
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        self.update_icon_mode_columns()
+        #self.update_icon_mode_columns()
         
     def update_language(self, language):
         #print("main update language:", language)
@@ -272,11 +298,6 @@ class FiguristMainWindow(QMainWindow):
         ret = self.dlg.exec_()
         self.reset_referenceView()
         self.load_references()
-
-    def reset_figureView(self):
-        #self.figure_model = CustomTableModel()
-        #self.figureView.setHeaderHidden(True)
-        pass
 
     def reset_referenceView(self):
         self.reference_model = QStandardItemModel()
@@ -364,36 +385,10 @@ class FiguristMainWindow(QMainWindow):
         self.taxon_selection_model = self.taxonView.selectionModel()
         self.taxon_selection_model.selectionChanged.connect(self.on_taxon_selection_changed)
 
-    def load_figure(self):
-        self.reset_figureView()
-        if self.selected_reference is None:
-            return
-        figure_list = FgFigure.select().where(FgFigure.reference == self.selected_reference)
-        self.data = []
-        for figure in figure_list:
-            path = figure.get_file_path()
-            #print("figure path:", path)
-            self.data.append( figure )#{ 'id': figure.id, 'name': figure.figure_number, 'type': figure.file_path, 'size': '', 'icon': figure.get_file_path() } )
-            #item1 = QStandardItem(figure.figure_number)
-            #item2 = QStandardItem(figure.file_path)
-            #item1.setData(figure)
-            #self.figure_model.appendRow([item1])
-        self.figure_model = FigureTableModel(self.data)
-        self.figure_delegate = FigureItemDelegate()
-        self.figure_proxy_model = FigureProxyModel(self)
-        self.figure_proxy_model.setSourceModel(self.figure_model)
-        self.figureView.setModel(self.figure_proxy_model)
-        #self.figureView.setModel(self.figure_model)
-        self.figureView.setItemDelegate(self.figure_delegate)
-        #self.figureView.expandAll()
-        self.figure_selection_model = self.figureView.selectionModel()
-        self.figure_selection_model.selectionChanged.connect(self.on_figure_selection_changed)
-        self.figure_proxy_model.set_filtered_taxa([])  # Clear any existing filters
-        #header = self.figureView.header()
-        self.figureView.setSelectionBehavior(QTreeView.SelectRows)
-        self.toggle_view(True)
-
-
+    def reset_figureView(self):
+        #self.figure_model = CustomTableModel()
+        #self.figureView.setHeaderHidden(True)
+        pass
 
     def on_reference_selection_changed(self, selected, deselected):
         indexes = selected.indexes()
@@ -405,6 +400,24 @@ class FiguristMainWindow(QMainWindow):
         self.load_figure()
         self.reset_taxonView()
         self.load_taxa()
+
+    def load_figure(self):
+        if self.selected_reference is None:
+            return
+        figure_list = FgFigure.select().where(FgFigure.reference == self.selected_reference)
+        self.figureView.load_figures(figure_list)
+
+    def filter_figures_by_taxa(self):
+        selected_indices = self.taxonView.selectedIndexes()
+        if not selected_indices:
+            self.load_figure()  # Show all figures
+        else:
+            selected_taxa = [self.taxon_model.itemFromIndex(index).data() for index in selected_indices]
+            filtered_figures = [
+                figure for figure in FgFigure.select().where(FgFigure.reference == self.selected_reference)
+                if figure.taxon in selected_taxa
+            ]
+            self.figureView.load_figures(filtered_figures)
 
     def on_action_about_triggered(self):
         year_since = "2024"
@@ -437,7 +450,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 """.format(year_str)
 
     def figureView_drop_event(self, event):
-        print("tabelview drop event", event.mimeData().text())
+        #print("tabelview drop event", event.mimeData().text())
         if self.selected_reference is None:
             return
         
@@ -447,7 +460,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         if len(file_name_list) == 0:
             return
 
-        print("file name list: [", file_name_list, "]")
+        #print("file name list: [", file_name_list, "]")
 
         QApplication.setOverrideCursor(Qt.WaitCursor)
         total_count = len(file_name_list)
@@ -557,34 +570,51 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         router.run()        
         return
 
-    def open_figureView_menu(self, position):
-        indexes = self.figureView.selectedIndexes()
+    def open_taxonView_menu(self, position):
+        indexes = self.taxonView.selectedIndexes()
+        #print("taxonView indexes:", indexes)
         if len(indexes) == 0:
             return
-
-        level = 0
-        figure_list = []
+        taxa_list = []
         for index in indexes:
             #level = max(level, index.row())
-            item = self.figure_model.itemFromIndex(index)
-            #print("item:", item)
-            figure = item.data()
-            if figure is None:
-                continue
-            #print("figure:", figure)
-            figure_list.append(figure)
+            taxon = self.taxon_model.itemFromIndex(index).data()
+            taxa_list.append(taxon)
 
-        self.selected_figures = figure_list
+        self.selected_taxa = taxa_list
+        if len(taxa_list) == 0:
+            return
+        elif len(taxa_list) == 1:
+            delete_text = self.tr("Delete taxon")
+        else:
+            delete_text = self.tr("Delete taxa")
 
-        action_set_taxon = QAction(self.tr("Set taxon"))
-        action_set_taxon.triggered.connect(self.on_action_set_taxon_triggered)
-        action_delete_figure = QAction(self.tr("Delete figure(s)"))
-        action_delete_figure.triggered.connect(self.on_action_delete_figure_triggered)
+        action_delete_taxon = QAction(delete_text)
+        action_delete_taxon.triggered.connect(self.on_action_delete_taxon_triggered)
+        #action_delete_figure = QAction(self.tr("Delete figure(s)"))
+        #action_delete_figure.triggered.connect(self.on_action_delete_figure_triggered)
 
         menu = QMenu()
-        menu.addAction(action_set_taxon)
-        menu.addAction(action_delete_figure)
-        menu.exec_(self.figureView.viewport().mapToGlobal(position))
+        menu.addAction(action_delete_taxon)
+        #menu.addAction(action_delete_figure)
+        menu.exec_(self.taxonView.viewport().mapToGlobal(position))
+
+    def on_action_delete_taxon_triggered(self):
+        if not self.selected_taxa:
+            return
+        
+        for taxon in self.selected_taxa:
+            # Assuming figure_data is a dictionary with 'id' key
+            if taxon and taxon.figures.count() > 0:
+                msg = self.tr("Taxon {} has figures. Delete taxon and figures?").format(taxon.name)
+                ret = QMessageBox.question(self, self.tr("Delete taxon"), msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if ret == QMessageBox.No:
+                    continue
+            taxon.delete_instance()
+        
+        self.load_figure()
+        self.load_taxa()
+
 
     def open_figureView_menu(self, position):
         indexes = self.figureView.selectedIndexes()
@@ -593,7 +623,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
         figure_list = []
         for index in indexes:
-            figure_data = self.figure_model.get_item_data(index)
+            figure_data = self.figureView.get_data(index)
             #print("figure_data:", figure_data)
             if figure_data is not None:
                 figure_list.append(figure_data)
@@ -611,7 +641,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         menu = QMenu()
         menu.addAction(action_set_taxon)
         menu.addAction(action_delete_figure)
-        menu.exec_(self.figureView.viewport().mapToGlobal(position))
+        menu.exec_(self.figureView.currentWidget().viewport().mapToGlobal(position))
 
     def on_action_set_taxon_triggered(self):
         if self.selected_figures is None:
@@ -624,26 +654,15 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         self.load_taxa()
 
     def on_action_delete_figure_triggered(self):
-        if self.selected_figures is None:
-            return
-        for figure in self.selected_figures:
-            figure.delete_instance()
-        self.load_figure()
-        self.load_taxa()
-    def on_action_delete_figure_triggered(self):
-
-
         if not self.selected_figures:
             return
         
-        for figure_data in self.selected_figures:
+        for figure in self.selected_figures:
             # Assuming figure_data is a dictionary with 'id' key
-            figure_id = figure_data.get('id')
-            print("figure_id:", figure_id)
-            if figure_id:
-                figure = FgFigure.get_or_none(FgFigure.id == figure_id)
-                if figure:
-                    figure.delete_instance()
+            #figure_id = figure_data.get('id')
+            #print("figure_id:", figure_id)
+            #print("figure:", figure.id, figure)
+            figure.delete_instance()
         
         self.load_figure()
         self.load_taxa()

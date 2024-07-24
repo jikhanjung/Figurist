@@ -1,11 +1,12 @@
 import os
 from notion_client import Client
 import requests
+from decouple import config
 
 #https://www.notion.so/antarctictrilobites/a619f6b3d9fe4d588911ff1a7d0cd411?v=aa47b82fde2b4beaa52568d776c0526c&pvs=4
 #https://www.notion.so/antarctictrilobites/Fig-06-2-Gen-et-Sp-indet-A-12bc4623627049838b100fa1899ee783?pvs=4
 # Load the API key (best practice: use environment variables)
-notion_token = "secret_o4yQHZiLjDz7vNUBc3hMu3UaA9zl6ERPTC0ApNBG32W" #os.getenv("NOTION_API_TOKEN")
+notion_token = config('NOTION_TOKEN') #"" #os.getenv("NOTION_API_TOKEN")
 database_id = "a619f6b3d9fe4d588911ff1a7d0cd411" #os.getenv("NOTION_DATABASE_ID")  # The ID of your Notion database
 
 # Initialize the Notion client

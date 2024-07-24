@@ -377,6 +377,7 @@ class TaxonDialog(QDialog):
         self.setWindowTitle(self.tr("Figurist - Taxon Information"))
         self.parent = parent
         self.taxon = None
+        self.reference = None
         #print(self.parent.pos())
         #self.setGeometry(QRect(100, 100, 600, 400))
         self.remember_geometry = True
@@ -446,7 +447,12 @@ class TaxonDialog(QDialog):
         #self.figure_list = figure_list
         self.figure_list = []
         for figure in figure_list:
-            item = QListWidgetItem(figure.figure_number)
+            if self.reference:
+                item_text = figure.figure_number
+            else:
+                item_text = figure.reference.get_abbr() + " - " + figure.figure_number
+            #item_text = "{}: {}".format(figure.figure_number, figure.caption)
+            item = QListWidgetItem(item_text)
             self.lstFigure.addItem(item)
             self.figure_list.append(figure)
 
@@ -454,22 +460,46 @@ class TaxonDialog(QDialog):
         #print("Save clicked")
         if self.taxon is None:
             self.taxon = FgTaxon()
-        #self.taxon = FgTaxon()
-        self.taxon.name = self.edtTaxonName.text()
-        self.taxon.rank = self.edtTaxonRank.text()
-        self.taxon.parent = None
-        self.taxon.save()
+        #self.taxon = FgTaxon() 
+        taxon_name = self.edtTaxonName.text()
+        # find if taxon name already exists
+        taxon = FgTaxon.select().where(FgTaxon.name == taxon_name)
+        if taxon.count() > 0:
+            self.taxon = taxon[0]
+        else:
+            self.taxon.name = self.edtTaxonName.text()
+            name_list = self.taxon.name.split(" ")
+            self.taxon.parent = None
+            self.taxon.rank = self.edtTaxonRank.text()
+            if len(name_list) > 1:
+                ''' this is a species '''
+                genus, created = FgTaxon.get_or_create(name=name_list[0])
+                print("genus:",genus)
+                genus.rank = "Genus"
+                genus.save()
+                self.taxon.parent = genus
+                self.taxon.rank = "Species"
+            self.taxon.save()
 
+        #for fig in self.figure_list:
+        #    fig.taxon = self.taxon
+        #    fig.save()
+
+        # find if taxon-reference relationship already exists
+        taxref = TaxonReference.select().where(TaxonReference.taxon == self.taxon, TaxonReference.reference == self.reference)
+        if taxref.count() == 0:
+            taxref = TaxonReference()
+            taxref.taxon = self.taxon
+            taxref.reference = self.reference
+            taxref.save()
+        
+        # find if taxon-figure relationship already exists
         for fig in self.figure_list:
-            fig.taxon = self.taxon
-            fig.save()
-
-        taxref = TaxonReference()
-        taxref.taxon = self.taxon
-        taxref.reference = self.reference
-        taxref.save()
-
-        for fig in self.figure_list:
+            taxfig_list = TaxonFigure.select().where(TaxonFigure.figure == fig)
+            if taxfig_list.count() > 0:
+                # delete existing relationship
+                for taxfig in taxfig_list:
+                    taxfig.delete_instance()
             taxfig = TaxonFigure()
             taxfig.taxon = self.taxon
             taxfig.figure = fig
@@ -480,3 +510,91 @@ class TaxonDialog(QDialog):
     def on_btn_cancel_clicked(self):
         print("Cancel clicked")
         self.reject()
+
+class FigureDialog(QDialog):
+    def __init__(self,parent):
+        super().__init__()
+        self.setWindowTitle(self.tr("Figurist - Figure Information"))
+        self.parent = parent
+        self.initUI()
+        self.figure = None
+        self.read_settings()
+
+    def read_settings(self):
+        settings = QSettings()
+        if settings.contains("geometry") and self.remember_geometry:
+            self.setGeometry(settings.value("geometry"))
+        else:
+            self.setGeometry(QRect(100, 100, 1024,768))
+    
+    def initUI(self):
+        ''' initialize UI '''
+        self.lblFigure = QLabel()
+        #self.lblFigure.setFixedSize(600,400)
+        self.lblFile = QLabel(self.tr("File"))
+        self.edtFile = QLineEdit()
+        self.lblFigureNumber = QLabel(self.tr("Figure Number"))
+        self.edtFigureNumber = QLineEdit()
+        self.lblCaption = QLabel(self.tr("Caption"))
+        self.edtCaption = QLineEdit()
+        self.lblComments = QLabel(self.tr("Comments"))
+        self.edtComments = QLineEdit()
+        self.btnSave = QPushButton(self.tr("Save"))
+        self.btnSave.clicked.connect(self.on_btn_save_clicked)
+        self.btnCancel = QPushButton(self.tr("Cancel"))
+        self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
+
+        self.btn_widget = QWidget()
+        self.btn_layout = QHBoxLayout()
+        self.btn_layout.addWidget(self.btnSave)
+        self.btn_layout.addWidget(self.btnCancel)
+        self.btn_widget.setLayout(self.btn_layout)
+
+        self.scrollArea = QScrollArea()
+        self.scrollArea.setWidget(self.lblFigure)
+        self.scrollArea.setWidgetResizable(True)
+
+        #self.statusBar = QStatusBar()
+        #self.setStatusBar(self.statusBar)
+        self.all_layout = QVBoxLayout()
+
+        self.form_widget = QWidget()
+        self.form_layout = QFormLayout()
+        self.form_layout.addRow(self.lblFile, self.edtFile)
+        self.form_layout.addRow(self.lblFigureNumber, self.edtFigureNumber)
+        self.form_layout.addRow(self.lblCaption, self.edtCaption)
+        self.form_layout.addRow(self.lblComments, self.edtComments)
+        self.form_widget.setLayout(self.form_layout)
+ 
+        self.all_layout.addWidget(self.scrollArea,1)
+        self.all_layout.addWidget(self.form_widget)
+        self.all_layout.addWidget(self.btn_widget)
+        self.setLayout(self.all_layout)
+
+    def on_btn_save_clicked(self):
+        #print("Save clicked")
+        if self.figure is None:
+            self.figure = FgFigure()
+        #self.figure = FgFigure()
+        self.figure.file_name = self.edtFile.text()
+        self.figure.figure_number = self.edtFigureNumber.text()
+        self.figure.caption = self.edtCaption.text()
+        self.figure.comments = self.edtComments.text()
+        self.figure.save()
+        self.accept()
+
+    def on_btn_cancel_clicked(self):
+        print("Cancel clicked")
+        self.reject()
+
+    def load_figure(self, figure):
+
+        self.figure = figure
+        self.figure_image = QPixmap(figure.get_file_path())
+        # scale image to fit label
+        #self.figure_image = self.figure_image.scaled(600,400,Qt.KeepAspectRatio)
+        self.lblFigure.setPixmap(self.figure_image)
+        self.edtFile.setText(figure.file_name)
+        self.edtFigureNumber.setText(figure.figure_number)
+        self.edtCaption.setText(figure.caption)
+        self.edtComments.setText(figure.comments)

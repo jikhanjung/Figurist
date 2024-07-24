@@ -65,8 +65,10 @@ class FgFigure(Model):
     file_name = CharField()
     file_path = CharField()
     figure_number = CharField()
+    caption = TextField(null=True)
+    comments = TextField(null=True)
     reference = ForeignKeyField(FgReference, backref='figures', null=True)
-    taxon = ForeignKeyField(FgTaxon, backref='figures', null=True)
+    #taxon = ForeignKeyField(FgTaxon, backref='figures', null=True)
     parent = ForeignKeyField('self', backref='children', null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
@@ -76,8 +78,8 @@ class FgFigure(Model):
 
     def get_figure_name(self):
         name = self.figure_number
-        if self.taxon:
-            name += " " + self.taxon.name
+        if self.related_taxa.count() > 0:
+            name += " " + self.related_taxa[0].taxon.name
         return name
 
     def parse_file_name(self, file_path):

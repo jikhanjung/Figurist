@@ -1,4 +1,4 @@
-"""Peewee migrations -- 001_20240723.py.
+"""Peewee migrations -- 001_20240724.py.
 
 Some examples (model - class or model name)::
 
@@ -59,6 +59,22 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
             table_name = "fgreference"
 
     @migrator.create_model
+    class FgFigure(pw.Model):
+        id = pw.AutoField()
+        file_name = pw.CharField(max_length=255)
+        file_path = pw.CharField(max_length=255)
+        figure_number = pw.CharField(max_length=255)
+        caption = pw.TextField(null=True)
+        comments = pw.TextField(null=True)
+        reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], null=True)
+        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True)
+        created_at = pw.DateTimeField()
+        modified_at = pw.DateTimeField()
+
+        class Meta:
+            table_name = "fgfigure"
+
+    @migrator.create_model
     class FgTaxon(pw.Model):
         id = pw.AutoField()
         name = pw.CharField(max_length=255)
@@ -72,21 +88,6 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
 
         class Meta:
             table_name = "fgtaxon"
-
-    @migrator.create_model
-    class FgFigure(pw.Model):
-        id = pw.AutoField()
-        file_name = pw.CharField(max_length=255)
-        file_path = pw.CharField(max_length=255)
-        figure_number = pw.CharField(max_length=255)
-        reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], null=True)
-        taxon = pw.ForeignKeyField(column_name='taxon_id', field='id', model=migrator.orm['fgtaxon'], null=True)
-        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True)
-        created_at = pw.DateTimeField()
-        modified_at = pw.DateTimeField()
-
-        class Meta:
-            table_name = "fgfigure"
 
     @migrator.create_model
     class TaxonFigure(pw.Model):
@@ -120,8 +121,8 @@ def rollback(migrator: Migrator, database: pw.Database, *, fake=False):
 
     migrator.remove_model('taxonfigure')
 
-    migrator.remove_model('fgfigure')
-
     migrator.remove_model('fgtaxon')
+
+    migrator.remove_model('fgfigure')
 
     migrator.remove_model('fgreference')

@@ -19,8 +19,12 @@ from FgModel import *
 from FgDialogs import *
 from peewee_migrate import Router
 import traceback
-from FgComponents import FgFigureView
+from FgComponents import FgFigureView, TreeViewClickFilter, ClickableTreeView
 from FgLogger import setup_logger
+from functools import reduce
+import operator
+import time
+
 logger = setup_logger(fg.PROGRAM_NAME)
 
 ICON = {'new_reference': 'icons/new_reference.png', 'about': 'icons/about.png', 'exit': 'icons/exit.png', 'preferences': 'icons/preferences.png' } 
@@ -43,22 +47,45 @@ class FiguristMainWindow(QMainWindow):
         self.figureView = FgFigureView()
         self.referenceView = QTreeView()
         self.taxonView = QTreeView()
+        #self.taxonView.pressed.connect(self.on_taxonView_pressed)
+        #self.referenceView.pressed.connect(self.on_referenceView_pressed)
+        #click_filter1 = TreeViewClickFilter(self.referenceView)
+        #self.referenceView.viewport().installEventFilter(click_filter1)
+        #click_filter2 = TreeViewClickFilter(self.taxonView)
+        #self.taxonView.viewport().installEventFilter(click_filter2)
 
         self.icon_mode = False
+        self.mode = "Reference"
         self.figure_model = None
         self.taxon_model = None
+        self.selected_taxa = []
+        self.selected_reference = []
 
-        self.toggle_button = QPushButton(self.tr("Toggle View"))
+        self.toggle_view_button = QPushButton(self.tr("Toggle View"))
         self.right_widget = QWidget()
         self.right_layout = QVBoxLayout()
         self.right_widget.setLayout(self.right_layout)
         self.right_layout.addWidget(self.figureView)
-        self.right_layout.addWidget(self.toggle_button)
-        self.toggle_button.clicked.connect(self.toggle_view)
+        self.right_layout.addWidget(self.toggle_view_button)
+        self.toggle_view_button.clicked.connect(self.toggle_view)
+
+        self.left_mode_widget = QWidget()
+        self.left_mode_layout = QHBoxLayout()
+        self.lblMode = QLabel(self.tr("Mode"))
+        self.rbReference = QRadioButton(self.tr("Reference"))
+        self.rbTaxon = QRadioButton(self.tr("Taxon"))
+        self.left_mode_layout.addWidget(self.lblMode)
+        self.left_mode_layout.addWidget(self.rbReference)
+        self.left_mode_layout.addWidget(self.rbTaxon)
+        self.left_mode_widget.setLayout(self.left_mode_layout)
+        self.rbReference.setChecked(True)
+        self.rbReference.toggled.connect(self.set_reference_mode)
+        self.rbTaxon.toggled.connect(self.set_taxon_mode)
 
         self.left_widget = QWidget()
         self.left_layout = QVBoxLayout()
         self.left_widget.setLayout(self.left_layout)
+        self.left_layout.addWidget(self.left_mode_widget)
         self.left_layout.addWidget(self.referenceView)
         self.left_layout.addWidget(self.taxonView)
 
@@ -79,6 +106,8 @@ class FiguristMainWindow(QMainWindow):
         self.taxonView.customContextMenuRequested.connect(self.open_taxonView_menu)
         self.figureView.setContextMenuPolicy(Qt.CustomContextMenu)
         self.figureView.customContextMenuRequested.connect(self.open_figureView_menu)
+        self.figureView.tableView.doubleClicked.connect(self.on_figureView_doubleClicked)
+        self.figureView.listView.doubleClicked.connect(self.on_figureView_doubleClicked)
         #self.figureView.horizontalHeader().sectionResized.connect(self.update_icon_mode_columns)
         self.item_size = 220  # Default size (including spacing)
         #self.figure_model = FigureTableModel([])
@@ -141,95 +170,65 @@ class FiguristMainWindow(QMainWindow):
         '''
         self.toggle_view(True)
 
+    def on_taxonView_pressed(self, index):
+        item = self.taxonView.itemAt(self.taxonView.viewport().mapFromGlobal(QCursor.pos()))
+        if item is None:
+            # Click is outside any visible item
+            self.taxonView.clearSelection()
+            self.taxonView.setCurrentIndex(self.taxonView.rootIndex())
+        return
+
+        print("taxonView pressed", index, index.isValid())
+        if not index.isValid():
+            # Click is outside any item
+            self.taxonView.clearSelection()
+            # Optionally, clear the current index as well
+            self.taxonView.setCurrentIndex(self.taxonView.rootIndex())
+    def on_taxonView_pressed(self, index):
+        viewport_pos = self.taxonView.viewport().mapFromGlobal(QCursor.pos())
+        index_at_pos = self.taxonView.indexAt(viewport_pos)
+        
+        if not index_at_pos.isValid():
+            # Click is outside any visible item
+            self.taxonView.clearSelection()
+            self.taxonView.setCurrentIndex(self.taxonView.rootIndex())
+            print("Cleared selection")
+        else:
+            print(f"Clicked on item: {index_at_pos.data()}")
+    def on_referenceView_pressed(self, index):
+        print("referenceView pressed", index, index.isValid())
+        if not index.isValid():
+            # Click is outside any item
+            self.referenceView.clearSelection()
+            # Optionally, clear the current index as well
+            self.referenceView.setCurrentIndex(self.referenceView.rootIndex())
+
     def update_icon_mode_columns(self):
         if self.icon_mode:
             view_width = self.figureView.viewport().width()
             #if self.figure_model:
             self.figure_model.update_columns(view_width, self.item_size)
 
-    def toggle_view(self, icon_mode):
-        if icon_mode:
-            self.icon_mode = icon_mode #not self.icon_mode
-        else:
-            self.icon_mode = not self.icon_mode
-        self.figureView.set_icon_mode(self.icon_mode)
-        return
+    def set_reference_mode(self, checked):
+        if checked:
+            self.mode = "Reference"
+            self.load_references()
+            self.load_taxa()
+            self.left_layout.removeWidget(self.referenceView)
+            self.left_layout.insertWidget(1,self.referenceView)
+            self.update()
+            self.filter_figures()
+    
+    def set_taxon_mode(self, checked):
+        if checked:
+            self.mode = "Taxon"
+            self.load_taxa()
+            self.load_references()
+            self.left_layout.removeWidget(self.taxonView)
+            self.left_layout.insertWidget(1,self.taxonView)
+            self.update()
+            self.filter_figures()
 
-        self.figure_model.set_icon_mode(self.icon_mode)
-        self.figure_delegate.set_icon_mode(self.icon_mode)
-        #print("toggle view: icon mode:", self.icon_mode)
-        
-        if self.icon_mode:
-            if self.figureView.verticalHeader() is None:
-                #print("Vertical header is None")
-                return
-            if self.figureView.horizontalHeader() is None:
-                #print("Horizontal header is None")
-                return            
-            #print("icon mode")
-            self.figureView.setGridStyle(Qt.NoPen)
-            #print("icon mode1")
-            self.figureView.setIconSize(QSize(128, 128))
-            #print("icon mode2")
-            self.figureView.setShowGrid(False)
-            #print("icon mode3")
-            #self.figureView.horizontalHeader().hide()
-            #print("icon mode4")
-            '''
-            try:
-                self.figureView.verticalHeader().hide()
-            except Exception as e:
-                print(f"Error hiding vertical header: {e}")
-                print(traceback.format_exc())
-
-            self.figureView.verticalHeader().hide()
-            '''
-            #print("set spacing")
-            
-            # Set spacing
-            spacing = 20
-            self.figure_delegate.set_spacing(spacing)
-            
-            # Set row height and column width for icon mode
-            #item_size = 200 + spacing  # Adjust this value as needed
-            self.item_size = 200 + spacing  # Adjust this value as needed
-            self.figureView.verticalHeader().setDefaultSectionSize(self.item_size)
-            self.figureView.horizontalHeader().setDefaultSectionSize(self.item_size)
-            
-            # Set resize mode to Fixed for both directions
-            self.figureView.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
-            self.figureView.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
-            
-            self.figureView.setSelectionMode(QAbstractItemView.ExtendedSelection)
-            self.figureView.setSelectionBehavior(QAbstractItemView.SelectItems)
-            #print("icon mode columns:", self.figure_model.columnCount())
-            self.update_icon_mode_columns()
-        else:
-            self.figureView.setGridStyle(Qt.SolidLine)
-            self.figureView.setIconSize(QSize(16, 16))
-            self.figureView.setShowGrid(True)
-            #self.figureView.horizontalHeader().show()
-            #self.figureView.verticalHeader().show()
-            
-            # Reset spacing
-            self.figure_delegate.set_spacing(0)
-            
-            # Reset row height for list mode
-            self.figureView.verticalHeader().setDefaultSectionSize(30)  # Adjust as needed
-            
-            # Set resize modes for columns in list mode
-            self.figureView.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-            for i in range(1, self.figure_model.columnCount()):
-                self.figureView.horizontalHeader().setSectionResizeMode(i, QHeaderView.ResizeToContents)
-            
-            self.figureView.setSelectionMode(QAbstractItemView.ExtendedSelection)
-            self.figureView.setSelectionBehavior(QAbstractItemView.SelectRows)
-
-        # Ensure the view updates
-        self.figureView.reset()
-        self.figure_model.layoutChanged.emit()
-    def toggle_view(self, icon_mode):
-        self.figureView.set_icon_mode(icon_mode)
     def toggle_view(self, icon_mode):
         if icon_mode:
             self.icon_mode = icon_mode #not self.icon_mode
@@ -291,6 +290,17 @@ class FiguristMainWindow(QMainWindow):
     def figureView_drag_move_event(self, event):
         event.accept()
 
+    def on_figureView_doubleClicked(self, index):
+        figure_data = self.figureView.get_data(index)
+        if figure_data is None:
+            return
+        figure = figure_data
+        self.dlg = FigureDialog(self)
+        self.dlg.setModal(True)
+        self.dlg.load_figure(figure)
+        ret = self.dlg.exec_()
+        self.load_figure()
+
     def on_referenceView_doubleClicked(self):
         self.dlg = ReferenceDialog(self)
         self.dlg.setModal(True)
@@ -309,11 +319,37 @@ class FiguristMainWindow(QMainWindow):
         self.referenceView.setSelectionBehavior(QTreeView.SelectRows)
 
     def load_references(self):
+        print("load references", self.mode)
         self.reference_model.clear()
         self.selected_reference = None
         ref_list = FgReference.filter(parent=None)
 
-        ref_list = FgReference.select()
+        if self.mode == "Reference":
+            ref_list = FgReference.select().order_by(FgReference.author, FgReference.year)
+        else:
+            '''
+            taxref = TaxonReference.select().where(TaxonReference.taxon << self.selected_taxa)
+            #taxref = TaxonReference.select().where(TaxonReference.taxon == self.selected_taxon)
+            ref_list = [tr.reference for tr in taxref]
+            # make unique
+            ref_list = list(set(ref_list))
+            # order by author and year
+            ref_list = sorted(ref_list, key=lambda x: (x.author, x.year))
+            '''
+            print("selected taxa:", self.selected_taxa)
+            if len(self.selected_taxa) > 0:
+
+                ref_list = (FgReference
+                .select(FgReference)
+                .join(TaxonReference)
+                .where(TaxonReference.taxon << self.selected_taxa)
+                .group_by(FgReference)
+                .order_by(FgReference.author, FgReference.year)
+                .distinct())
+            else:
+                ref_list = []
+            print("taxon reference:", ref_list)
+
         for ref in ref_list:
             item1 = QStandardItem(ref.get_abbr())
             item2 = QStandardItem(str(ref.id))
@@ -325,21 +361,72 @@ class FiguristMainWindow(QMainWindow):
     def on_figure_selection_changed(self, selected, deselected):
         pass
 
-    def filter_figures_by_taxa(self):
-        selected_indices = self.taxonView.selectedIndexes()
-        if not selected_indices:
-            self.figure_proxy_model.set_filtered_taxa([])
-        else:
-            selected_taxa = [self.taxon_model.itemFromIndex(index).data() for index in selected_indices]
-            print("selected taxa:", selected_taxa)
-            self.figure_proxy_model.set_filtered_taxa(selected_taxa)
+    def find_taxon_item(self, taxon):
+        for row in range(self.taxon_model.rowCount()):
+            item = self.taxon_model.item(row, 0)  # Assuming taxa are in the first column
+            if item.data() == taxon:
+                return item
+        return None  # Return None if the taxon is not found
 
     def on_taxon_selection_changed(self, selected, deselected):
-        self.filter_figures_by_taxa()
+        #print("taxon selection changed 1", time.time())
+        prev_selected_taxa = self.selected_taxa
+
+        selected_indices = self.taxonView.selectedIndexes()
+        #print("selected indices:", selected_indices)
+        if selected_indices:
+            self.selected_taxa = [self.taxon_model.itemFromIndex(index).data() for index in selected_indices]
+        else:
+            self.selected_taxa = []
+
+        newly_selected_taxa = set(self.selected_taxa) - set(prev_selected_taxa)
+        if len(newly_selected_taxa) > 0:
+            #disconnect selectionchanged
+            self.taxon_selection_model.selectionChanged.disconnect(self.on_taxon_selection_changed)
+
+            for taxon in newly_selected_taxa:
+                print("newly selected taxon:", taxon.name)
+                if taxon.children.count() > 0:
+                    self.selected_taxa.extend(taxon.children)
+                    # select children
+                    for child in taxon.children:
+                        child_item = self.find_taxon_item(child)
+                        if child_item:
+                            child_index = self.taxon_model.indexFromItem(child_item)
+                            self.taxonView.selectionModel().select(child_index, QItemSelectionModel.Select)
+
+                        # iterate taxon model and get index
+                        #index = self.taxon_model.indexFromItem(child)
+                        #self.taxonView.selectionModel().select(index, QItemSelectionModel.Select)
+
+                    print("children:", [t.name for t in taxon.children])
+            self.taxon_selection_model.selectionChanged.connect(self.on_taxon_selection_changed)
+        #print("selected taxa:", [t.name for t in self.selected_taxa])
+
+        if self.mode == "Taxon":
+            self.load_references()
+
+        #print("taxon selection changed 2", time.time())
+
+        self.filter_figures()
+
+    def on_reference_selection_changed(self, selected, deselected):
+        indexes = selected.indexes()
+        if len(indexes) == 0:
+            return
+        index = indexes[0]
+        self.selected_reference = self.reference_model.itemFromIndex(index).data()
+        #print("selected reference:", self.selected_reference)
+        if self.mode == "Reference":
+            self.selected_taxa = []
+            self.load_taxa()
+        self.filter_figures()
+        return
+        #else:
+        #    self.filter_figures_by_taxa()
 
     def reset_taxonView(self):
         self.taxonView.setSelectionMode(QAbstractItemView.ExtendedSelection)
-
         self.taxonView.setHeaderHidden(True)
         self.taxon_model = QStandardItemModel()
         self.taxonView.setModel(self.taxon_model)
@@ -350,31 +437,22 @@ class FiguristMainWindow(QMainWindow):
         pass
 
     def load_taxa(self):
-        #return
+        self.taxonView.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.taxonView.setHeaderHidden(True)
         self.taxon_model = QStandardItemModel()
         self.taxonView.setModel(self.taxon_model)
         self.taxon_model.clear()
-        #self.selected_taxon = None
-        taxref = TaxonReference.select().where(TaxonReference.reference == self.selected_reference)
-        taxa_list = []
-        for tr in taxref:
-            taxa_list.append(tr.taxon)
-        #taxa_list = FgTaxon.filter(reference=self.selected_reference)
-        for taxon in taxa_list:
-            item1 = QStandardItem(taxon.name)
-            #item2 = QStandardItem(str(taxon.id))
-            item1.setData(taxon)
-            self.taxon_model.appendRow([item1])#,item2,item3] )
-        self.taxonView.expandAll()
 
-    def load_taxa(self):
-        self.taxon_model = QStandardItemModel()
-        self.taxonView.setModel(self.taxon_model)
-        self.taxon_model.clear()
-        taxref = TaxonReference.select().where(TaxonReference.reference == self.selected_reference)
         taxa_list = []
-        for tr in taxref:
-            taxa_list.append(tr.taxon)
+        #print("selected reference:", self.selected_reference, self.mode)
+        if self.mode == "Reference":
+            taxref = TaxonReference.select().where(TaxonReference.reference == self.selected_reference)
+            for tr in taxref:
+                taxa_list.append(tr.taxon)
+        else:
+            taxa_list = FgTaxon.select().order_by(FgTaxon.name)
+            #print("taxa_list:", taxa_list)
+
         for taxon in taxa_list:
             item1 = QStandardItem(taxon.name)
             item1.setData(taxon)
@@ -390,22 +468,46 @@ class FiguristMainWindow(QMainWindow):
         #self.figureView.setHeaderHidden(True)
         pass
 
-    def on_reference_selection_changed(self, selected, deselected):
-        indexes = selected.indexes()
-        if len(indexes) == 0:
-            return
-        index = indexes[0]
-        self.selected_reference = self.reference_model.itemFromIndex(index).data()
-        #print("selected reference:", self.selected_reference)
-        self.load_figure()
-        self.reset_taxonView()
-        self.load_taxa()
-
     def load_figure(self):
         if self.selected_reference is None:
             return
         figure_list = FgFigure.select().where(FgFigure.reference == self.selected_reference)
         self.figureView.load_figures(figure_list)
+
+    def get_figures(self,selected_taxa=None, selected_references=None):
+        query = FgFigure.select().distinct()
+        conditions = []
+
+        if selected_taxa:
+            query = (query
+                    .join(TaxonFigure)
+                    .join(FgTaxon))
+            conditions.append(FgTaxon.id.in_([t.id for t in selected_taxa]))
+
+        if selected_references:
+            conditions.append(FgFigure.reference.in_([r.id for r in selected_references]))
+
+        if conditions:
+            query = query.where(reduce(operator.and_, conditions))
+        return query
+    
+    def filter_figures(self):
+        selected_taxa = self.selected_taxa
+        selected_references = []
+        if self.selected_reference:
+            selected_references = [self.selected_reference]
+        #print("selected taxa:", [t.name for t in selected_taxa])
+        #print("selected references:", [r.get_abbr() for r in selected_references])
+        #print("filter figures 2", time.time())
+        if len(selected_taxa) == 0 and len(selected_references) == 0:
+            self.figureView.load_figures([])
+            return
+        query = self.get_figures(selected_taxa, selected_references)
+        #print("filter figures 3", time.time())
+        figures = query.execute()
+        #print("filter figures 4", time.time())
+        self.figureView.load_figures(figures)
+        #print("filter figures 5", time.time())
 
     def filter_figures_by_taxa(self):
         selected_indices = self.taxonView.selectedIndexes()
@@ -605,7 +707,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         
         for taxon in self.selected_taxa:
             # Assuming figure_data is a dictionary with 'id' key
-            if taxon and taxon.figures.count() > 0:
+            if taxon and taxon.related_figures.count() > 0:
                 msg = self.tr("Taxon {} has figures. Delete taxon and figures?").format(taxon.name)
                 ret = QMessageBox.question(self, self.tr("Delete taxon"), msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
                 if ret == QMessageBox.No:
@@ -647,7 +749,8 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         if self.selected_figures is None:
             return
         dialog = TaxonDialog(self)
-        dialog.set_reference(self.selected_reference)
+        if self.selected_reference:
+            dialog.set_reference(self.selected_reference)
         dialog.set_figures(self.selected_figures)
         dialog.exec_()
         self.load_figure()

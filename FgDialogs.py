@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QTableWidgetItem, QHeaderView, QFileDialog, QCheckBo
                             QDialog, QLineEdit, QLabel, QPushButton, QAbstractItemView, QStatusBar, QMessageBox, \
                             QTableView, QSplitter, QRadioButton, QComboBox, QTextEdit, QSizePolicy, \
                             QTableWidget, QGridLayout, QAbstractButton, QButtonGroup, QGroupBox, QListWidgetItem,\
-                            QTabWidget, QListWidget, QSpinBox, QPlainTextEdit, QSlider, QScrollArea, QShortcut
+                            QTabWidget, QListWidget, QSpinBox, QPlainTextEdit, QSlider, QScrollArea, QShortcut, QMenu
 from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap, QStandardItemModel, QStandardItem, QImage,\
                         QFont, QPainter, QBrush, QMouseEvent, QWheelEvent, QDoubleValidator, QIcon, QCursor,\
                         QFontMetrics, QIntValidator, QKeySequence
@@ -11,6 +11,9 @@ from PyQt5.QtCore import Qt, QRect, QSortFilterProxyModel, QSize, QPoint, QTrans
                          pyqtSlot, pyqtSignal, QItemSelectionModel, QTimer, QEvent, QSettings
 
 from FgModel import *
+import numpy as np
+import cv2
+from PyQt5.QtCore import Qt, QMimeData, pyqtSignal, QModelIndex, QRect, QPoint, QSettings, QByteArray
 
 class ReferenceDialog(QDialog):
     # NewDatasetDialog shows new dataset dialog.
@@ -598,3 +601,534 @@ class FigureDialog(QDialog):
         self.edtFigureNumber.setText(figure.figure_number)
         self.edtCaption.setText(figure.caption)
         self.edtComments.setText(figure.comments)
+
+class FigureLabel(QLabel):
+    def __init__(self, parent=None):
+        super(FigureLabel, self).__init__(parent)
+        self.parent = parent
+        self.setMinimumSize(300,200)
+
+from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+
+class DragDropModel(QStandardItemModel):
+    rows_moved = pyqtSignal(int, int)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.drag_source_row = None
+
+    def supportedDropActions(self):
+        return Qt.MoveAction
+
+    def flags(self, index):
+        default_flags = super().flags(index)
+        if index.isValid():
+            return default_flags | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
+        else:
+            return default_flags | Qt.ItemIsDropEnabled
+
+
+
+
+    def mimeTypes(self):
+        return ['application/vnd.row.list']
+
+    def mimeData(self, indexes):
+        mimedata = QMimeData()
+        encoded_data = self.encodeData(indexes)
+        mimedata.setData('application/vnd.row.list', encoded_data)
+        return mimedata
+
+    def dropMimeData(self, data, action, row, column, parent):
+        if action == Qt.IgnoreAction:
+            return True
+
+        success = self.decodeData(row, column, parent, data)
+        if success:
+            self.rows_moved.emit(self.drag_source_row, row)
+        return success
+
+    def encodeData(self, indexes):
+        rows = sorted(set(index.row() for index in indexes))
+        self.drag_source_row = rows[0]
+        return ','.join(str(row) for row in rows).encode()
+
+    def decodeData(self, row, column, parent, data):
+        print("decodeData", row, column, parent, data)
+        encoded_data = data.data('application/vnd.row.list')
+        source_row = int(encoded_data.data().decode())
+        
+        if row == -1:
+            row = self.rowCount(parent)
+
+        print(f"Moving row from {source_row} to {row}")
+
+        # Don't move if source and destination are the same
+        if source_row == row:
+            return False
+
+        # Adjust destination row if moving down
+        if row > source_row:
+            row -= 1
+
+        self.beginMoveRows(QModelIndex(), source_row, source_row, QModelIndex(), row)
+
+        # Store the entire row data
+        row_data = [self.item(source_row, c).clone() for c in range(self.columnCount())]
+
+        # Remove the original row
+        self.removeRow(source_row)
+
+        # Insert the row at the new position
+        self.insertRow(row)
+        for c, item in enumerate(row_data):
+            self.setItem(row, c, item)
+
+        self.endMoveRows()
+
+        return True
+
+class DragDropModel(QStandardItemModel):
+    rows_moved = pyqtSignal(int, int)  # Signal to notify about row moves
+
+    def dropMimeData(self, data, action, row, column, parent):
+        if action == Qt.IgnoreAction:
+            return True
+
+        if row == -1:  
+            row = self.rowCount(parent)  # Drop at the end if no row is specified
+        
+        # Check for illegal moves (e.g., onto itself)
+        source_row = data.data("source_row")
+        if not source_row or row == source_row.row():
+            return False
+        
+        self.beginMoveRows(QModelIndex(), source_row.row(), source_row.row(), QModelIndex(), row)
+        self.endMoveRows()
+        self.rows_moved.emit(source_row.row(), row)  # Emit signal
+        return True
+
+    def mimeTypes(self):
+        return ["application/x-qabstractitemmodeldatalist"]
+
+    def mimeData(self, indexes):
+        mimedata = QMimeData()
+        mimedata.setData("source_row", indexes[0])  # Pass the source row index
+        return mimedata
+
+    def mimeData(self, indexes):
+        mimedata = QMimeData()
+        # Encode the row number into a byte array
+        encoded_data = QByteArray(str(indexes[0].row()).encode())
+        mimedata.setData("source_row", encoded_data)
+        return mimedata
+
+    def dropMimeData(self, data, action, row, column, parent):
+        if action == Qt.IgnoreAction:
+            return True
+
+        if row == -1:  
+            row = self.rowCount(parent)  # Drop at the end if no row is specified
+        
+        # Decode the row number
+        encoded_data = data.data("source_row")
+        source_row = int(encoded_data.data().decode())
+        
+        # Check for illegal moves (e.g., onto itself)
+        if row == source_row:
+            return False
+        
+        self.beginMoveRows(QModelIndex(), source_row, source_row, QModelIndex(), row)
+        self.endMoveRows()
+        self.rows_moved.emit(source_row, row)  # Emit signal
+        return True
+    
+    def dropMimeData(self, data, action, row, column, parent):
+        print("Drop mime data")
+        encoded_data = data.data("source_row")
+        source_row = int(encoded_data.data().decode())
+        if row == -1:
+            row = self.rowCount(parent)
+
+        # Check for valid drop
+        valid_drop = (row != source_row) and (0 <= row <= self.rowCount())
+        print(f"Valid drop: {valid_drop}")
+
+        if valid_drop:
+            action = Qt.MoveAction  # Allow the move
+        else:
+            action = Qt.IgnoreAction  # Indicate invalid drop, this will show the stop cursor
+
+        if action == Qt.MoveAction:
+            self.beginMoveRows(QModelIndex(), source_row, source_row, QModelIndex(), row)
+            self.endMoveRows()
+            self.rows_moved.emit(source_row, row)
+
+        return True  # Indicate the drop was handled, even if invalid
+    
+    def flags(self, index):
+        default_flags = super().flags(index)
+        if index.isValid():
+            return default_flags | Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
+        else:
+            return default_flags | Qt.ItemIsDropEnabled
+            
+class AddFigureDialog(QDialog):
+    def __init__(self,parent):
+        super().__init__()
+        self.setWindowTitle(self.tr("Figurist - Figure Information"))
+        self.parent = parent
+        self.initUI()
+        self.reference = None
+        #self.
+        self.read_settings()
+
+    def read_settings(self):
+        settings = QSettings()
+        if settings.contains("geometry") and self.remember_geometry:
+            self.setGeometry(settings.value("geometry"))
+        else:
+            self.setGeometry(QRect(100, 100, 1024,768))
+    
+    def on_rows_moved(self, source_row, destination_row):
+        print(f"Row moved from {source_row} to {destination_row}")
+
+        # Update subfigure_list order
+        moved_item = self.subfigure_list.pop(source_row)
+        self.subfigure_list.insert(destination_row, moved_item)
+
+    def initUI(self):
+        ''' initialize UI '''
+        self.zoom_factor = 1.0
+        self.lblFigure = QLabel()
+        # set gray image
+        self.figure_image = QPixmap(512,700)
+        self.figure_image.fill(Qt.gray)
+        self.lblFigure.setPixmap(self.figure_image)
+    
+
+        self.figureView = QTableView()
+        self.figureView.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.figureView.setSortingEnabled(True)
+        self.figureView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.figureView.setAlternatingRowColors(True)
+        self.figureView.setShowGrid(True)
+        self.figureView.setGridStyle(Qt.SolidLine)
+        self.figureView.setWordWrap(True)
+        self.figureView.setCornerButtonEnabled(False)
+        self.figureView.setDragDropMode(QAbstractItemView.InternalMove)  # Enable drag and drop
+        self.figureView.setDragEnabled(True)
+        #self.figureView.setDragEnabled(True)
+        self.figureView.setAcceptDrops(True)
+        self.figureView.setDropIndicatorShown(True)
+        self.figureView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.figureView.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        #self.model = QStandardItemModel()
+        #self.figureView.setModel(self.model)
+        #self.model = DragDropModel(self)
+        #self.figureView.setModel(self.model)
+        #self.model.rows_moved.connect(self.update_subfigure_list)     
+
+        #self.model = DragDropModel(self)
+        self.model = QStandardItemModel()
+        self.figureView.setModel(self.model)
+        #self.model.rows_moved.connect(self.on_rows_moved)  # New signal connection
+        self.model.rowsMoved.connect(self.on_rows_moved)  # New signal connection
+
+        # selection changed
+        self.figureView.selectionModel().selectionChanged.connect(self.on_selection_changed)
+
+        # figureView custom menu
+        self.figureView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.figureView.customContextMenuRequested.connect(self.on_custom_context_menu)
+
+        # set header 
+        self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
+
+
+        self.loadButton = QPushButton(self.tr("Load figure"))
+        self.loadButton.clicked.connect(self.on_btn_load_clicked)
+        self.detectButton = QPushButton(self.tr("Detect Figures"))
+        self.detectButton.clicked.connect(self.on_btn_detect_clicked)
+        #self.detectButton.setEnabled(False)
+        self.saveButton = QPushButton(self.tr("Save"))
+        self.saveButton.clicked.connect(self.on_btn_save_clicked)
+        self.cancelButton = QPushButton(self.tr("Cancel"))
+        self.cancelButton.clicked.connect(self.on_btn_cancel_clicked)
+
+
+        self.lblReference = QLabel(self.tr("Reference"))
+        self.edtReference = QLineEdit()
+        # read only edtReference
+        self.edtReference.setReadOnly(True)
+
+
+        self.top_widget = QWidget()
+        self.top_layout = QHBoxLayout()
+        self.top_widget.setLayout(self.top_layout)
+        self.top_layout.addWidget(self.lblReference)
+        self.top_layout.addWidget(self.edtReference)
+
+
+        self.middle_widget = QWidget()
+        self.middle_layout = QHBoxLayout()
+        self.middle_widget.setLayout(self.middle_layout)
+        self.middle_layout.addWidget(self.lblFigure)
+        self.middle_layout.addWidget(self.figureView)
+
+
+        self.bottom_widget = QWidget()
+        self.bottom_layout = QHBoxLayout()
+        self.bottom_widget.setLayout(self.bottom_layout)
+        self.bottom_layout.addWidget(self.loadButton)
+        self.bottom_layout.addWidget(self.detectButton)
+        self.bottom_layout.addWidget(self.saveButton)
+        self.bottom_layout.addWidget(self.cancelButton)
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.top_widget)
+        self.layout.addWidget(self.middle_widget)
+        self.layout.addWidget(self.bottom_widget)
+        self.setLayout(self.layout)
+
+    def on_custom_context_menu(self, pos):
+        menu = QMenu()
+        action = menu.addAction("Delete")
+        action.triggered.connect(self.on_delete_figure)
+        menu.exec_(self.figureView.viewport().mapToGlobal(pos))
+
+    def on_delete_figure(self):
+        print("Delete figure")
+        # get selected index
+        indexes = self.figureView.selectionModel().selectedIndexes()
+        if len(indexes) > 0:
+            index = indexes[0]
+            row = index.row()
+            print("row:", row)
+            # get segment result
+            #self.subfigure_list = segmentation_results
+            cropped_pixmap, rect = self.subfigure_list[row]
+            # remove item from model
+            self.model.removeRow(row)
+            # remove item from subfigure_list
+            self.subfigure_list.pop(row)
+            # update figure image
+
+    def on_selection_changed(self, selected, deselected):
+        print("selection changed")
+        # get selected index
+        indexes = selected.indexes()
+        if len(indexes) > 0:
+            index = indexes[0]
+            row = index.row()
+            print("row:", row)
+            # get segment result
+            #self.subfigure_list = segmentation_results
+            cropped_pixmap, rect = self.subfigure_list[row]# in enumerate(self.subfigure_list):
+
+            scaled_pixmap = self.original_figure_image.scaled(self.lblFigure.width(), self.lblFigure.height(), Qt.KeepAspectRatio)
+            #scale pixmap
+            #pixmap = pixmap.scaled(512,700,Qt.KeepAspectRatio)
+            painter = QPainter(scaled_pixmap)
+            pen = QPen(Qt.red, 2)
+            painter.setPen(pen)
+            #painter.drawRect(0,0,100,100)
+            # scale rect according to zoom factor
+            rect = QRect(int(rect.x()*self.zoom_factor), int(rect.y()*self.zoom_factor),int( rect.width()*self.zoom_factor), int(rect.height()*self.zoom_factor))
+
+            painter.drawRect(rect)
+            painter.end()
+            self.figure_image = scaled_pixmap#pixmap.scaled(self.lblFigure.width(), self.lblFigure.height(), Qt.KeepAspectRatio)
+            self.lblFigure.setPixmap(self.figure_image)
+
+            #pixmap = item.data(Qt.DecorationRole)
+            #self.figure_image = pixmap
+            #self.lblFigure.setPixmap(self.figure_image.scaled(self.lblFigure.width(), self.lblFigure.height(), Qt.KeepAspectRatio))
+
+
+    def on_btn_load_clicked(self):
+        print("Load clicked")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Open Image File", "", "Image Files (*.png *.jpg *.bmp *.gif)")
+        if file_name:
+            self.original_figure_image = QPixmap(file_name)
+            # scale image to fit label
+            # get lblFigure size first
+            w, h = self.lblFigure.width(), self.lblFigure.height()
+            # get zoom factor
+            self.zoom_factor = min(w/self.original_figure_image.width(), h/self.original_figure_image.height())
+            print("zoom factor:", self.zoom_factor)
+            self.figure_image = self.original_figure_image.scaled(w,h, Qt.KeepAspectRatio)
+            #self.figure_image = self.original_figure_image.scaled(512,700,Qt.KeepAspectRatio)
+
+            #self.figure_image = self.original_figure_image.scaled(512,700,Qt.KeepAspectRatio)
+            self.lblFigure.setPixmap(self.figure_image)
+            self.detectButton.setEnabled(True)
+            self.model.clear()
+
+
+    def on_btn_detect_clicked(self):
+        # get segmentation result from image
+        # call segment_figures_qt function
+        segmentation_results, annotated_pixmap = self.segment_figures_qt(self.original_figure_image)
+        #self.annotated_pixmap = annotated_pixmap
+        #scaled_pixmap = annotated_pixmap.scaled(self.lblFigure.width(), self.lblFigure.height(), Qt.KeepAspectRatio)
+        #self.lblFigure.setPixmap(scaled_pixmap)
+        self.model.clear()
+        self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
+        self.subfigure_list = segmentation_results
+        for i, (cropped_pixmap, rect) in enumerate(self.subfigure_list):
+            name = QStandardItem(f"Figure{i+1}")
+            figure_number = QStandardItem(f"Figure{i+1}")
+            caption = QStandardItem("Caption")
+            comments = QStandardItem("Comments")
+            
+            name.setData(cropped_pixmap, Qt.DecorationRole)
+            name.setData(rect, Qt.UserRole)  # Store the rect in the item's data
+            
+            self.model.appendRow([name, figure_number, caption, comments])
+
+        self.figureView.resizeColumnsToContents()
+        self.figureView.resizeRowsToContents()
+
+    def update_subfigure_list(self, source_row, destination_row):
+        print(f"Updating subfigure_list: Moving from {source_row} to {destination_row}")
+        
+        # Reorder the subfigure_list to match the new model order
+        moved_item = self.subfigure_list.pop(source_row)
+        if destination_row == -1 or destination_row >= len(self.subfigure_list):
+            self.subfigure_list.append(moved_item)
+        else:
+            self.subfigure_list.insert(destination_row, moved_item)
+
+        # reload the figureView from self.subfigure_list
+        self.model.clear()
+        self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
+        for i, (cropped_pixmap, rect) in enumerate(self.subfigure_list):
+            name = QStandardItem(f"Figure{i+1}")
+            figure_number = QStandardItem(f"Figure{i+1}")
+            caption = QStandardItem("Caption")
+            comments = QStandardItem("Comments")
+            
+            name.setData(cropped_pixmap, Qt.DecorationRole)
+            name.setData(rect, Qt.UserRole)
+            self.model.appendRow([name, figure_number, caption, comments])
+        print(f"New subfigure_list order: {[item[1] for item in self.subfigure_list]}")
+
+    def on_btn_save_clicked(self):
+        print("Save clicked")
+        self.accept()
+    
+    def on_btn_cancel_clicked(self):
+        print("Cancel clicked")
+        self.reject()
+
+    def detect_figures(self):
+        print("Detecting figures")
+        #self.figureView.setModel
+
+    def set_reference(self, ref):
+        self.reference = ref
+        self.setWindowTitle(self.tr("Figurist - Figure Information for ") + ref.get_abbr())
+        self.edtReference.setText(ref.get_abbr())
+
+
+    def check_overlap(self, box1, box2):
+        x1, y1, w1, h1 = box1[:4]
+        x2, y2, w2, h2 = box2[:4]
+        
+        if (x1 <= x2 <= x1 + w1 or x2 <= x1 <= x2 + w2) and (y1 <= y2 <= y1 + h1 or y2 <= y1 <= y2 + h2):
+            return True
+        return False
+
+    def segment_figures_qt(self, qpixmap):
+
+        img = qpixmap.toImage()
+        
+        # Convert QImage to numpy array
+        width = img.width()
+        height = img.height()
+        ptr = img.constBits()
+        ptr.setsize(height * width * 4)
+        arr = np.frombuffer(ptr, np.uint8).reshape((height, width, 4))
+        # Convert RGBA to RGB
+        img = cv2.cvtColor(arr, cv2.COLOR_RGBA2RGB)
+        
+        original_img = img.copy()
+        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+        # Apply threshold
+        _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
+
+        # Find contours
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Get bounding boxes for all contours
+        bounding_boxes = []
+        for contour in contours:
+            if cv2.contourArea(contour) < 1000:  # Adjust this value as needed
+                continue
+            x, y, w, h = cv2.boundingRect(contour)
+            bounding_boxes.append((x, y, w, h))
+
+        # Remove overlapping boxes, keeping the larger ones
+        valid_boxes = []
+        for box in bounding_boxes:
+            is_valid = True
+            for valid_box in valid_boxes:
+                if self.check_overlap(box, valid_box):
+                    if box[2] * box[3] > valid_box[2] * valid_box[3]:
+                        valid_boxes.remove(valid_box)
+                    else:
+                        is_valid = False
+                    break
+            if is_valid:
+                valid_boxes.append(box)
+
+        if not valid_boxes:
+            print("No valid boxes found.")
+            return []
+
+        # Calculate average height of boxes
+        avg_height = sum(box[3] for box in valid_boxes) / len(valid_boxes)
+
+        # Assign row numbers based on y-coordinate and average height
+        for i, box in enumerate(valid_boxes):
+            box_y = box[1]
+            row = int(box_y / (avg_height * 1.2))  # 1.2 is a factor to allow some variation
+            valid_boxes[i] = box + (row,)  # Add row number as the 5th element of the tuple
+
+        # Sort boxes first by row, then by x-coordinate
+        valid_boxes.sort(key=lambda box: (box[4], box[0]))
+
+        annotated_pixmap = qpixmap.copy()
+        painter = QPainter(annotated_pixmap)
+        painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
+
+        # Process valid boxes
+        result = []
+        for i, (x, y, w, h, _) in enumerate(valid_boxes, start=1):
+            # Add some padding
+            padding = 10
+            x = max(0, x - padding)
+            y = max(0, y - padding)
+            w = min(img.shape[1] - x, w + 2*padding)
+            h = min(img.shape[0] - y, h + 2*padding)
+
+            # Crop the figure
+            figure = original_img[y:y+h, x:x+w]
+
+            # Convert cv2 image to QPixmap
+            height, width, channel = figure.shape
+            bytes_per_line = 3 * width
+            #q_img = QImage(figure.data, width, height, bytes_per_line, QImage.Format_RGB888)
+            q_img = QImage(figure.tobytes(), width, height, bytes_per_line, QImage.Format_RGB888)
+            cropped_pixmap = QPixmap.fromImage(q_img)
+
+            # Add the cropped pixmap and its coordinates to the result
+            result.append((cropped_pixmap, QRect(x, y, w, h)))
+            painter.drawRect(x, y, w, h)
+
+        painter.end()
+        return result, annotated_pixmap

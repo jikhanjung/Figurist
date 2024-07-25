@@ -61,13 +61,21 @@ class FiguristMainWindow(QMainWindow):
         self.selected_taxa = []
         self.selected_reference = []
 
+        self.button_widget = QWidget()
+        self.button_layout = QHBoxLayout()
+        self.button_widget.setLayout(self.button_layout)
+        self.add_figure_button = QPushButton(self.tr("Add Figure"))
         self.toggle_view_button = QPushButton(self.tr("Toggle View"))
+        self.button_layout.addWidget(self.add_figure_button)
+        self.button_layout.addWidget(self.toggle_view_button)
+
         self.right_widget = QWidget()
         self.right_layout = QVBoxLayout()
         self.right_widget.setLayout(self.right_layout)
         self.right_layout.addWidget(self.figureView)
-        self.right_layout.addWidget(self.toggle_view_button)
+        self.right_layout.addWidget(self.button_widget)
         self.toggle_view_button.clicked.connect(self.toggle_view)
+        self.add_figure_button.clicked.connect(self.add_figure)
 
         self.left_mode_widget = QWidget()
         self.left_mode_layout = QHBoxLayout()
@@ -169,6 +177,14 @@ class FiguristMainWindow(QMainWindow):
         self.figureView.verticalHeader().hide()
         '''
         self.toggle_view(True)
+
+    def add_figure(self):
+        if self.selected_reference is None:
+            return
+        dialog = AddFigureDialog(self)
+        dialog.set_reference(self.selected_reference)
+        dialog.exec_()
+        self.load_figure()
 
     def on_taxonView_pressed(self, index):
         item = self.taxonView.itemAt(self.taxonView.viewport().mapFromGlobal(QCursor.pos()))

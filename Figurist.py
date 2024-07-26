@@ -335,7 +335,7 @@ class FiguristMainWindow(QMainWindow):
         self.referenceView.setSelectionBehavior(QTreeView.SelectRows)
 
     def load_references(self):
-        print("load references", self.mode)
+        #print("load references", self.mode)
         self.reference_model.clear()
         self.selected_reference = None
         ref_list = FgReference.filter(parent=None)
@@ -792,7 +792,7 @@ if __name__ == "__main__":
     #    f.write("hello\n")
     #    # current directory
     #    f.write("current directory 1:" + os.getcwd() + "\n")
-    #    f.write("current directory 2:" + os.path.abspath(".") + "\n")
+    #    f.write("current directory 2:" + os.path.abspath(".") + "\n") 
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(fg.resource_path('icons/Figurist.png')))
     app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope,fg.COMPANY_NAME, fg.PROGRAM_NAME)

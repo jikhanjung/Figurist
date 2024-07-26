@@ -15,6 +15,10 @@ import numpy as np
 import cv2
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal, QModelIndex, QRect, QPoint, QSettings, QByteArray
 
+from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
+import math
+
 class ReferenceDialog(QDialog):
     # NewDatasetDialog shows new dataset dialog.
     def __init__(self,parent):
@@ -607,9 +611,233 @@ class FigureLabel(QLabel):
         super(FigureLabel, self).__init__(parent)
         self.parent = parent
         self.setMinimumSize(300,200)
+        self.edit_mode = "NONE"
+        self.orig_pixmap = None
+        self.curr_pixmap = None
+        self.scale = 1.0
+        self.prev_scale = 1.0
+        self.pan_x = 0
+        self.pan_y = 0
+        self.temp_pan_x = 0
+        self.temp_pan_y = 0
+        self.mouse_down_x = 0
+        self.mouse_down_y = 0
+        self.mouse_curr_x = 0
+        self.mouse_curr_y = 0
+        self.curr_rect = None
+        self.temp_rect = None
+        self.subfigure_list = []
+        self.curr_subfigure_index = -1
+        self.rect = QRect()
 
-from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+    def _2canx(self, coord):
+        return round((float(coord) / self.image_canvas_ratio) * self.scale) + self.pan_x + self.temp_pan_x
+    def _2cany(self, coord):
+        return round((float(coord) / self.image_canvas_ratio) * self.scale) + self.pan_y + self.temp_pan_y
+    def _2imgx(self, coord):
+        return round(((float(coord) - self.pan_x) / self.scale) * self.image_canvas_ratio)
+    def _2imgy(self, coord):
+        return round(((float(coord) - self.pan_y) / self.scale) * self.image_canvas_ratio)
+
+    def get_distance_to_line(self, curr_pos, line_start, line_end):
+        x1 = line_start[0]
+        y1 = line_start[1]
+        x2 = line_end[0]
+        y2 = line_end[1]
+        max_x = max(x1,x2)
+        min_x = min(x1,x2)
+        max_y = max(y1,y2)
+        min_y = min(y1,y2)
+        if curr_pos[0] > max_x or curr_pos[0] < min_x or curr_pos[1] > max_y or curr_pos[1] < min_y:
+            return -1
+        x0 = curr_pos[0]
+        y0 = curr_pos[1]
+        numerator = abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1)
+        denominator = math.sqrt(math.pow(y2-y1,2) + math.pow(x2-x1,2))
+        return numerator/denominator
+
+    def get_distance(self, pos1, pos2):
+        return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
+
+    def set_edit_mode(self, mode):
+        self.edit_mode = mode
+
+    def mouseMoveEvent(self, event):
+        me = QMouseEvent(event)
+        self.mouse_curr_x = me.x()
+        self.mouse_curr_y = me.y()
+        curr_pos = [self.mouse_curr_x, self.mouse_curr_y]
+        if self.edit_mode == "NEW_SUBFIGURE_RECT":
+            self.temp_rect = QRect(self.down_x, self.down_y, self.mouse_curr_x-self.down_x, self.mouse_curr_y-self.down_y)
+            self.repaint()
+        elif self.edit_mode == "PAN":
+            self.temp_pan_x = self.mouse_curr_x - self.mouse_down_x
+            self.temp_pan_y = self.mouse_curr_y - self.mouse_down_y
+            self.repaint()
+
+
+        self.repaint()
+        QLabel.mouseMoveEvent(self, event)
+
+    def mousePressEvent(self, event):
+
+        me = QMouseEvent(event)
+        if me.button() == Qt.LeftButton:
+            #if self.object_dialog is None:
+            #    return
+            if self.edit_mode == "NEW_SUBFIGURE":
+                self.down_x = me.x()
+                self.down_y = me.y()
+                self.edit_mode = "NEW_SUBFIGURE_RECT"
+                if self.orig_pixmap is None:
+                    return
+        elif me.button() == Qt.RightButton:
+            #print("right button clicked")
+            if self.edit_mode == "NONE":
+                #print("going into pan mode")
+                self.set_edit_mode("PAN")
+                self.temp_pan_x = self.pan_x
+                self.temp_pan_y = self.pan_y
+                self.mouse_down_x = me.x()
+                self.mouse_down_y = me.y()
+        else:
+            pass
+
+    def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
+        me = QMouseEvent(ev)
+        if self.edit_mode == "PAN":
+            self.set_edit_mode("NONE")
+            self.pan_x += self.temp_pan_x
+            self.pan_y += self.temp_pan_y
+            self.temp_pan_x = 0
+            self.temp_pan_y = 0
+            self.repaint()
+
+    def wheelEvent(self, event):
+        #if self.orig_pixmap is None:
+        #    return
+        we = QWheelEvent(event)
+        scale_delta_ratio = 0
+        if we.angleDelta().y() > 0:
+            scale_delta_ratio = 0.1
+        else:
+            scale_delta_ratio = -0.1
+        if self.scale <= 0.8 and scale_delta_ratio < 0:
+            return
+
+        self.prev_scale = self.scale
+        #new_scale = self.scale + scale_delta
+        #scale_proportion = new_scale / prev_scale       
+        self.adjust_scale(scale_delta_ratio)
+        #new_scale = self.scale + scale_delta
+        scale_proportion = self.scale / self.prev_scale
+        #print("1 pan_x, pan_y", self.pan_x, self.pan_y, "we.pos().x(), we.pos().y()", we.pos().x(), we.pos().y(), "scale_prop", scale_proportion, "scale", self.scale, "prev_scale", self.prev_scale, "scale_delta", scale_delta)       
+
+        self.pan_x = round( we.pos().x() - (we.pos().x() - self.pan_x) * scale_proportion )
+        self.pan_y = round( we.pos().y() - (we.pos().y() - self.pan_y) * scale_proportion )
+        #print("2 pan_x, pan_y", self.pan_x, self.pan_y, "we.pos().x(), we.pos().y()", we.pos().x(), we.pos().y(), "scale_prop", scale_proportion, "scale", self.scale, "prev_scale", self.prev_scale, "scale_delta", scale_delta)       
+
+        QLabel.wheelEvent(self, event)
+        self.repaint()
+        event.accept()
+
+    def adjust_scale(self, scale_delta_ratio, recurse = True):
+        #prev_scale = self.scale
+        #prev_scale = self.scale
+        #print("set scale", scale, self.parent, self.parent.sync_zoom)
+
+        if self.scale > 1:
+            scale_delta = math.floor(self.scale) * scale_delta_ratio
+        else:
+            scale_delta = scale_delta_ratio
+
+        self.scale += scale_delta
+        self.scale = round(self.scale * 10) / 10
+
+        if self.orig_pixmap is not None:
+            self.curr_pixmap = self.orig_pixmap.scaled(int(self.orig_pixmap.width() * self.scale / self.image_canvas_ratio), int(self.orig_pixmap.height() * self.scale / self.image_canvas_ratio))
+
+
+        self.repaint()
+
+    def paintEvent(self, event):
+        # fill background with dark gray
+        #print("paint event edge", self.edge_list)
+
+        painter = QPainter(self)
+        if self.curr_pixmap is not None:
+            #print("paintEvent", self.curr_pixmap.width(), self.curr_pixmap.height())
+            painter.drawPixmap(self.pan_x+self.temp_pan_x, self.pan_y+self.temp_pan_y,self.curr_pixmap)
+
+        for subfigure in self.subfigure_list:
+            pixmap, rect = subfigure
+            # convert rect to screen coordinates
+            x = self._2canx(rect.x())
+            y = self._2cany(rect.y())
+            w = round(rect.width() / self.image_canvas_ratio * self.scale)
+            h = round(rect.height() / self.image_canvas_ratio * self.scale)
+            rect = QRect(x, y, w, h)
+            painter.setPen(QPen(Qt.blue, 2, Qt.DashLine))
+            painter.drawRect(rect)
+
+        if self.curr_subfigure_index > -1:
+ #result.append((cropped_pixmap, QRect(x, y, w, h)))            
+            pixmap, rect = self.subfigure_list[self.curr_subfigure_index]
+            x = self._2canx(rect.x())
+            y = self._2cany(rect.y())
+            w = round(rect.width() / self.image_canvas_ratio * self.scale)
+            h = round(rect.height() / self.image_canvas_ratio * self.scale)
+            rect = QRect(x, y, w, h)
+            painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
+            painter.drawRect(rect)
+
+
+        if self.temp_rect  is not None:
+            rect = self.temp_rect
+            x = self._2canx(rect.x())
+            y = self._2cany(rect.y())
+            w = round(rect.width() / self.image_canvas_ratio * self.scale)
+            h = round(rect.height() / self.image_canvas_ratio * self.scale)
+            rect = QRect(x, y, w, h)
+            # draw with dotted line
+            painter.setPen(QPen(Qt.red, 2, Qt.DashLine))
+            painter.drawRect(self.temp_rect)
+
+    def adjust_pixmap(self):
+        #print("objectviewer calculate resize", self, self.object, self.landmark_list)
+        if self.orig_pixmap is not None:
+            self.orig_width = self.orig_pixmap.width()
+            self.orig_height = self.orig_pixmap.height()
+            image_wh_ratio = self.orig_width / self.orig_height
+            label_wh_ratio = self.width() / self.height()
+            if image_wh_ratio > label_wh_ratio:
+                self.image_canvas_ratio = self.orig_width / self.width()
+            else:
+                self.image_canvas_ratio = self.orig_height / self.height()
+            self.curr_pixmap = self.orig_pixmap.scaled(int(self.orig_width*self.scale/self.image_canvas_ratio),int(self.orig_width*self.scale/self.image_canvas_ratio), Qt.KeepAspectRatio)
+
+
+    def resizeEvent(self, event):
+        self.adjust_pixmap()
+        QLabel.resizeEvent(self, event)
+
+
+    def set_figure(self, file_name):
+        #self.figure = figure
+        self.orig_pixmap = QPixmap(file_name)
+        self.adjust_pixmap()
+        self.repaint()
+
+    def set_subfigure_list(self, subfigure_list):
+        self.subfigure_list = subfigure_list
+        #self.subfigure_rect = subfigure_rect
+        #self.orig_pixmap = QPixmap(subfigure.get_file_path())
+        #self.adjust_pixmap()
+        self.repaint()
+
+    def set_current_subfigure(self, subfigure_index):
+        self.curr_subfigure_index = subfigure_index
+        self.repaint()
 
 class DragDropModel(QStandardItemModel):
     rows_moved = pyqtSignal(int, int)
@@ -778,6 +1006,7 @@ class AddFigureDialog(QDialog):
     def __init__(self,parent):
         super().__init__()
         self.setWindowTitle(self.tr("Figurist - Figure Information"))
+        self.setWindowFlags(Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint | Qt.WindowCloseButtonHint)
         self.parent = parent
         self.initUI()
         self.reference = None
@@ -801,7 +1030,7 @@ class AddFigureDialog(QDialog):
     def initUI(self):
         ''' initialize UI '''
         self.zoom_factor = 1.0
-        self.lblFigure = QLabel()
+        self.lblFigure = FigureLabel(self)
         # set gray image
         self.figure_image = QPixmap(512,700)
         self.figure_image.fill(Qt.gray)
@@ -824,6 +1053,45 @@ class AddFigureDialog(QDialog):
         self.figureView.setDropIndicatorShown(True)
         self.figureView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.figureView.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        self.lblType = QLabel(self.tr("Type"))
+        self.comboType = QComboBox()
+        self.comboType.addItem("Figure")
+        self.comboType.addItem("Plate")
+        self.comboType.addItem("Text-Figure")
+        self.comboType.addItem("Table")
+        self.edtNumber1 = QLineEdit()
+        self.comboSubType = QComboBox()
+        self.comboSubType.addItem("--None--")
+        self.comboSubType.addItem("Figure")
+        self.prefix_widget = QWidget()
+        self.prefix_layout = QHBoxLayout()
+        self.prefix_layout.addWidget(self.lblType)
+        self.prefix_layout.addWidget(self.comboType)
+        self.prefix_layout.addWidget(self.edtNumber1)
+        self.prefix_layout.addWidget(self.comboSubType)
+        self.prefix_widget.setLayout(self.prefix_layout)
+
+        self.up_button = QPushButton("Up")
+        self.down_button = QPushButton("Down")
+        self.add_button = QPushButton("Add")
+        self.edit_button = QPushButton("Edit")
+        self.delete_button = QPushButton("Delete")
+        self.up_button.clicked.connect(self.move_up)
+        self.down_button.clicked.connect(self.move_down)
+        self.add_button.clicked.connect(self.on_add_subfigure)
+        self.edit_button.clicked.connect(self.on_edit_subfigure)
+        self.delete_button.clicked.connect(self.on_delete_subfigure)
+
+        self.figure_button_widget = QWidget()
+        self.figure_button_layout = QHBoxLayout()
+        self.figure_button_layout.addWidget(self.up_button)
+        self.figure_button_layout.addWidget(self.down_button)
+        self.figure_button_layout.addWidget(self.add_button)
+        self.figure_button_layout.addWidget(self.edit_button)
+        self.figure_button_layout.addWidget(self.delete_button)
+        self.figure_button_widget.setLayout(self.figure_button_layout)
+
 
         #self.model = QStandardItemModel()
         #self.figureView.setModel(self.model)
@@ -871,12 +1139,19 @@ class AddFigureDialog(QDialog):
         self.top_layout.addWidget(self.lblReference)
         self.top_layout.addWidget(self.edtReference)
 
+        self.figure_widget = QWidget()
+        self.figure_layout = QVBoxLayout()
+        self.figure_widget.setLayout(self.figure_layout)
+        self.figure_layout.addWidget(self.prefix_widget)
+        self.figure_layout.addWidget(self.figureView)
+        self.figure_layout.addWidget(self.figure_button_widget)
+
 
         self.middle_widget = QWidget()
         self.middle_layout = QHBoxLayout()
         self.middle_widget.setLayout(self.middle_layout)
         self.middle_layout.addWidget(self.lblFigure)
-        self.middle_layout.addWidget(self.figureView)
+        self.middle_layout.addWidget(self.figure_widget)
 
 
         self.bottom_widget = QWidget()
@@ -893,20 +1168,73 @@ class AddFigureDialog(QDialog):
         self.layout.addWidget(self.bottom_widget)
         self.setLayout(self.layout)
 
+    def move_up(self):
+        #print("Move up")
+        indexes = self.figureView.selectionModel().selectedIndexes()
+        if len(indexes) > 0:
+            index = indexes[0]
+            row = index.row()
+            if row > 0:
+                #self.model.moveRow(QModelIndex(), row, QModelIndex(), row-1)
+                self.subfigure_list[row], self.subfigure_list[row-1] = self.subfigure_list[row-1], self.subfigure_list[row]
+        self.load_figure_view(self.subfigure_list)
+        # select row-1 row
+        self.figureView.selectRow(row-1)
+    
+    def move_down(self):
+        #print("Move down")
+        indexes = self.figureView.selectionModel().selectedIndexes()
+        if len(indexes) > 0:
+            index = indexes[0]
+            row = index.row()
+            if row < len(self.subfigure_list) - 1:
+                #self.model.moveRow(QModelIndex(), row, QModelIndex(), row+1)
+                self.subfigure_list[row], self.subfigure_list[row+1] = self.subfigure_list[row+1], self.subfigure_list[row]
+
+        self.load_figure_view(self.subfigure_list)
+        # select row+1 row
+        self.figureView.selectRow(row+1)
+
+    def on_add_subfigure(self):
+        print("Add subfigure")
+    
+    def on_edit_subfigure(self):
+        print("Edit subfigure")
+        indexes = self.figureView.selectionModel().selectedIndexes()
+        if len(indexes) > 0:
+            index = indexes[0]
+            row = index.row()
+            subfigure = self.subfigure_list[row]
+
+    def load_figure_view(self, figure_list):
+        self.model.clear()
+        self.model.setHorizontalHeaderLabels(["File Name", "Index", "Taxon name", "Caption", "Comments"])
+        self.subfigure_list = figure_list
+        for i, (cropped_pixmap, rect) in enumerate(self.subfigure_list):
+            name = QStandardItem("")
+            figure_number = QStandardItem(f"{i+1}")
+            taxon_name = QStandardItem("")
+            caption = QStandardItem("")
+            comments = QStandardItem("")
+            
+            name.setData(cropped_pixmap, Qt.DecorationRole)
+            name.setData(rect, Qt.UserRole)
+            self.model.appendRow([name, figure_number, taxon_name, caption, comments])
+
     def on_custom_context_menu(self, pos):
         menu = QMenu()
         action = menu.addAction("Delete")
-        action.triggered.connect(self.on_delete_figure)
+        action.triggered.connect(self.on_delete_subfigure)
         menu.exec_(self.figureView.viewport().mapToGlobal(pos))
 
-    def on_delete_figure(self):
-        print("Delete figure")
+    def on_delete_subfigure(self):
+        #print("Delete figure")
         # get selected index
         indexes = self.figureView.selectionModel().selectedIndexes()
         if len(indexes) > 0:
             index = indexes[0]
             row = index.row()
-            print("row:", row)
+            #print("row:", row)
             # get segment result
             #self.subfigure_list = segmentation_results
             cropped_pixmap, rect = self.subfigure_list[row]
@@ -917,13 +1245,15 @@ class AddFigureDialog(QDialog):
             # update figure image
 
     def on_selection_changed(self, selected, deselected):
-        print("selection changed")
+        #print("selection changed")
         # get selected index
         indexes = selected.indexes()
         if len(indexes) > 0:
             index = indexes[0]
             row = index.row()
-            print("row:", row)
+            self.lblFigure.set_current_subfigure(row)
+            return
+            #print("row:", row)
             # get segment result
             #self.subfigure_list = segmentation_results
             cropped_pixmap, rect = self.subfigure_list[row]# in enumerate(self.subfigure_list):
@@ -949,21 +1279,22 @@ class AddFigureDialog(QDialog):
 
 
     def on_btn_load_clicked(self):
-        print("Load clicked")
+        #print("Load clicked")
         file_name, _ = QFileDialog.getOpenFileName(self, "Open Image File", "", "Image Files (*.png *.jpg *.bmp *.gif)")
         if file_name:
+            self.lblFigure.set_figure(file_name)
             self.original_figure_image = QPixmap(file_name)
             # scale image to fit label
             # get lblFigure size first
-            w, h = self.lblFigure.width(), self.lblFigure.height()
+            #w, h = self.lblFigure.width(), self.lblFigure.height()
             # get zoom factor
-            self.zoom_factor = min(w/self.original_figure_image.width(), h/self.original_figure_image.height())
-            print("zoom factor:", self.zoom_factor)
-            self.figure_image = self.original_figure_image.scaled(w,h, Qt.KeepAspectRatio)
+            #self.zoom_factor = min(w/self.original_figure_image.width(), h/self.original_figure_image.height())
+            #print("zoom factor:", self.zoom_factor)
+            #self.figure_image = self.original_figure_image.scaled(w,h, Qt.KeepAspectRatio)
             #self.figure_image = self.original_figure_image.scaled(512,700,Qt.KeepAspectRatio)
 
             #self.figure_image = self.original_figure_image.scaled(512,700,Qt.KeepAspectRatio)
-            self.lblFigure.setPixmap(self.figure_image)
+            #self.lblFigure.setPixmap(self.figure_image)
             self.detectButton.setEnabled(True)
             self.model.clear()
 
@@ -975,19 +1306,14 @@ class AddFigureDialog(QDialog):
         #self.annotated_pixmap = annotated_pixmap
         #scaled_pixmap = annotated_pixmap.scaled(self.lblFigure.width(), self.lblFigure.height(), Qt.KeepAspectRatio)
         #self.lblFigure.setPixmap(scaled_pixmap)
-        self.model.clear()
-        self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
+        #self.model.clear()
+
+        #self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
         self.subfigure_list = segmentation_results
-        for i, (cropped_pixmap, rect) in enumerate(self.subfigure_list):
-            name = QStandardItem(f"Figure{i+1}")
-            figure_number = QStandardItem(f"Figure{i+1}")
-            caption = QStandardItem("Caption")
-            comments = QStandardItem("Comments")
-            
-            name.setData(cropped_pixmap, Qt.DecorationRole)
-            name.setData(rect, Qt.UserRole)  # Store the rect in the item's data
-            
-            self.model.appendRow([name, figure_number, caption, comments])
+        self.lblFigure.set_subfigure_list(self.subfigure_list)
+
+        self.load_figure_view(self.subfigure_list)
+
 
         self.figureView.resizeColumnsToContents()
         self.figureView.resizeRowsToContents()

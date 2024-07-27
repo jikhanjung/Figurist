@@ -131,6 +131,13 @@ class FgFigure(Model):
         ret = shutil.copyfile(file_name, new_filepath)
         #print("ret:", ret)
         return self
+    
+    def add_pixmap(self, pixmap):
+        new_filepath = self.get_file_path()
+        if not os.path.exists(os.path.dirname(new_filepath)):
+            os.makedirs(os.path.dirname(new_filepath))
+        pixmap.save(new_filepath)
+        return self
 
     def load_file_info(self, fullpath):
 

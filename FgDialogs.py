@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import QTableWidgetItem, QHeaderView, QFileDialog, QCheckBo
                             QDialog, QLineEdit, QLabel, QPushButton, QAbstractItemView, QStatusBar, QMessageBox, \
                             QTableView, QSplitter, QRadioButton, QComboBox, QTextEdit, QSizePolicy, \
                             QTableWidget, QGridLayout, QAbstractButton, QButtonGroup, QGroupBox, QListWidgetItem,\
-                            QTabWidget, QListWidget, QSpinBox, QPlainTextEdit, QSlider, QScrollArea, QShortcut, QMenu
+                            QTabWidget, QListWidget, QSpinBox, QPlainTextEdit, QSlider, QScrollArea, QShortcut, QMenu, \
+                            QInputDialog
 from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap, QStandardItemModel, QStandardItem, QImage,\
                         QFont, QPainter, QBrush, QMouseEvent, QWheelEvent, QDoubleValidator, QIcon, QCursor,\
                         QFontMetrics, QIntValidator, QKeySequence
@@ -18,6 +19,7 @@ from PyQt5.QtCore import Qt, QMimeData, pyqtSignal, QModelIndex, QRect, QPoint, 
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import math
+from FgComponents import FigureLabel
 
 class ReferenceDialog(QDialog):
     # NewDatasetDialog shows new dataset dialog.
@@ -606,238 +608,6 @@ class FigureDialog(QDialog):
         self.edtCaption.setText(figure.caption)
         self.edtComments.setText(figure.comments)
 
-class FigureLabel(QLabel):
-    def __init__(self, parent=None):
-        super(FigureLabel, self).__init__(parent)
-        self.parent = parent
-        self.setMinimumSize(300,200)
-        self.edit_mode = "NONE"
-        self.orig_pixmap = None
-        self.curr_pixmap = None
-        self.scale = 1.0
-        self.prev_scale = 1.0
-        self.pan_x = 0
-        self.pan_y = 0
-        self.temp_pan_x = 0
-        self.temp_pan_y = 0
-        self.mouse_down_x = 0
-        self.mouse_down_y = 0
-        self.mouse_curr_x = 0
-        self.mouse_curr_y = 0
-        self.curr_rect = None
-        self.temp_rect = None
-        self.subfigure_list = []
-        self.curr_subfigure_index = -1
-        self.rect = QRect()
-
-    def _2canx(self, coord):
-        return round((float(coord) / self.image_canvas_ratio) * self.scale) + self.pan_x + self.temp_pan_x
-    def _2cany(self, coord):
-        return round((float(coord) / self.image_canvas_ratio) * self.scale) + self.pan_y + self.temp_pan_y
-    def _2imgx(self, coord):
-        return round(((float(coord) - self.pan_x) / self.scale) * self.image_canvas_ratio)
-    def _2imgy(self, coord):
-        return round(((float(coord) - self.pan_y) / self.scale) * self.image_canvas_ratio)
-
-    def get_distance_to_line(self, curr_pos, line_start, line_end):
-        x1 = line_start[0]
-        y1 = line_start[1]
-        x2 = line_end[0]
-        y2 = line_end[1]
-        max_x = max(x1,x2)
-        min_x = min(x1,x2)
-        max_y = max(y1,y2)
-        min_y = min(y1,y2)
-        if curr_pos[0] > max_x or curr_pos[0] < min_x or curr_pos[1] > max_y or curr_pos[1] < min_y:
-            return -1
-        x0 = curr_pos[0]
-        y0 = curr_pos[1]
-        numerator = abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1)
-        denominator = math.sqrt(math.pow(y2-y1,2) + math.pow(x2-x1,2))
-        return numerator/denominator
-
-    def get_distance(self, pos1, pos2):
-        return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
-
-    def set_edit_mode(self, mode):
-        self.edit_mode = mode
-
-    def mouseMoveEvent(self, event):
-        me = QMouseEvent(event)
-        self.mouse_curr_x = me.x()
-        self.mouse_curr_y = me.y()
-        curr_pos = [self.mouse_curr_x, self.mouse_curr_y]
-        if self.edit_mode == "NEW_SUBFIGURE_RECT":
-            self.temp_rect = QRect(self.down_x, self.down_y, self.mouse_curr_x-self.down_x, self.mouse_curr_y-self.down_y)
-            self.repaint()
-        elif self.edit_mode == "PAN":
-            self.temp_pan_x = self.mouse_curr_x - self.mouse_down_x
-            self.temp_pan_y = self.mouse_curr_y - self.mouse_down_y
-            self.repaint()
-
-
-        self.repaint()
-        QLabel.mouseMoveEvent(self, event)
-
-    def mousePressEvent(self, event):
-
-        me = QMouseEvent(event)
-        if me.button() == Qt.LeftButton:
-            #if self.object_dialog is None:
-            #    return
-            if self.edit_mode == "NEW_SUBFIGURE":
-                self.down_x = me.x()
-                self.down_y = me.y()
-                self.edit_mode = "NEW_SUBFIGURE_RECT"
-                if self.orig_pixmap is None:
-                    return
-        elif me.button() == Qt.RightButton:
-            #print("right button clicked")
-            if self.edit_mode == "NONE":
-                #print("going into pan mode")
-                self.set_edit_mode("PAN")
-                self.temp_pan_x = self.pan_x
-                self.temp_pan_y = self.pan_y
-                self.mouse_down_x = me.x()
-                self.mouse_down_y = me.y()
-        else:
-            pass
-
-    def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
-        me = QMouseEvent(ev)
-        if self.edit_mode == "PAN":
-            self.set_edit_mode("NONE")
-            self.pan_x += self.temp_pan_x
-            self.pan_y += self.temp_pan_y
-            self.temp_pan_x = 0
-            self.temp_pan_y = 0
-            self.repaint()
-
-    def wheelEvent(self, event):
-        #if self.orig_pixmap is None:
-        #    return
-        we = QWheelEvent(event)
-        scale_delta_ratio = 0
-        if we.angleDelta().y() > 0:
-            scale_delta_ratio = 0.1
-        else:
-            scale_delta_ratio = -0.1
-        if self.scale <= 0.8 and scale_delta_ratio < 0:
-            return
-
-        self.prev_scale = self.scale
-        #new_scale = self.scale + scale_delta
-        #scale_proportion = new_scale / prev_scale       
-        self.adjust_scale(scale_delta_ratio)
-        #new_scale = self.scale + scale_delta
-        scale_proportion = self.scale / self.prev_scale
-        #print("1 pan_x, pan_y", self.pan_x, self.pan_y, "we.pos().x(), we.pos().y()", we.pos().x(), we.pos().y(), "scale_prop", scale_proportion, "scale", self.scale, "prev_scale", self.prev_scale, "scale_delta", scale_delta)       
-
-        self.pan_x = round( we.pos().x() - (we.pos().x() - self.pan_x) * scale_proportion )
-        self.pan_y = round( we.pos().y() - (we.pos().y() - self.pan_y) * scale_proportion )
-        #print("2 pan_x, pan_y", self.pan_x, self.pan_y, "we.pos().x(), we.pos().y()", we.pos().x(), we.pos().y(), "scale_prop", scale_proportion, "scale", self.scale, "prev_scale", self.prev_scale, "scale_delta", scale_delta)       
-
-        QLabel.wheelEvent(self, event)
-        self.repaint()
-        event.accept()
-
-    def adjust_scale(self, scale_delta_ratio, recurse = True):
-        #prev_scale = self.scale
-        #prev_scale = self.scale
-        #print("set scale", scale, self.parent, self.parent.sync_zoom)
-
-        if self.scale > 1:
-            scale_delta = math.floor(self.scale) * scale_delta_ratio
-        else:
-            scale_delta = scale_delta_ratio
-
-        self.scale += scale_delta
-        self.scale = round(self.scale * 10) / 10
-
-        if self.orig_pixmap is not None:
-            self.curr_pixmap = self.orig_pixmap.scaled(int(self.orig_pixmap.width() * self.scale / self.image_canvas_ratio), int(self.orig_pixmap.height() * self.scale / self.image_canvas_ratio))
-
-
-        self.repaint()
-
-    def paintEvent(self, event):
-        # fill background with dark gray
-        #print("paint event edge", self.edge_list)
-
-        painter = QPainter(self)
-        if self.curr_pixmap is not None:
-            #print("paintEvent", self.curr_pixmap.width(), self.curr_pixmap.height())
-            painter.drawPixmap(self.pan_x+self.temp_pan_x, self.pan_y+self.temp_pan_y,self.curr_pixmap)
-
-        for subfigure in self.subfigure_list:
-            pixmap, rect = subfigure
-            # convert rect to screen coordinates
-            x = self._2canx(rect.x())
-            y = self._2cany(rect.y())
-            w = round(rect.width() / self.image_canvas_ratio * self.scale)
-            h = round(rect.height() / self.image_canvas_ratio * self.scale)
-            rect = QRect(x, y, w, h)
-            painter.setPen(QPen(Qt.blue, 2, Qt.DashLine))
-            painter.drawRect(rect)
-
-        if self.curr_subfigure_index > -1:
- #result.append((cropped_pixmap, QRect(x, y, w, h)))            
-            pixmap, rect = self.subfigure_list[self.curr_subfigure_index]
-            x = self._2canx(rect.x())
-            y = self._2cany(rect.y())
-            w = round(rect.width() / self.image_canvas_ratio * self.scale)
-            h = round(rect.height() / self.image_canvas_ratio * self.scale)
-            rect = QRect(x, y, w, h)
-            painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
-            painter.drawRect(rect)
-
-
-        if self.temp_rect  is not None:
-            rect = self.temp_rect
-            x = self._2canx(rect.x())
-            y = self._2cany(rect.y())
-            w = round(rect.width() / self.image_canvas_ratio * self.scale)
-            h = round(rect.height() / self.image_canvas_ratio * self.scale)
-            rect = QRect(x, y, w, h)
-            # draw with dotted line
-            painter.setPen(QPen(Qt.red, 2, Qt.DashLine))
-            painter.drawRect(self.temp_rect)
-
-    def adjust_pixmap(self):
-        #print("objectviewer calculate resize", self, self.object, self.landmark_list)
-        if self.orig_pixmap is not None:
-            self.orig_width = self.orig_pixmap.width()
-            self.orig_height = self.orig_pixmap.height()
-            image_wh_ratio = self.orig_width / self.orig_height
-            label_wh_ratio = self.width() / self.height()
-            if image_wh_ratio > label_wh_ratio:
-                self.image_canvas_ratio = self.orig_width / self.width()
-            else:
-                self.image_canvas_ratio = self.orig_height / self.height()
-            self.curr_pixmap = self.orig_pixmap.scaled(int(self.orig_width*self.scale/self.image_canvas_ratio),int(self.orig_width*self.scale/self.image_canvas_ratio), Qt.KeepAspectRatio)
-
-
-    def resizeEvent(self, event):
-        self.adjust_pixmap()
-        QLabel.resizeEvent(self, event)
-
-
-    def set_figure(self, file_name):
-        #self.figure = figure
-        self.orig_pixmap = QPixmap(file_name)
-        self.adjust_pixmap()
-        self.repaint()
-
-    def set_subfigure_list(self, subfigure_list):
-        self.subfigure_list = subfigure_list
-        #self.subfigure_rect = subfigure_rect
-        #self.orig_pixmap = QPixmap(subfigure.get_file_path())
-        #self.adjust_pixmap()
-        self.repaint()
-
-    def set_current_subfigure(self, subfigure_index):
-        self.curr_subfigure_index = subfigure_index
-        self.repaint()
 
 class DragDropModel(QStandardItemModel):
     rows_moved = pyqtSignal(int, int)
@@ -1038,19 +808,21 @@ class AddFigureDialog(QDialog):
     
 
         self.figureView = QTableView()
-        self.figureView.setSelectionBehavior(QAbstractItemView.SelectRows)
+        #self.figureView.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.figureView.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.figureView.setSortingEnabled(True)
-        self.figureView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        #self.figureView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.figureView.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
         self.figureView.setAlternatingRowColors(True)
         self.figureView.setShowGrid(True)
         self.figureView.setGridStyle(Qt.SolidLine)
         self.figureView.setWordWrap(True)
         self.figureView.setCornerButtonEnabled(False)
-        self.figureView.setDragDropMode(QAbstractItemView.InternalMove)  # Enable drag and drop
-        self.figureView.setDragEnabled(True)
+        #self.figureView.setDragDropMode(QAbstractItemView.InternalMove)  # Enable drag and drop
         #self.figureView.setDragEnabled(True)
-        self.figureView.setAcceptDrops(True)
-        self.figureView.setDropIndicatorShown(True)
+        #self.figureView.setDragEnabled(True)
+        #self.figureView.setAcceptDrops(True)
+        #self.figureView.setDropIndicatorShown(True)
         self.figureView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.figureView.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
@@ -1064,12 +836,17 @@ class AddFigureDialog(QDialog):
         self.comboSubType = QComboBox()
         self.comboSubType.addItem("--None--")
         self.comboSubType.addItem("Figure")
+        self.comboSubNumbering = QComboBox()
+        self.comboSubNumbering.addItem("1, 2, 3, ...")
+        self.comboSubNumbering.addItem("A, B, C, ...")
+        self.comboSubNumbering.addItem("a, b, c, ...")
         self.prefix_widget = QWidget()
         self.prefix_layout = QHBoxLayout()
         self.prefix_layout.addWidget(self.lblType)
         self.prefix_layout.addWidget(self.comboType)
         self.prefix_layout.addWidget(self.edtNumber1)
         self.prefix_layout.addWidget(self.comboSubType)
+        self.prefix_layout.addWidget(self.comboSubNumbering)
         self.prefix_widget.setLayout(self.prefix_layout)
 
         self.up_button = QPushButton("Up")
@@ -1103,7 +880,8 @@ class AddFigureDialog(QDialog):
         self.model = QStandardItemModel()
         self.figureView.setModel(self.model)
         #self.model.rows_moved.connect(self.on_rows_moved)  # New signal connection
-        self.model.rowsMoved.connect(self.on_rows_moved)  # New signal connection
+        #self.model.rowsMoved.connect(self.on_rows_moved)  # New signal connection
+        self.model.dataChanged.connect(self.on_data_changed)
 
         # selection changed
         self.figureView.selectionModel().selectionChanged.connect(self.on_selection_changed)
@@ -1150,8 +928,8 @@ class AddFigureDialog(QDialog):
         self.middle_widget = QWidget()
         self.middle_layout = QHBoxLayout()
         self.middle_widget.setLayout(self.middle_layout)
-        self.middle_layout.addWidget(self.lblFigure)
-        self.middle_layout.addWidget(self.figure_widget)
+        self.middle_layout.addWidget(self.lblFigure,1)
+        self.middle_layout.addWidget(self.figure_widget,2)
 
 
         self.bottom_widget = QWidget()
@@ -1162,14 +940,33 @@ class AddFigureDialog(QDialog):
         self.bottom_layout.addWidget(self.saveButton)
         self.bottom_layout.addWidget(self.cancelButton)
 
+        self.statusBar = QLineEdit()
+        self.statusBar.setReadOnly(True)
+
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.top_widget)
         self.layout.addWidget(self.middle_widget)
         self.layout.addWidget(self.bottom_widget)
+        self.layout.addWidget(self.statusBar)
         self.setLayout(self.layout)
+
+        #self.setStatusBar(self.statusBar)
+
+    def fill_selected_cells(self):
+        selection_model = self.figureView.selectionModel()
+        if not selection_model.hasSelection():
+            return
+
+        value, ok = QInputDialog.getText(self, "Fill Cells", "Enter value to fill:")
+        if not ok:
+            return
+
+        for index in selection_model.selectedIndexes():
+            self.model.setData(index, value, Qt.EditRole)
 
     def move_up(self):
         #print("Move up")
+        row = -1
         indexes = self.figureView.selectionModel().selectedIndexes()
         if len(indexes) > 0:
             index = indexes[0]
@@ -1177,9 +974,16 @@ class AddFigureDialog(QDialog):
             if row > 0:
                 #self.model.moveRow(QModelIndex(), row, QModelIndex(), row-1)
                 self.subfigure_list[row], self.subfigure_list[row-1] = self.subfigure_list[row-1], self.subfigure_list[row]
-        self.load_figure_view(self.subfigure_list)
+        self.load_subfigure_list(self.subfigure_list)
+        if row > 0:
+            self.figureView.selectRow(row-1)
         # select row-1 row
-        self.figureView.selectRow(row-1)
+
+    def select_row(self, row):
+        self.figureView.selectRow(row)
+
+    def clear_selection(self):
+        self.figureView.clearSelection()
     
     def move_down(self):
         #print("Move down")
@@ -1191,7 +995,7 @@ class AddFigureDialog(QDialog):
                 #self.model.moveRow(QModelIndex(), row, QModelIndex(), row+1)
                 self.subfigure_list[row], self.subfigure_list[row+1] = self.subfigure_list[row+1], self.subfigure_list[row]
 
-        self.load_figure_view(self.subfigure_list)
+        self.load_subfigure_list(self.subfigure_list)
         # select row+1 row
         self.figureView.selectRow(row+1)
 
@@ -1206,7 +1010,15 @@ class AddFigureDialog(QDialog):
             row = index.row()
             subfigure = self.subfigure_list[row]
 
-    def load_figure_view(self, figure_list):
+    def on_data_changed(self, top_left, bottom_right, roles):
+        if Qt.EditRole in roles:
+            row = top_left.row()
+            col = top_left.column()
+            new_value = self.model.data(top_left)
+            print(f"Data changed at row {row}, column {col}: {new_value}")
+            # Update your subfigure_list or perform any other necessary actions here
+
+    def load_subfigure_list(self, figure_list):
         self.model.clear()
         self.model.setHorizontalHeaderLabels(["File Name", "Index", "Taxon name", "Caption", "Comments"])
         self.subfigure_list = figure_list
@@ -1217,14 +1029,19 @@ class AddFigureDialog(QDialog):
             caption = QStandardItem("")
             comments = QStandardItem("")
             
-            name.setData(cropped_pixmap, Qt.DecorationRole)
-            name.setData(rect, Qt.UserRole)
+            #name.setData(cropped_pixmap, Qt.DecorationRole)
+            #name.setData(rect, Qt.UserRole)
+            for item in [ taxon_name, caption, comments]:
+                item.setEditable(True)
+
             self.model.appendRow([name, figure_number, taxon_name, caption, comments])
 
     def on_custom_context_menu(self, pos):
         menu = QMenu()
-        action = menu.addAction("Delete")
-        action.triggered.connect(self.on_delete_subfigure)
+        fill_action = menu.addAction("Fill Cells")
+        fill_action.triggered.connect(self.fill_selected_cells)
+        delete_action = menu.addAction("Delete")
+        delete_action.triggered.connect(self.on_delete_subfigure)
         menu.exec_(self.figureView.viewport().mapToGlobal(pos))
 
     def on_delete_subfigure(self):
@@ -1243,6 +1060,8 @@ class AddFigureDialog(QDialog):
             # remove item from subfigure_list
             self.subfigure_list.pop(row)
             # update figure image
+        self.lblFigure.set_subfigure_list(self.subfigure_list)
+        self.update()
 
     def on_selection_changed(self, selected, deselected):
         #print("selection changed")
@@ -1312,7 +1131,7 @@ class AddFigureDialog(QDialog):
         self.subfigure_list = segmentation_results
         self.lblFigure.set_subfigure_list(self.subfigure_list)
 
-        self.load_figure_view(self.subfigure_list)
+        self.load_subfigure_list(self.subfigure_list)
 
 
         self.figureView.resizeColumnsToContents()
@@ -1343,6 +1162,7 @@ class AddFigureDialog(QDialog):
         print(f"New subfigure_list order: {[item[1] for item in self.subfigure_list]}")
 
     def on_btn_save_clicked(self):
+
         print("Save clicked")
         self.accept()
     

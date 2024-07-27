@@ -1,8 +1,10 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QPushButton, QTreeView, QSizePolicy, QHeaderView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QPushButton, QTreeView, QSizePolicy, QHeaderView, QLabel, QInputDialog
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QRect, QSize, QMargins, QObject, QEvent
-from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
+from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen, QFont, QMouseEvent, QWheelEvent, QPainter
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QStyleOptionViewItem, QListView, QStackedWidget, QAbstractItemView
-import time
+import time, math
+
+CLOSE_TO = { 'left': 1, 'right': 2, 'top': 4, 'bottom': 8 }
 
 class FigureTableModel(QAbstractTableModel):
     def __init__(self, parent=None):
@@ -202,3 +204,430 @@ class ClickableTreeView(QTreeView):
             # Optionally, clear the current index as well
             self.setCurrentIndex(self.rootIndex())
         super().mousePressEvent(event)    
+
+class FigureLabel(QLabel):
+    def __init__(self, parent=None):
+        super(FigureLabel, self).__init__(parent)
+        self.parent = parent
+        self.setMinimumSize(300,200)
+        self.edit_mode = "NONE"
+        self.orig_pixmap = None
+        self.curr_pixmap = None
+        self.scale = 1.0
+        self.prev_scale = 1.0
+        self.pan_x = 0
+        self.pan_y = 0
+        self.temp_pan_x = 0
+        self.temp_pan_y = 0
+        self.mouse_down_x = 0
+        self.mouse_down_y = 0
+        self.mouse_curr_x = 0
+        self.mouse_curr_y = 0
+        self.curr_rect = None
+        self.temp_rect = None
+        self.subfigure_list = []
+        self.curr_subfigure_index = -1
+        self.rect = QRect()
+        self.setMouseTracking(True)
+
+    def _2canx(self, coord):
+        return round((float(coord) / self.image_canvas_ratio) * self.scale) + self.pan_x + self.temp_pan_x
+    def _2cany(self, coord):
+        return round((float(coord) / self.image_canvas_ratio) * self.scale) + self.pan_y + self.temp_pan_y
+    def _2imgx(self, coord):
+        return round(((float(coord) - self.pan_x) / self.scale) * self.image_canvas_ratio)
+    def _2imgy(self, coord):
+        return round(((float(coord) - self.pan_y) / self.scale) * self.image_canvas_ratio)
+
+    def get_distance_to_line(self, curr_pos, line_start, line_end):
+        x1 = line_start[0]
+        y1 = line_start[1]
+        x2 = line_end[0]
+        y2 = line_end[1]
+        max_x = max(x1,x2)
+        min_x = min(x1,x2)
+        max_y = max(y1,y2)
+        min_y = min(y1,y2)
+        if curr_pos[0] > max_x or curr_pos[0] < min_x or curr_pos[1] > max_y or curr_pos[1] < min_y:
+            return -1
+        x0 = curr_pos[0]
+        y0 = curr_pos[1]
+        numerator = abs((y2-y1)*x0 - (x2-x1)*y0 + x2*y1 - y2*x1)
+        denominator = math.sqrt(math.pow(y2-y1,2) + math.pow(x2-x1,2))
+        return numerator/denominator
+
+    def get_distance(self, pos1, pos2):
+        return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
+
+    def set_edit_mode(self, mode):
+        self.edit_mode = mode
+
+    def check_subfigure(self, curr_pos):
+        close_to = 0
+        margin = 10
+        idx = -1
+        for i, subfigure in enumerate(self.subfigure_list):
+            close_to = 0
+            pixmap, rect = subfigure
+            x = self._2canx(rect.x())
+            y = self._2cany(rect.y())
+            w = round(rect.width() / self.image_canvas_ratio * self.scale)
+            h = round(rect.height() / self.image_canvas_ratio * self.scale)
+            rect = QRect(x - margin, y - margin, w + 2 * margin , h + 2 * margin)
+            if rect.contains(curr_pos[0], curr_pos[1]):
+                if x - margin < curr_pos[0] < x + margin:
+                    close_to += CLOSE_TO['left']
+                elif x + w - margin < curr_pos[0] < x + w + margin:
+                    close_to += CLOSE_TO['right']
+                if y - margin < curr_pos[1] < y + margin:
+                    close_to += CLOSE_TO['top']
+                elif y + h - margin < curr_pos[1] < y + h + margin:
+                    close_to += CLOSE_TO['bottom']
+                idx = i
+                break
+        # set cursor
+        if idx > -1:
+            if close_to & CLOSE_TO['left'] and close_to & CLOSE_TO['top'] or close_to & CLOSE_TO['right'] and close_to & CLOSE_TO['bottom']:
+                self.setCursor(Qt.SizeFDiagCursor)
+            elif close_to & CLOSE_TO['left'] and close_to & CLOSE_TO['bottom'] or close_to & CLOSE_TO['right'] and close_to & CLOSE_TO['top']:
+                self.setCursor(Qt.SizeBDiagCursor)
+            elif close_to & CLOSE_TO['left'] or close_to & CLOSE_TO['right']:
+                self.setCursor(Qt.SizeHorCursor)
+            elif close_to & CLOSE_TO['top'] or close_to & CLOSE_TO['bottom']:
+                self.setCursor(Qt.SizeVerCursor)
+            else:
+                self.setCursor(Qt.OpenHandCursor)
+            return i, close_to
+        else:
+            self.setCursor(Qt.ArrowCursor)
+
+        return -1, close_to
+
+    def mouseMoveEvent(self, event):
+        #print("mouse move event")
+        me = QMouseEvent(event)
+        self.mouse_curr_x = me.x()
+        self.mouse_curr_y = me.y()
+        curr_pos = [self.mouse_curr_x, self.mouse_curr_y]
+        #print("mouse move", curr_pos)
+        if self.edit_mode == "NEW_SUBFIGURE_DRAG":
+            diff_x = self.mouse_curr_x - self.down_x
+            diff_x = round(((float(diff_x)) / self.scale) * self.image_canvas_ratio)
+            diff_y = self.mouse_curr_y - self.down_y
+            diff_y = round(((float(diff_y)) / self.scale) * self.image_canvas_ratio)
+            self.temp_rect = QRect(self._2imgx(self.down_x), self._2imgy(self.down_y), diff_x, diff_y)
+        elif self.edit_mode == "PAN":
+            self.temp_pan_x = self.mouse_curr_x - self.mouse_down_x
+            self.temp_pan_y = self.mouse_curr_y - self.mouse_down_y
+        elif self.edit_mode == "ADJUSTING_SUBFIGURE":#in ["RESIZE_LEFT", "RESIZE_RIGHT", "RESIZE_TOP", "RESIZE_BOTTOM", "MOVE"]:
+            idx, close_to = self.check_subfigure(curr_pos)
+            self.adjusting_side = close_to
+            if idx == -1:
+                self.set_edit_mode("NONE")
+                self.temp_rect = None
+                self.curr_subfigure_index = -1
+                self.parent.clear_selection()
+            else:
+                self.parent.select_row(idx)
+                self.curr_subfigure_index = idx
+                self.set_edit_mode("ADJUSTING_SUBFIGURE")
+        elif self.edit_mode == "ADJUSTING_SUBFIGURE_DRAG":
+            #print("ADJUSTING_SUBFIGURE_DRAG", self.curr_subfigure_index)
+            diff_x = self.mouse_curr_x - self.mouse_down_x
+            diff_y = self.mouse_curr_y - self.mouse_down_y
+            #print("diff_x, diff_y", diff_x, diff_y)
+            diff_x = round(((float(diff_x)) / self.scale) * self.image_canvas_ratio)
+            diff_y = round(((float(diff_y)) / self.scale) * self.image_canvas_ratio)
+            #print("diff_x, diff_y", diff_x, diff_y)
+
+            # copy the current subfigure
+
+            self.temp_rect = QRect(self.subfigure_list[self.curr_subfigure_index][1])
+            #print("temp_rect before", self.temp_rect)
+            #self.temp_rect = self.subfigure_list[self.curr_subfigure_index][1]
+            if self.adjusting_side & CLOSE_TO['left']:
+                self.temp_rect.setLeft(self.temp_rect.left() + diff_x)
+            if self.adjusting_side & CLOSE_TO['right']:
+                self.temp_rect.setRight(self.temp_rect.right() + diff_x)
+            if self.adjusting_side & CLOSE_TO['top']:
+                self.temp_rect.setTop(self.temp_rect.top() + diff_y)
+            if self.adjusting_side & CLOSE_TO['bottom']:
+                self.temp_rect.setBottom(self.temp_rect.bottom() + diff_y)
+            if self.adjusting_side == 0:
+                # set cursor to closehand cursor
+                self.temp_rect.setLeft(self.temp_rect.left() + diff_x)
+                self.temp_rect.setRight(self.temp_rect.right() + diff_x)
+                self.temp_rect.setTop(self.temp_rect.top() + diff_y)
+                self.temp_rect.setBottom(self.temp_rect.bottom() + diff_y)
+            #print("temp_rect", self.temp_rect)
+        else:
+            idx, close_to = self.check_subfigure(curr_pos)
+            if idx == -1:
+                self.set_edit_mode("NONE")
+                self.parent.clear_selection()
+            else:
+                self.adjusting_side = close_to
+                self.curr_subfigure_index = idx
+                self.set_edit_mode("ADJUSTING_SUBFIGURE")
+                self.parent.select_row(idx)
+        self.repaint()
+        QLabel.mouseMoveEvent(self, event)
+
+    def mousePressEvent(self, event):
+        #print("mouse press event")
+        me = QMouseEvent(event)
+        if self.edit_mode == "DOUBLE_CLICK":
+            return
+        if me.button() == Qt.LeftButton:
+            #if self.object_dialog is None:
+            self.mouse_down_x = me.x()
+            self.mouse_down_y = me.y()
+            #    return
+            if self.edit_mode == "NONE":
+                self.down_x = me.x()
+                self.down_y = me.y()
+                self.edit_mode = "NEW_SUBFIGURE_DRAG"
+                self.temp_rect = QRect(self._2imgx(self.down_x), self._2imgy(self.down_y), 1, 1)
+            elif self.edit_mode == "ADJUSTING_SUBFIGURE": #in ["RESIZE_LEFT", "RESIZE_RIGHT", "RESIZE_TOP", "RESIZE_BOTTOM", "MOVE"]:
+                self.temp_rect = self.subfigure_list[self.curr_subfigure_index][1]
+                self.set_edit_mode("ADJUSTING_SUBFIGURE_DRAG")
+                if self.adjusting_side == 0:
+                    # set cursor to closehand cursor
+                    self.setCursor(Qt.ClosedHandCursor)
+        elif me.button() == Qt.RightButton:
+            #print("right button clicked")
+            #if self.edit_mode == "NONE":
+                #print("going into pan mode")
+                self.set_edit_mode("PAN")
+                self.temp_pan_x = self.pan_x
+                self.temp_pan_y = self.pan_y
+                self.mouse_down_x = me.x()
+                self.mouse_down_y = me.y()
+        else:
+            pass
+
+    def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
+        me = QMouseEvent(ev)
+        # restore cursor
+        self.setCursor(Qt.ArrowCursor)
+        self.mouse_curr_x = me.x()
+        self.mouse_curr_y = me.y()
+        curr_pos = [self.mouse_curr_x, self.mouse_curr_y]
+        if self.edit_mode == "PAN":
+            self.pan_x += self.temp_pan_x
+            self.pan_y += self.temp_pan_y
+            self.temp_pan_x = 0
+            self.temp_pan_y = 0
+        elif self.edit_mode == "ADJUSTING_SUBFIGURE_DRAG": #in ["NEW_SUBFIGURE_DRAG", "RESIZE_LEFT_DRAG", "RESIZE_RIGHT_DRAG", "RESIZE_TOP_DRAG", "RESIZE_BOTTOM_DRAG", "MOVE_DRAG"]:
+            #print("curr_subfigure_index", self.curr_subfigure_index, self.temp_rect)
+            self.subfigure_list[self.curr_subfigure_index] = (self.orig_pixmap.copy(self.temp_rect), self.temp_rect)
+            self.temp_rect = None
+            self.curr_subfigure_index = -1
+        elif self.edit_mode == "NEW_SUBFIGURE_DRAG":
+            #self.temp_rect = QRect(self.down_x, self.down_y, self.mouse_curr_x-self.down_x, self.mouse_curr_y-self.down_y)
+            self.subfigure_list.append((self.orig_pixmap.copy(self.temp_rect), self.temp_rect))
+            self.temp_rect = None
+        self.set_edit_mode("NONE")
+        idx, close_to = self.check_subfigure(curr_pos)
+        self.adjusting_side = close_to
+        if idx > -1:
+            self.curr_subfigure_index = idx
+            self.set_edit_mode("ADJUSTING_SUBFIGURE")
+        self.parent.load_subfigure_list(self.subfigure_list)
+        self.repaint()
+
+    def wheelEvent(self, event):
+        #if self.orig_pixmap is None:
+        #    return
+        we = QWheelEvent(event)
+        scale_delta_ratio = 0
+        if we.angleDelta().y() > 0:
+            scale_delta_ratio = 0.1
+        else:
+            scale_delta_ratio = -0.1
+        if self.scale <= 0.8 and scale_delta_ratio < 0:
+            return
+
+        self.prev_scale = self.scale
+        #new_scale = self.scale + scale_delta
+        #scale_proportion = new_scale / prev_scale       
+        self.adjust_scale(scale_delta_ratio)
+        #new_scale = self.scale + scale_delta
+        scale_proportion = self.scale / self.prev_scale
+        #print("1 pan_x, pan_y", self.pan_x, self.pan_y, "we.pos().x(), we.pos().y()", we.pos().x(), we.pos().y(), "scale_prop", scale_proportion, "scale", self.scale, "prev_scale", self.prev_scale, "scale_delta", scale_delta)       
+
+        self.pan_x = round( we.pos().x() - (we.pos().x() - self.pan_x) * scale_proportion )
+        self.pan_y = round( we.pos().y() - (we.pos().y() - self.pan_y) * scale_proportion )
+        #print("2 pan_x, pan_y", self.pan_x, self.pan_y, "we.pos().x(), we.pos().y()", we.pos().x(), we.pos().y(), "scale_prop", scale_proportion, "scale", self.scale, "prev_scale", self.prev_scale, "scale_delta", scale_delta)       
+
+        QLabel.wheelEvent(self, event)
+        self.repaint()
+        event.accept()
+
+    def adjust_scale(self, scale_delta_ratio, recurse = True):
+        #prev_scale = self.scale
+        #prev_scale = self.scale
+        #print("set scale", scale, self.parent, self.parent.sync_zoom)
+
+        if self.scale > 1:
+            scale_delta = math.floor(self.scale) * scale_delta_ratio
+        else:
+            scale_delta = scale_delta_ratio
+
+        self.scale += scale_delta
+        self.scale = round(self.scale * 10) / 10
+
+        if self.orig_pixmap is not None:
+            self.curr_pixmap = self.orig_pixmap.scaled(int(self.orig_pixmap.width() * self.scale / self.image_canvas_ratio), int(self.orig_pixmap.height() * self.scale / self.image_canvas_ratio))
+
+
+        self.repaint()
+
+    def paintEvent(self, event):
+        # fill background with dark gray
+        #print("paint event edge", self.edge_list)
+        self.parent.statusBar.setText( "{} {} {} {}".format(self.edit_mode, self.mouse_curr_x, self.mouse_curr_y, self.curr_subfigure_index))
+
+        painter = QPainter(self)
+        if self.curr_pixmap is not None:
+            #print("paintEvent", self.curr_pixmap.width(), self.curr_pixmap.height())
+            painter.drawPixmap(self.pan_x+self.temp_pan_x, self.pan_y+self.temp_pan_y,self.curr_pixmap)
+
+        for idx, subfigure in enumerate(self.subfigure_list):
+            if idx == self.curr_subfigure_index:
+                continue
+            pixmap, rect = subfigure
+            rect = self.rect_to_canvas(rect)
+            color = Qt.blue
+            painter.setPen(QPen(color, 2, Qt.DashLine))
+            painter.drawRect(rect)
+            # draw text in the middle of the rectangle with white background, calculated to fit the text, with a bit large font
+            painter.setPen(QPen(color))
+            painter.setFont(QFont("Arial", 12))
+            text = "{}".format(idx+1)
+            text_rect = painter.fontMetrics().boundingRect(text)
+            text_rect.setWidth(text_rect.width() + 10)
+            text_rect.setHeight(text_rect.height() + 10)
+            text_rect.moveCenter(rect.center())
+            painter.fillRect(text_rect, Qt.white)
+            painter.drawText(text_rect, Qt.AlignCenter, text)
+
+
+        color = Qt.red
+        if self.temp_rect is not None or self.curr_subfigure_index > -1:
+            if self.temp_rect is not None:
+                #print("paintEvent temp rect:", self.temp_rect)
+                rect = self.rect_to_canvas(self.temp_rect)
+                painter.setPen(QPen(color, 2, Qt.DashLine))
+                painter.drawRect(rect)
+                if self.curr_subfigure_index > -1:
+                    idx = self.curr_subfigure_index+1
+                else:
+                    idx = len(self.subfigure_list)+1
+            elif self.curr_subfigure_index > -1:
+                pixmap, rect = self.subfigure_list[self.curr_subfigure_index]
+                rect = self.rect_to_canvas(rect)
+                painter.setPen(QPen(color, 2, Qt.DashLine))
+                painter.drawRect(rect)
+                idx = self.curr_subfigure_index+1
+
+            text = "{}".format(idx)
+            painter.setPen(QPen(color))
+            painter.setFont(QFont("Arial", 12))
+            text_rect = painter.fontMetrics().boundingRect(text)
+            text_rect.setWidth(text_rect.width() + 10)
+            text_rect.setHeight(text_rect.height() + 10)
+            text_rect.moveCenter(rect.center())
+            painter.fillRect(text_rect, Qt.white)
+            painter.drawText(text_rect, Qt.AlignCenter, text)
+
+
+
+
+    def rect_to_canvas(self, rect):
+        x = self._2canx(rect.x())
+        y = self._2cany(rect.y())
+        w = round(rect.width() / self.image_canvas_ratio * self.scale)
+        h = round(rect.height() / self.image_canvas_ratio * self.scale)
+        return QRect(x, y, w, h)
+    
+    def adjust_pixmap(self):
+        #print("objectviewer calculate resize", self, self.object, self.landmark_list)
+        if self.orig_pixmap is not None:
+            self.orig_width = self.orig_pixmap.width()
+            self.orig_height = self.orig_pixmap.height()
+            #print("orig_width, orig_height", self.orig_width, self.orig_height)
+            image_wh_ratio = self.orig_width / self.orig_height
+            label_wh_ratio = self.width() / self.height()
+            #print("image_wh_ratio, label_wh_ratio", image_wh_ratio, label_wh_ratio)
+            if image_wh_ratio > label_wh_ratio:
+                self.image_canvas_ratio = self.orig_width / self.width()
+            else:
+                self.image_canvas_ratio = self.orig_height / self.height()
+            #print("image_canvas_ratio", self.image_canvas_ratio)
+            new_width = int(self.orig_width*self.scale/self.image_canvas_ratio)
+            new_height = int(self.orig_height*self.scale/self.image_canvas_ratio)
+            #print("new_width, new_height", new_width, new_height)
+
+            self.curr_pixmap = self.orig_pixmap.scaled(new_width,new_height, Qt.KeepAspectRatio)
+
+
+    def resizeEvent(self, event):
+        self.adjust_pixmap()
+        QLabel.resizeEvent(self, event)
+
+
+    def set_figure(self, file_name):
+        #self.figure = figure
+        self.orig_pixmap = QPixmap(file_name)
+        self.curr_subfigure_index = -1
+        self.adjust_pixmap()
+        self.repaint()
+
+    def set_subfigure_list(self, subfigure_list):
+        self.subfigure_list = subfigure_list
+        self.curr_subfigure_index = -1
+        #self.subfigure_rect = subfigure_rect
+        #self.orig_pixmap = QPixmap(subfigure.get_file_path())
+        #self.adjust_pixmap()
+        self.repaint()
+
+    def set_current_subfigure(self, subfigure_index):
+        self.curr_subfigure_index = subfigure_index
+        self.repaint()
+
+    def mouseDoubleClickEvent(self, event):
+        #print("mouse double click event")
+        me = QMouseEvent(event)
+        self.mouse_curr_x = me.x()
+        self.mouse_curr_y = me.y()
+        curr_pos = [self.mouse_curr_x, self.mouse_curr_y]
+        
+        if self.edit_mode == "ADJUSTING_SUBFIGURE":
+            self.show_figure_index_dialog(self.curr_subfigure_index)
+
+        self.set_edit_mode("DOUBLE_CLICK")
+        #idx, close_to = self.check_subfigure(curr_pos)
+        #self.adjusting_side = close_to
+        #if idx > -1:
+        #    self.curr_subfigure_index = idx
+        #    self.set_edit_mode("ADJUSTING_SUBFIGURE")
+
+        self.repaint()
+        super().mouseDoubleClickEvent(event)
+
+    def show_figure_index_dialog(self, old_index):
+        #current_max_index = max([int(subfig[1].data(Qt.UserRole)) for subfig in self.subfigure_list] + [0])
+        new_index, ok = QInputDialog.getInt(self, "Edit Figure Index", 
+                                            "Enter the index for current figure:",
+                                            self.curr_subfigure_index+1, 1, len(self.subfigure_list), 1)
+        if ok:
+            new_index -= 1
+            if new_index == old_index:
+                return
+            # pop old index subfigure and put it at the new index
+            old_subfigure = self.subfigure_list.pop(old_index)
+            self.subfigure_list.insert(new_index, old_subfigure)
+            self.curr_subfigure_index = new_index
+            # refresh parent's subfigure list
+            self.parent.load_subfigure_list(self.subfigure_list)

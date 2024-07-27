@@ -656,7 +656,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
     def write_settings(self):
         self.settings.setValue("geometry", self.saveGeometry())
-        self.settings.setValue("windowState", self.saveState())    
+        self.settings.setValue("windowState", self.saveState())
 
     def prepare_database(self):
         migrations_path = fg.resource_path("migrations")

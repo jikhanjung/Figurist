@@ -210,6 +210,7 @@ class FigureLabel(QLabel):
         super(FigureLabel, self).__init__(parent)
         self.parent = parent
         self.setMinimumSize(300,200)
+        self.read_only = False
         self.edit_mode = "NONE"
         self.orig_pixmap = None
         self.curr_pixmap = None
@@ -229,6 +230,9 @@ class FigureLabel(QLabel):
         self.curr_subfigure_index = -1
         self.rect = QRect()
         self.setMouseTracking(True)
+
+    def setReadOnly(self, read_only):
+        self.read_only = read_only
 
     def _2canx(self, coord):
         return round((float(coord) / self.image_canvas_ratio) * self.scale) + self.pan_x + self.temp_pan_x
@@ -326,11 +330,13 @@ class FigureLabel(QLabel):
                 self.set_edit_mode("NONE")
                 self.temp_rect = None
                 self.curr_subfigure_index = -1
-                self.parent.clear_selection()
+                if hasattr(self.parent, 'clear_selection'):
+                    self.parent.clear_selection()
             else:
-                self.parent.select_row(idx)
-                self.curr_subfigure_index = idx
-                self.set_edit_mode("ADJUSTING_SUBFIGURE")
+                if hasattr(self.parent, 'select_row'):
+                    self.parent.select_row(idx)
+                    self.curr_subfigure_index = idx
+                    self.set_edit_mode("ADJUSTING_SUBFIGURE")
         elif self.edit_mode == "ADJUSTING_SUBFIGURE_DRAG":
             #print("ADJUSTING_SUBFIGURE_DRAG", self.curr_subfigure_index)
             diff_x = self.mouse_curr_x - self.mouse_down_x
@@ -364,12 +370,14 @@ class FigureLabel(QLabel):
             idx, close_to = self.check_subfigure(curr_pos)
             if idx == -1:
                 self.set_edit_mode("NONE")
-                self.parent.clear_selection()
+                if hasattr(self.parent, 'clear_selection'):
+                    self.parent.clear_selection()
             else:
                 self.adjusting_side = close_to
                 self.curr_subfigure_index = idx
                 self.set_edit_mode("ADJUSTING_SUBFIGURE")
-                self.parent.select_row(idx)
+                if hasattr(self.parent, 'select_row'):
+                    self.parent.select_row(idx)
         self.repaint()
         QLabel.mouseMoveEvent(self, event)
 
@@ -384,25 +392,26 @@ class FigureLabel(QLabel):
             self.mouse_down_y = me.y()
             #    return
             if self.edit_mode == "NONE":
+                if self.read_only:
+                    return
                 self.down_x = me.x()
                 self.down_y = me.y()
                 self.edit_mode = "NEW_SUBFIGURE_DRAG"
                 self.temp_rect = QRect(self._2imgx(self.down_x), self._2imgy(self.down_y), 1, 1)
             elif self.edit_mode == "ADJUSTING_SUBFIGURE": #in ["RESIZE_LEFT", "RESIZE_RIGHT", "RESIZE_TOP", "RESIZE_BOTTOM", "MOVE"]:
+                if self.read_only:
+                    return
                 self.temp_rect = self.subfigure_list[self.curr_subfigure_index][1]
                 self.set_edit_mode("ADJUSTING_SUBFIGURE_DRAG")
                 if self.adjusting_side == 0:
                     # set cursor to closehand cursor
                     self.setCursor(Qt.ClosedHandCursor)
         elif me.button() == Qt.RightButton:
-            #print("right button clicked")
-            #if self.edit_mode == "NONE":
-                #print("going into pan mode")
-                self.set_edit_mode("PAN")
-                self.temp_pan_x = self.pan_x
-                self.temp_pan_y = self.pan_y
-                self.mouse_down_x = me.x()
-                self.mouse_down_y = me.y()
+            self.set_edit_mode("PAN")
+            self.temp_pan_x = self.pan_x
+            self.temp_pan_y = self.pan_y
+            self.mouse_down_x = me.x()
+            self.mouse_down_y = me.y()
         else:
             pass
 
@@ -433,7 +442,8 @@ class FigureLabel(QLabel):
         if idx > -1:
             self.curr_subfigure_index = idx
             self.set_edit_mode("ADJUSTING_SUBFIGURE")
-        self.parent.load_subfigure_list(self.subfigure_list)
+        if hasattr(self.parent, 'load_subfigure_list'):
+            self.parent.load_subfigure_list(self.subfigure_list)
         self.repaint()
 
     def wheelEvent(self, event):
@@ -486,7 +496,9 @@ class FigureLabel(QLabel):
     def paintEvent(self, event):
         # fill background with dark gray
         #print("paint event edge", self.edge_list)
-        self.parent.statusBar.setText( "{} {} {} {}".format(self.edit_mode, self.mouse_curr_x, self.mouse_curr_y, self.curr_subfigure_index))
+        if hasattr(self.parent, 'statusBar'):
+        #if self.parent.has_attr("statusBar"):
+            self.parent.statusBar.setText( "{} {} {} {}".format(self.edit_mode, self.mouse_curr_x, self.mouse_curr_y, self.curr_subfigure_index))
 
         painter = QPainter(self)
         if self.curr_pixmap is not None:

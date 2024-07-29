@@ -1,4 +1,4 @@
-"""Peewee migrations -- 001_20240724.py.
+"""Peewee migrations -- 001_20240729.py.
 
 Some examples (model - class or model name)::
 
@@ -38,6 +38,19 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your migrations here."""
     
     @migrator.create_model
+    class FgCollection(pw.Model):
+        id = pw.AutoField()
+        name = pw.CharField(max_length=255)
+        description = pw.TextField(null=True)
+        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True, on_delete='CASCADE')
+        zotero_key = pw.CharField(max_length=255)
+        created_at = pw.DateTimeField()
+        modified_at = pw.DateTimeField()
+
+        class Meta:
+            table_name = "fgcollection"
+
+    @migrator.create_model
     class FgReference(pw.Model):
         id = pw.AutoField()
         title = pw.CharField(max_length=255)
@@ -50,7 +63,6 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         doi = pw.CharField(max_length=255)
         url = pw.CharField(max_length=255)
         zotero_key = pw.CharField(max_length=255)
-        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True)
         abbreviation = pw.CharField(max_length=255, null=True)
         created_at = pw.DateTimeField()
         modified_at = pw.DateTimeField()
@@ -59,15 +71,30 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
             table_name = "fgreference"
 
     @migrator.create_model
+    class FgCollectionReference(pw.Model):
+        id = pw.AutoField()
+        collection = pw.ForeignKeyField(column_name='collection_id', field='id', model=migrator.orm['fgcollection'], on_delete='CASCADE')
+        reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], on_delete='CASCADE')
+        created_at = pw.DateTimeField()
+        modified_at = pw.DateTimeField()
+
+        class Meta:
+            table_name = "fgcollectionreference"
+
+    @migrator.create_model
     class FgFigure(pw.Model):
         id = pw.AutoField()
         file_name = pw.CharField(max_length=255)
         file_path = pw.CharField(max_length=255)
         figure_number = pw.CharField(max_length=255)
+        part1_prefix = pw.CharField(max_length=255, null=True)
+        part1_number = pw.CharField(max_length=255, null=True)
+        part2_prefix = pw.CharField(max_length=255, null=True)
+        part2_number = pw.CharField(max_length=255, null=True)
         caption = pw.TextField(null=True)
         comments = pw.TextField(null=True)
-        reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], null=True)
-        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True)
+        reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], null=True, on_delete='CASCADE')
+        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True, on_delete='CASCADE')
         created_at = pw.DateTimeField()
         modified_at = pw.DateTimeField()
 
@@ -82,7 +109,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         author = pw.CharField(max_length=255, null=True)
         year = pw.CharField(max_length=255, null=True)
         junior_synonym_of = pw.ForeignKeyField(column_name='junior_synonym_of_id', field='id', model='self', null=True)
-        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True)
+        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True, on_delete='CASCADE')
         created_at = pw.DateTimeField()
         modified_at = pw.DateTimeField()
 
@@ -90,7 +117,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
             table_name = "fgtaxon"
 
     @migrator.create_model
-    class TaxonFigure(pw.Model):
+    class FgTaxonFigure(pw.Model):
         id = pw.AutoField()
         taxon = pw.ForeignKeyField(column_name='taxon_id', field='id', model=migrator.orm['fgtaxon'], on_delete='CASCADE')
         figure = pw.ForeignKeyField(column_name='figure_id', field='id', model=migrator.orm['fgfigure'], on_delete='CASCADE')
@@ -99,10 +126,10 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         modified_at = pw.DateTimeField()
 
         class Meta:
-            table_name = "taxonfigure"
+            table_name = "fgtaxonfigure"
 
     @migrator.create_model
-    class TaxonReference(pw.Model):
+    class FgTaxonReference(pw.Model):
         id = pw.AutoField()
         taxon = pw.ForeignKeyField(column_name='taxon_id', field='id', model=migrator.orm['fgtaxon'], on_delete='CASCADE')
         reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], on_delete='CASCADE')
@@ -111,18 +138,22 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         modified_at = pw.DateTimeField()
 
         class Meta:
-            table_name = "taxonreference"
+            table_name = "fgtaxonreference"
 
 
 def rollback(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your rollback migrations here."""
     
-    migrator.remove_model('taxonreference')
+    migrator.remove_model('fgtaxonreference')
 
-    migrator.remove_model('taxonfigure')
+    migrator.remove_model('fgtaxonfigure')
 
     migrator.remove_model('fgtaxon')
 
     migrator.remove_model('fgfigure')
 
+    migrator.remove_model('fgcollectionreference')
+
     migrator.remove_model('fgreference')
+
+    migrator.remove_model('fgcollection')

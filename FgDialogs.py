@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QTableWidgetItem, QHeaderView, QFileDialog, QCheckBo
                             QTableView, QSplitter, QRadioButton, QComboBox, QTextEdit, QSizePolicy, \
                             QTableWidget, QGridLayout, QAbstractButton, QButtonGroup, QGroupBox, QListWidgetItem,\
                             QTabWidget, QListWidget, QSpinBox, QPlainTextEdit, QSlider, QScrollArea, QShortcut, QMenu, \
-                            QInputDialog
+                            QInputDialog, QTextEdit
 from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap, QStandardItemModel, QStandardItem, QImage,\
                         QFont, QPainter, QBrush, QMouseEvent, QWheelEvent, QDoubleValidator, QIcon, QCursor,\
                         QFontMetrics, QIntValidator, QKeySequence
@@ -49,6 +49,10 @@ class ReferenceDialog(QDialog):
 
     def initUI(self):
         ''' initialize UI '''
+        self.lblCollection = QLabel(self.tr("Collection"))
+        self.edtCollection = QLineEdit()
+        # read only
+        self.edtCollection.setReadOnly(True)
         self.lblTitle = QLabel(self.tr("Title"))
         self.edtTitle = QLineEdit()
         self.lblAuthor = QLabel(self.tr("Author"))
@@ -86,6 +90,7 @@ class ReferenceDialog(QDialog):
 
         self.form_widget = QWidget()
         self.form_layout = QFormLayout()
+        self.form_layout.addRow(self.lblCollection, self.edtCollection)
         self.form_layout.addRow(self.lblTitle, self.edtTitle)
         self.form_layout.addRow(self.lblAuthor, self.edtAuthor)
         self.form_layout.addRow(self.lblJournal, self.edtJournal)
@@ -119,13 +124,21 @@ class ReferenceDialog(QDialog):
         self.ref.url = self.edtURL.text()
         self.ref.zotero_key = self.edtZoteroKey.text()
         self.ref.save()
+
+        colref = FgCollectionReference.select().where(FgCollectionReference.collection == self.collection, FgCollectionReference.reference == self.ref)
+        if colref.count() == 0:
+            colref = FgCollectionReference()
+            colref.collection = self.collection
+            colref.reference = self.ref
+            colref.save()
+
         self.accept()
 
     def on_btn_cancel_clicked(self):
         print("Cancel clicked")
         self.reject()
 
-    def load_reference(self, ref):
+    def set_reference(self, ref):
         self.ref = ref
         self.edtTitle.setText(ref.title)
         self.edtAuthor.setText(ref.author)
@@ -137,6 +150,107 @@ class ReferenceDialog(QDialog):
         self.edtDOI.setText(ref.doi)
         self.edtURL.setText(ref.url)
         self.edtZoteroKey.setText(ref.zotero_key)
+
+    def set_collection(self, collection):
+        self.collection = collection
+        self.edtCollection.setText(collection.name)
+
+class CollectionDialog(QDialog):
+    # NewDatasetDialog shows new dataset dialog.
+    def __init__(self,parent):
+        super().__init__()
+        self.setWindowTitle(self.tr("Figurist - Collection Information"))
+        self.parent = parent
+        self.collection = None
+        self.parent_collection = None
+        #print(self.parent.pos())
+        #self.setGeometry(QRect(100, 100, 600, 400))
+        self.remember_geometry = True
+        self.m_app = QApplication.instance()
+        self.read_settings()
+        #self.move(self.parent.pos()+QPoint(100,100))
+        close_shortcut = QShortcut(QKeySequence("Ctrl+W"), self)
+        close_shortcut.activated.connect(self.close) 
+
+        self.initUI()
+        #self.prepare_database()
+
+    def read_settings(self):
+        settings = QSettings()
+        if settings.contains("geometry") and self.remember_geometry:
+            self.setGeometry(settings.value("geometry"))
+        else:
+            self.setGeometry(QRect(100, 100, 400, 300))
+
+    def initUI(self):
+        ''' initialize UI '''
+        self.lblParent = QLabel(self.tr("Parent Collection"))
+        self.edtParent = QLineEdit()
+        # read only
+        self.edtParent.setReadOnly(True)
+        self.lblCollectionName = QLabel(self.tr("Collection name"))
+        self.edtCollectionName = QLineEdit()
+        self.lblDescription = QLabel(self.tr("Description"))
+        self.edtDescription = QTextEdit()
+        self.lblZoteroKey = QLabel(self.tr("Zotero Key"))
+        self.edtZoteroKey = QLineEdit()
+        self.btnSave = QPushButton(self.tr("Save"))
+        self.btnSave.clicked.connect(self.on_btn_save_clicked)
+        self.btnCancel = QPushButton(self.tr("Cancel"))
+        self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
+
+        self.btn_widget = QWidget()
+        self.btn_layout = QHBoxLayout()
+        self.btn_layout.addWidget(self.btnSave)
+        self.btn_layout.addWidget(self.btnCancel)
+        self.btn_widget.setLayout(self.btn_layout)
+
+        #self.statusBar = QStatusBar()
+        #self.setStatusBar(self.statusBar)
+        self.all_layout = QVBoxLayout()
+
+        self.form_widget = QWidget()
+        self.form_layout = QFormLayout()
+        self.form_layout.addRow(self.lblParent, self.edtParent)
+        self.form_layout.addRow(self.lblCollectionName, self.edtCollectionName)
+        self.form_layout.addRow(self.lblDescription, self.edtDescription)
+        self.form_layout.addRow(self.lblZoteroKey, self.edtZoteroKey)
+        #self.form_layout.addRow(self.btnSave, self.btnCancel)
+        self.form_widget.setLayout(self.form_layout)
+        #self.layout.addRow(self.btnSave, self.btnCancel)
+        self.all_layout.addWidget(self.form_widget)
+        self.all_layout.addWidget(self.btn_widget)
+        self.setLayout(self.all_layout)
+
+    def on_btn_save_clicked(self):
+        #print("Save clicked")
+        if self.collection is None:
+            self.collection = FgCollection()
+        #self.ref = FgReference()
+        self.collection.name = self.edtCollectionName.text()
+        self.collection.description = self.edtDescription.toPlainText()
+        self.collection.zotero_key = self.edtZoteroKey.text()
+        if self.parent_collection:
+            self.collection.parent = self.parent_collection
+        self.collection.save()
+        self.accept()
+
+    def on_btn_cancel_clicked(self):
+        print("Cancel clicked")
+        self.reject()
+
+    def set_collection(self, collection):
+        self.collection = collection
+        if self.collection.parent:
+            self.parent_collection = self.collection.parent
+            self.edtParent.setText(self.parent_collection.name)
+        self.edtCollectionName.setText(collection.name)
+        self.edtDescription.setText(collection.description)
+        #self.edtZoteroKey.setText(collection.zotero_key)
+
+    def set_parent_collection(self, parent_collection):
+        self.parent_collection = parent_collection
+        self.edtParent.setText(parent_collection.name)
 
 class ProgressDialog(QDialog):
     def __init__(self,parent):
@@ -494,31 +608,35 @@ class TaxonDialog(QDialog):
         #    fig.taxon = self.taxon
         #    fig.save()
 
-        # find if taxon-reference relationship already exists
-        taxref = TaxonReference.select().where(TaxonReference.taxon == self.taxon, TaxonReference.reference == self.reference)
-        if taxref.count() == 0:
-            taxref = TaxonReference()
-            taxref.taxon = self.taxon
-            taxref.reference = self.reference
-            taxref.save()
+        self.update_taxon_reference(self.taxon, self.reference)
         
         # find if taxon-figure relationship already exists
-        for fig in self.figure_list:
-            taxfig_list = TaxonFigure.select().where(TaxonFigure.figure == fig)
-            if taxfig_list.count() > 0:
-                # delete existing relationship
-                for taxfig in taxfig_list:
-                    taxfig.delete_instance()
-            taxfig = TaxonFigure()
-            taxfig.taxon = self.taxon
-            taxfig.figure = fig
-            taxfig.save()
+        for figure in self.figure_list:
+            self.update_taxon_figure(self.taxon, figure)
 
         self.accept()
     
     def on_btn_cancel_clicked(self):
         print("Cancel clicked")
         self.reject()
+
+    def update_taxon_figure(self, taxon, figure):
+        taxfig = FgTaxonFigure.select().where(FgTaxonFigure.figure == figure, FgTaxonFigure.taxon == taxon)
+        if taxfig.count() == 0:
+            taxfig = FgTaxonFigure()
+            taxfig.taxon = taxon
+            taxfig.figure = figure
+            taxfig.save()
+
+    def update_taxon_reference(self, taxon, reference):
+        # find if taxon-reference relationship already exists
+        taxref = FgTaxonReference.select().where(FgTaxonReference.taxon == taxon, FgTaxonReference.reference == reference)
+        if taxref.count() == 0:
+            taxref = FgTaxonReference()
+            taxref.taxon = taxon
+            taxref.reference = reference
+            taxref.save()
+
 
 class FigureDialog(QDialog):
     def __init__(self,parent):
@@ -538,7 +656,7 @@ class FigureDialog(QDialog):
     
     def initUI(self):
         ''' initialize UI '''
-        self.lblFigure = QLabel()
+        self.lblFigure = FigureLabel()
         #self.lblFigure.setFixedSize(600,400)
         self.lblFile = QLabel(self.tr("File"))
         self.edtFile = QLineEdit()
@@ -559,9 +677,9 @@ class FigureDialog(QDialog):
         self.btn_layout.addWidget(self.btnCancel)
         self.btn_widget.setLayout(self.btn_layout)
 
-        self.scrollArea = QScrollArea()
-        self.scrollArea.setWidget(self.lblFigure)
-        self.scrollArea.setWidgetResizable(True)
+        #self.scrollArea = QScrollArea()
+        #self.scrollArea.setWidget(self.lblFigure)
+        #self.scrollArea.setWidgetResizable(True)
 
         #self.statusBar = QStatusBar()
         #self.setStatusBar(self.statusBar)
@@ -575,7 +693,7 @@ class FigureDialog(QDialog):
         self.form_layout.addRow(self.lblComments, self.edtComments)
         self.form_widget.setLayout(self.form_layout)
  
-        self.all_layout.addWidget(self.scrollArea,1)
+        self.all_layout.addWidget(self.lblFigure,1)
         self.all_layout.addWidget(self.form_widget)
         self.all_layout.addWidget(self.btn_widget)
         self.setLayout(self.all_layout)
@@ -599,10 +717,16 @@ class FigureDialog(QDialog):
     def load_figure(self, figure):
 
         self.figure = figure
-        self.figure_image = QPixmap(figure.get_file_path())
+        #self.figure_image = QPixmap(figure.get_file_path())
+        #self.lblFigure.setPixmap(self.figure_image)
+
+        self.lblFigure.set_figure(self.figure.get_file_path())
+        self.lblFigure.setReadOnly(True)#read_only = True
+        #self.lblFigure.set_edit_mode("VIEW_ONLY")
+
         # scale image to fit label
         #self.figure_image = self.figure_image.scaled(600,400,Qt.KeepAspectRatio)
-        self.lblFigure.setPixmap(self.figure_image)
+
         self.edtFile.setText(figure.file_name)
         self.edtFigureNumber.setText(figure.figure_number)
         self.edtCaption.setText(figure.caption)
@@ -1162,10 +1286,106 @@ class AddFigureDialog(QDialog):
         print(f"New subfigure_list order: {[item[1] for item in self.subfigure_list]}")
 
     def on_btn_save_clicked(self):
+        type = self.comboType.currentText()
+        number1 = self.edtNumber1.text()
+        sub_type = self.comboSubType.currentText()
+        if sub_type == "--None--":
+            sub_type = ""
+        sub_numbering = self.comboSubNumbering.currentText()
+        separator = "-"
+        if sub_numbering == "1, 2, 3, ...":
+            sub_number_list = [str(i+1) for i in range(len(self.subfigure_list))]
+        elif sub_numbering == "A, B, C, ...":
+            sub_number_list = [chr(i+65) for i in range(len(self.subfigure_list))]
+        elif sub_numbering == "a, b, c, ...":
+            sub_number_list = [chr(i+97) for i in range(len(self.subfigure_list))]
+        else:
+            sub_number_list = ["" for i in range(len(self.subfigure_list))]
+        
+        if sub_type == "--None--" and len(self.subfigure_list) == 1:
+            separator = ""
+        
 
-        print("Save clicked")
+        if len(self.subfigure_list) > 0:
+            parent_figure = FgFigure()
+            parent_figure.file_name = f"{type}{number1}.png"
+            parent_figure.figure_number = f"{type}{number1}"
+            #figure.caption = self.model.item(0, 3).text()
+            #figure.comments = self.model.item(0, 4).text()
+            parent_figure.reference = self.reference
+            parent_figure.file_path = ""
+            parent_figure.save()
+            parent_figure.add_pixmap(self.original_figure_image)
+            #self.original_figure_image.save(f"{type}{number1}.png")
+
+        for i, (cropped_pixmap, rect) in enumerate(self.subfigure_list):
+            figure = FgFigure()
+            figure.reference = self.reference
+            figure.parent = parent_figure
+            sub_number = sub_number_list[i]
+            figure.file_name = f"{type}{number1}{separator}{sub_type}{sub_number}.png"
+            figure.figure_number = f"{type}{number1}{separator}{sub_type}{sub_number}"
+            figure.file_path = ""
+            #print("figure number:", figure.figure_number)
+            figure.part1_prefix = type
+            figure.part1_number = number1
+            figure.part2_prefix = sub_type
+            figure.part2_number = sub_number
+            #figure.caption = 
+            taxon_name = self.model.item(i, 2).text()
+            taxon = self.process_taxon_name(taxon_name)
+
+            figure.caption = self.model.item(i, 3).text()
+            figure.comments = self.model.item(i, 4).text()
+            figure.save()
+            figure.add_pixmap(cropped_pixmap)
+
+            self.update_taxon_figure(taxon, figure)
+            self.update_taxon_reference(taxon, self.reference)
+            #print(f"Name: {name.text()}, Figure Number: {figure_number.text()}, Caption: {caption.text()}, Comments: {comments.text()}")
         self.accept()
     
+    def update_taxon_figure(self, taxon, figure):
+        taxfig = FgTaxonFigure.select().where(FgTaxonFigure.figure == figure, FgTaxonFigure.taxon == taxon)
+        if taxfig.count() == 0:
+            taxfig = FgTaxonFigure()
+            taxfig.taxon = taxon
+            taxfig.figure = figure
+            taxfig.save()
+
+    def update_taxon_reference(self, taxon, reference):
+        # find if taxon-reference relationship already exists
+        taxref = FgTaxonReference.select().where(FgTaxonReference.taxon == taxon, FgTaxonReference.reference == reference)
+        if taxref.count() == 0:
+            taxref = FgTaxonReference()
+            taxref.taxon = taxon
+            taxref.reference = reference
+            taxref.save()
+
+
+    def process_taxon_name(self, taxon_name, taxon_rank = "Species"):
+        taxon = FgTaxon.select().where(FgTaxon.name == taxon_name)
+        if taxon.count() > 0:
+            taxon = taxon[0]
+        else:
+            taxon = FgTaxon()
+            taxon.name = taxon_name
+            name_list = taxon.name.split(" ")
+            taxon.parent = None
+            #taxon.rank = self.edtTaxonRank.text()
+            if len(name_list) > 1:
+                ''' this is a species '''
+                genus, created = FgTaxon.get_or_create(name=name_list[0])
+                print("genus:",genus)
+                genus.rank = "Genus"
+                genus.save()
+                taxon.parent = genus
+                taxon.rank = "Species"
+            else:
+                taxon.rank = taxon_rank
+            taxon.save()
+        return taxon
+
     def on_btn_cancel_clicked(self):
         print("Cancel clicked")
         self.reject()

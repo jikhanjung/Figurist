@@ -13,6 +13,17 @@ DATABASE_FILENAME = fg.PROGRAM_NAME + ".db"
 database_path = os.path.join(fg.DEFAULT_DB_DIRECTORY, DATABASE_FILENAME)
 gDatabase = SqliteDatabase(database_path,pragmas={'foreign_keys': 1})
 
+class FgCollection(Model):
+    name = CharField()
+    description = TextField(null=True)
+    parent = ForeignKeyField('self', backref='children', null=True,on_delete="CASCADE")
+    zotero_key = CharField()
+    created_at = DateTimeField(default=datetime.datetime.now)
+    modified_at = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        database = gDatabase
+
 class FgReference(Model):
     title = CharField()
     author = CharField()
@@ -24,7 +35,6 @@ class FgReference(Model):
     doi = CharField()
     url = CharField()
     zotero_key = CharField()
-    parent = ForeignKeyField('self', backref='children', null=True)
     abbreviation = CharField(null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
@@ -47,6 +57,14 @@ class FgReference(Model):
             return self.author + " (" + str(self.year) + ")"
         #return self.author + " (" + str(self.year) + ")"
 
+class FgCollectionReference(Model):
+    collection = ForeignKeyField(FgCollection, backref='references',on_delete="CASCADE")
+    reference = ForeignKeyField(FgReference, backref='collections',on_delete="CASCADE")
+    created_at = DateTimeField(default=datetime.datetime.now)
+    modified_at = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        database = gDatabase
 
 class FgTaxon(Model):
     name = CharField()
@@ -54,7 +72,7 @@ class FgTaxon(Model):
     author = CharField(null=True)
     year = CharField(null=True)
     junior_synonym_of = ForeignKeyField('self', backref='synonyms', null=True)
-    parent = ForeignKeyField('self', backref='children', null=True)
+    parent = ForeignKeyField('self', backref='children', null=True,on_delete="CASCADE")
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
 
@@ -65,11 +83,15 @@ class FgFigure(Model):
     file_name = CharField()
     file_path = CharField()
     figure_number = CharField()
+    part1_prefix = CharField(null=True)
+    part1_number = CharField(null=True)
+    part2_prefix = CharField(null=True)
+    part2_number = CharField(null=True)
     caption = TextField(null=True)
     comments = TextField(null=True)
-    reference = ForeignKeyField(FgReference, backref='figures', null=True)
+    reference = ForeignKeyField(FgReference, backref='figures', null=True,on_delete="CASCADE")
     #taxon = ForeignKeyField(FgTaxon, backref='figures', null=True)
-    parent = ForeignKeyField('self', backref='children', null=True)
+    parent = ForeignKeyField('self', backref='children', null=True,on_delete="CASCADE")
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
 
@@ -134,6 +156,7 @@ class FgFigure(Model):
     
     def add_pixmap(self, pixmap):
         new_filepath = self.get_file_path()
+        #print("new file:", new_filepath)
         if not os.path.exists(os.path.dirname(new_filepath)):
             os.makedirs(os.path.dirname(new_filepath))
         pixmap.save(new_filepath)
@@ -177,7 +200,7 @@ class FgFigure(Model):
         #self.file_modified = file_info['mtime']
 
     def get_file_path(self, base_path =  fg.DEFAULT_STORAGE_DIRECTORY ):
-        return os.path.join( base_path, str(self.reference.id), str(self.id) + "." + str(self.file_path).split('.')[-1])
+        return os.path.join( base_path, str(self.reference.id), str(self.id) + "." + str(self.file_name).split('.')[-1])
 
     def get_md5hash_info(self,filepath):
         return '', ''
@@ -189,7 +212,7 @@ class FgFigure(Model):
         md5hash = hasher.hexdigest()
         return md5hash, image_data
 
-class TaxonReference(Model):
+class FgTaxonReference(Model):
     taxon = ForeignKeyField(FgTaxon, backref='related_references',on_delete="CASCADE")
     reference = ForeignKeyField(FgReference, backref='related_taxa',on_delete="CASCADE")
     reltype = CharField(null=True)
@@ -199,7 +222,7 @@ class TaxonReference(Model):
     class Meta:
         database = gDatabase
 
-class TaxonFigure(Model):
+class FgTaxonFigure(Model):
     taxon = ForeignKeyField(FgTaxon, backref='related_figures',on_delete="CASCADE")
     figure = ForeignKeyField(FgFigure, backref='related_taxa',on_delete="CASCADE")
     reltype = CharField(null=True)

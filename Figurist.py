@@ -27,7 +27,8 @@ import time
 
 logger = setup_logger(fg.PROGRAM_NAME)
 
-ICON = {'new_reference': 'icons/new_reference.png', 'about': 'icons/about.png', 'exit': 'icons/exit.png', 'preferences': 'icons/preferences.png' } 
+ICON = {'new_reference': 'icons/new_reference.png', 'about': 'icons/about.png', 'exit': 'icons/exit.png', 'preferences': 'icons/preferences.png',
+        'new_collection': 'icons/new_collection.png' } 
 
 class FiguristMainWindow(QMainWindow):
     def __init__(self):
@@ -110,6 +111,8 @@ class FiguristMainWindow(QMainWindow):
 
 
         self.referenceView.doubleClicked.connect(self.on_referenceView_doubleClicked)
+        self.referenceView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.referenceView.customContextMenuRequested.connect(self.open_referenceView_menu)
         self.taxonView.setContextMenuPolicy(Qt.CustomContextMenu)
         self.taxonView.customContextMenuRequested.connect(self.open_taxonView_menu)
         self.figureView.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -134,6 +137,9 @@ class FiguristMainWindow(QMainWindow):
         self.actionNewReference = QAction(QIcon(fg.resource_path(ICON['new_reference'])), self.tr("New Reference\tCtrl+N"), self)
         self.actionNewReference.triggered.connect(self.on_action_new_reference_triggered)
         self.actionNewReference.setShortcut(QKeySequence("Ctrl+N"))
+        self.actionNewCollection = QAction(QIcon(fg.resource_path(ICON['new_collection'])), self.tr("New Collection"), self)
+        self.actionNewCollection.triggered.connect(self.on_action_new_collection_triggered)
+        self.actionNewCollection.setShortcut(QKeySequence("Ctrl+M"))
         self.actionExit = QAction(QIcon(fg.resource_path(ICON['exit'])), self.tr("Exit\tCtrl+W"), self)
         self.actionExit.triggered.connect(self.on_action_exit_triggered)
         self.actionExit.setShortcut(QKeySequence("Ctrl+W"))
@@ -143,16 +149,18 @@ class FiguristMainWindow(QMainWindow):
         self.actionPreferences = QAction(QIcon(fg.resource_path(ICON['preferences'])),self.tr("Preferences"), self)
         self.actionPreferences.triggered.connect(self.on_action_preferences_triggered)
 
+        self.toolbar.addAction(self.actionNewCollection)
         self.toolbar.addAction(self.actionNewReference)
         self.toolbar.addAction(self.actionPreferences)
         self.toolbar.addAction(self.actionAbout)
         self.addToolBar(self.toolbar)
 
 
-
         ''' menu '''
         self.main_menu = self.menuBar()
         self.file_menu = self.main_menu.addMenu(self.tr("File"))
+        self.file_menu.addAction(self.actionNewCollection)
+        self.file_menu.addAction(self.actionNewReference)
         self.file_menu.addAction(self.actionExit)
         self.help_menu = self.main_menu.addMenu(self.tr("Help"))
         self.help_menu.addAction(self.actionAbout)
@@ -212,7 +220,7 @@ class FiguristMainWindow(QMainWindow):
         else:
             print(f"Clicked on item: {index_at_pos.data()}")
     def on_referenceView_pressed(self, index):
-        print("referenceView pressed", index, index.isValid())
+        #print("referenceView pressed", index, index.isValid())
         if not index.isValid():
             # Click is outside any item
             self.referenceView.clearSelection()
@@ -318,12 +326,22 @@ class FiguristMainWindow(QMainWindow):
         self.load_figure()
 
     def on_referenceView_doubleClicked(self):
-        self.dlg = ReferenceDialog(self)
-        self.dlg.setModal(True)
-        self.dlg.load_reference( self.selected_reference )
-        ret = self.dlg.exec_()
-        self.reset_referenceView()
-        self.load_references()
+        #obj = 
+        if self.selected_reference is not None:
+            self.dlg = ReferenceDialog(self)
+            self.dlg.setModal(True)
+            self.dlg.set_reference( self.selected_reference )
+            self.dlg.set_collection( self.selected_collection )
+            ret = self.dlg.exec_()
+            self.reset_referenceView()
+            self.load_references()
+        else:
+            self.dlg = CollectionDialog(self)
+            self.dlg.setModal(True)
+            self.dlg.set_collection( self.selected_collection )
+            ret = self.dlg.exec_()
+            self.reset_referenceView()
+            self.load_references()
 
     def reset_referenceView(self):
         self.reference_model = QStandardItemModel()
@@ -334,14 +352,38 @@ class FiguristMainWindow(QMainWindow):
         header = self.referenceView.header()
         self.referenceView.setSelectionBehavior(QTreeView.SelectRows)
 
+    def load_subcollections(self, collection, parent_item):
+        for subcoll in collection.children:
+            item1 = QStandardItem(subcoll.name)
+            item1.setData(subcoll)
+            parent_item.appendRow([item1])
+            self.load_subcollections(subcoll, item1)
+            self.load_references_in_collection(subcoll, item1)
+
+    def load_references_in_collection(self, collection, parent_item):
+        for colref in collection.references:
+            item1 = QStandardItem(colref.reference.get_abbr())
+            #item2 = QStandardItem(str(ref.id))
+            item1.setData(colref.reference)
+            parent_item.appendRow([item1])
+
+
     def load_references(self):
         #print("load references", self.mode)
         self.reference_model.clear()
         self.selected_reference = None
-        ref_list = FgReference.filter(parent=None)
+        #ref_list = FgReference.filter(parent=None)
 
         if self.mode == "Reference":
-            ref_list = FgReference.select().order_by(FgReference.author, FgReference.year)
+            coll_list = FgCollection.select().where(FgCollection.parent==None).order_by(FgCollection.name)
+            for coll in coll_list:
+                item1 = QStandardItem(coll.name)
+                item1.setData(coll)
+                self.reference_model.appendRow([item1])
+                self.load_subcollections(coll, item1)
+                self.load_references_in_collection(coll, item1)
+
+            #ref_list = FgReference.select().order_by(FgReference.author, FgReference.year)
         else:
             '''
             taxref = TaxonReference.select().where(TaxonReference.taxon << self.selected_taxa)
@@ -352,25 +394,23 @@ class FiguristMainWindow(QMainWindow):
             # order by author and year
             ref_list = sorted(ref_list, key=lambda x: (x.author, x.year))
             '''
-            print("selected taxa:", self.selected_taxa)
+            #print("selected taxa:", self.selected_taxa)
             if len(self.selected_taxa) > 0:
-
                 ref_list = (FgReference
                 .select(FgReference)
-                .join(TaxonReference)
-                .where(TaxonReference.taxon << self.selected_taxa)
+                .join(FgTaxonReference)
+                .where(FgTaxonReference.taxon << self.selected_taxa)
                 .group_by(FgReference)
                 .order_by(FgReference.author, FgReference.year)
                 .distinct())
             else:
                 ref_list = []
-            print("taxon reference:", ref_list)
 
-        for ref in ref_list:
-            item1 = QStandardItem(ref.get_abbr())
-            item2 = QStandardItem(str(ref.id))
-            item1.setData(ref)
-            self.reference_model.appendRow([item1,item2])#,item2,item3] )
+            for ref in ref_list:
+                item1 = QStandardItem(ref.get_abbr())
+                item2 = QStandardItem(str(ref.id))
+                item1.setData(ref)
+                self.reference_model.appendRow([item1,item2])#,item2,item3] )
         self.referenceView.expandAll()
         self.referenceView.hideColumn(1)
 
@@ -401,7 +441,7 @@ class FiguristMainWindow(QMainWindow):
             self.taxon_selection_model.selectionChanged.disconnect(self.on_taxon_selection_changed)
 
             for taxon in newly_selected_taxa:
-                print("newly selected taxon:", taxon.name)
+                #print("newly selected taxon:", taxon.name)
                 if taxon.children.count() > 0:
                     self.selected_taxa.extend(taxon.children)
                     # select children
@@ -415,7 +455,7 @@ class FiguristMainWindow(QMainWindow):
                         #index = self.taxon_model.indexFromItem(child)
                         #self.taxonView.selectionModel().select(index, QItemSelectionModel.Select)
 
-                    print("children:", [t.name for t in taxon.children])
+                    #print("children:", [t.name for t in taxon.children])
             self.taxon_selection_model.selectionChanged.connect(self.on_taxon_selection_changed)
         #print("selected taxa:", [t.name for t in self.selected_taxa])
 
@@ -431,12 +471,23 @@ class FiguristMainWindow(QMainWindow):
         if len(indexes) == 0:
             return
         index = indexes[0]
-        self.selected_reference = self.reference_model.itemFromIndex(index).data()
+        obj = self.reference_model.itemFromIndex(index).data()
+        if isinstance(obj, FgReference):
+            self.selected_reference = obj
+            # get parent item of the selected item
+            parent_item = self.reference_model.itemFromIndex(index.parent())
+            if parent_item:
+                self.selected_collection = parent_item.data()
+            else:
+                self.selected_collection = None
+            if self.mode == "Reference":
+                self.selected_taxa = []
+                self.load_taxa()
+            self.filter_figures()
+        elif isinstance(obj, FgCollection):
+            self.selected_collection = obj
+            self.selected_reference = None
         #print("selected reference:", self.selected_reference)
-        if self.mode == "Reference":
-            self.selected_taxa = []
-            self.load_taxa()
-        self.filter_figures()
         return
         #else:
         #    self.filter_figures_by_taxa()
@@ -462,7 +513,7 @@ class FiguristMainWindow(QMainWindow):
         taxa_list = []
         #print("selected reference:", self.selected_reference, self.mode)
         if self.mode == "Reference":
-            taxref = TaxonReference.select().where(TaxonReference.reference == self.selected_reference)
+            taxref = FgTaxonReference.select().where(FgTaxonReference.reference == self.selected_reference)
             for tr in taxref:
                 taxa_list.append(tr.taxon)
         else:
@@ -640,6 +691,12 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         self.reset_referenceView()
         self.load_references()
 
+    def on_action_new_collection_triggered(self):
+        dialog = CollectionDialog(self)
+        dialog.exec_()
+        self.reset_referenceView()
+        self.load_references()
+
         #print("New Reference")
 
     def on_action_exit_triggered(self):
@@ -733,6 +790,92 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         self.load_figure()
         self.load_taxa()
 
+    def open_referenceView_menu(self, position):
+        indexes = self.referenceView.selectedIndexes()
+        if len(indexes) == 0:
+            return
+
+        if self.mode == "Reference":
+            index = indexes[0]
+            item = self.reference_model.itemFromIndex(index)
+            obj = item.data()
+            if isinstance(obj, FgReference):
+                self.selected_reference = obj
+                self.selected_collection = None
+            elif isinstance(obj, FgCollection):
+                self.selected_collection = obj
+                self.selected_reference = None
+    
+        action_add_collection = QAction(self.tr("Add collection"))
+        action_add_collection.triggered.connect(self.on_action_add_collection_triggered)
+        action_add_subcollection = QAction(self.tr("Add subcollection"))
+        action_add_subcollection.triggered.connect(self.on_action_add_subcollection_triggered)
+        action_delete_collection = QAction(self.tr("Delete collection"))
+        action_delete_collection.triggered.connect(self.on_action_delete_collection_triggered)
+
+
+        action_add_reference = QAction(self.tr("Add reference"))
+        action_add_reference.triggered.connect(self.on_action_add_reference_triggered)
+        action_delete_reference = QAction(self.tr("Delete reference"))
+        action_delete_reference.triggered.connect(self.on_action_delete_reference_triggered)
+
+        menu = QMenu()
+        if self.selected_collection is not None:
+            menu.addAction(action_add_subcollection)
+            menu.addAction(action_add_reference)
+            menu.addAction(action_delete_collection)
+        elif self.selected_reference is not None:
+            menu.addAction(action_delete_reference)
+        else:
+            menu.addAction(action_add_collection)
+        menu.exec_(self.referenceView.viewport().mapToGlobal(position))
+
+    def on_action_delete_collection_triggered(self):
+        if self.selected_collection is None:
+            return
+        #print("delete collection:", self.selected_collection)
+        if self.selected_collection.children.count() > 0 or self.selected_collection.references.count() > 0:
+            msg = self.tr("Collection {} has subcollections/references. Delete collection and subcollections/references?").format(self.selected_collection.name)
+            ret = QMessageBox.question(self, self.tr("Delete collection"), msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if ret == QMessageBox.No:
+                return
+        self.selected_collection.delete_instance()
+        self.reset_referenceView()
+        self.load_references()
+
+    def on_action_delete_reference_triggered(self):
+        if self.selected_reference is None:
+            return
+        #print("delete reference:", self.selected_reference)
+        if self.selected_reference.figures.count() > 0:
+            msg = self.tr("Reference {} has figures. Delete reference and figures?").format(self.selected_reference.get_abbr())
+            ret = QMessageBox.question(self, self.tr("Delete reference"), msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if ret == QMessageBox.No:
+                return
+        self.selected_reference.delete_instance()
+        self.reset_referenceView()
+        self.load_references()
+
+    def on_action_add_collection_triggered(self):
+        dialog = CollectionDialog(self)
+        #dialog.set_parent_collection(self.selected_collection)
+        dialog.exec_()
+        self.reset_referenceView()
+        self.load_references()
+
+    def on_action_add_subcollection_triggered(self):
+        dialog = CollectionDialog(self)
+        dialog.set_parent_collection(self.selected_collection)
+        dialog.exec_()
+        self.reset_referenceView()
+        self.load_references()
+
+    def on_action_add_reference_triggered(self):
+        dialog = ReferenceDialog(self)
+        dialog.set_collection(self.selected_collection)
+        dialog.exec_()
+        self.reset_referenceView()
+        self.load_references()
 
     def open_figureView_menu(self, position):
         indexes = self.figureView.selectedIndexes()
@@ -781,6 +924,12 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             #figure_id = figure_data.get('id')
             #print("figure_id:", figure_id)
             #print("figure:", figure.id, figure)
+            if figure.children.count() > 0:
+                continue
+                #msg = self.tr("Figure {} has subfigures. Delete figure and subfigures?").format(figure.figure_number)
+                #ret = QMessageBox.question(self, self.tr("Delete figure"), msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                #if ret == QMessageBox.No:
+                #    continue
             figure.delete_instance()
         
         self.load_figure()

@@ -19,7 +19,7 @@ from FgModel import *
 from FgDialogs import *
 from peewee_migrate import Router
 import traceback
-from FgComponents import FgFigureView, TreeViewClickFilter, ClickableTreeView
+from FgComponents import FgFigureView, TreeViewClickFilter, ClickableTreeView, DraggableTreeView
 from FgLogger import setup_logger
 from functools import reduce
 import operator
@@ -43,17 +43,26 @@ class FiguristMainWindow(QMainWindow):
         self.load_references()
         #self.toggle_view()
 
+    def on_referenceView_emptyAreaClicked(self):
+        self.referenceView.clearSelection()
+        self.referenceView.setCurrentIndex(self.referenceView.rootIndex())
+        self.selected_reference = None
+        if self.mode == "Reference":
+            self.selected_collection = None
+            self.load_taxa()
+        self.filter_figures()
+
     def initUI(self):
         ''' initialize UI '''
         self.figureView = FgFigureView()
-        self.referenceView = QTreeView()
+        self.referenceView = DraggableTreeView()
         self.taxonView = QTreeView()
-        #self.taxonView.pressed.connect(self.on_taxonView_pressed)
-        #self.referenceView.pressed.connect(self.on_referenceView_pressed)
-        #click_filter1 = TreeViewClickFilter(self.referenceView)
-        #self.referenceView.viewport().installEventFilter(click_filter1)
-        #click_filter2 = TreeViewClickFilter(self.taxonView)
-        #self.taxonView.viewport().installEventFilter(click_filter2)
+        self.referenceView.setDragEnabled(True)
+        self.referenceView.setAcceptDrops(True)
+        self.referenceView.setDragDropMode(QAbstractItemView.DragDrop)        
+        #self.referenceView.setAcceptDrops(True)
+        self.referenceView.dropEvent = self.dropEvent
+        self.referenceView.emptyAreaClicked.connect(self.on_referenceView_emptyAreaClicked)
 
         self.icon_mode = False
         self.mode = "Reference"
@@ -135,7 +144,7 @@ class FiguristMainWindow(QMainWindow):
         self.toolbar.setIconSize(QSize(32,32))
 
         self.actionNewReference = QAction(QIcon(fg.resource_path(ICON['new_reference'])), self.tr("New Reference\tCtrl+N"), self)
-        self.actionNewReference.triggered.connect(self.on_action_new_reference_triggered)
+        self.actionNewReference.triggered.connect(self.on_action_add_reference_triggered)
         self.actionNewReference.setShortcut(QKeySequence("Ctrl+N"))
         self.actionNewCollection = QAction(QIcon(fg.resource_path(ICON['new_collection'])), self.tr("New Collection"), self)
         self.actionNewCollection.triggered.connect(self.on_action_new_collection_triggered)
@@ -186,6 +195,146 @@ class FiguristMainWindow(QMainWindow):
         '''
         self.toggle_view(True)
 
+
+    def dropEvent(self, event):
+        #print("reference view drop event")
+        if not event.mimeData().hasFormat("application/x-qabstractitemmodeldatalist"):
+            print("not has format")
+            event.ignore()
+            return
+
+        drop_index = self.referenceView.indexAt(event.pos())
+        #print("drop index:", drop_index, drop_index.isValid())
+        if not drop_index.isValid():
+            event.ignore()
+            return
+
+        drop_item = self.reference_model.itemFromIndex(drop_index)
+        #print("drop item:", drop_item, drop_item.data())
+        if not isinstance(drop_item.data(), FgCollection):
+            event.ignore()
+            return
+    
+        target_collection = drop_item.data()
+        source_indexes = self.referenceView.selectedIndexes()
+        old_collection = self.reference_model.itemFromIndex(source_indexes[0].parent()).data()
+        for index in source_indexes:
+            item = self.reference_model.itemFromIndex(index)
+            if isinstance(item.data(), FgReference):
+                reference = item.data()
+                if event.keyboardModifiers() & Qt.ShiftModifier:
+                    new_colref = FgCollectionReference.select().where(FgCollectionReference.collection==target_collection, FgCollectionReference.reference==reference).first()
+                    if new_colref is None:
+                        FgCollectionReference.create(collection=target_collection, reference=reference)
+                    else:
+                        # show messagebox that it already exists
+                        msgbox = QMessageBox()
+                        msgbox.setText("Reference already exists in the target collection.")
+                        msgbox.exec()
+                else:
+                    # Move action (change collection from old_collection to target_colection)
+                    new_colref = FgCollectionReference.select().where(FgCollectionReference.collection==target_collection, FgCollectionReference.reference==reference).first()
+                    #(collection=target_collection, reference=reference)
+                    if new_colref is None:
+                        #FgCollectionReference.create(collection=target_collection, reference=reference)
+                    #if new_colref is None:
+                        #FgCollectionReference.create(collection=target_collection, reference=reference)
+                        old_colref = FgCollectionReference.get(collection=old_collection, reference=reference)
+                        old_colref.collection = target_collection
+                        old_colref.save()
+                    else:
+                        # show messagebox that it already exists
+                        msgbox = QMessageBox()
+                        msgbox.setText("Reference already exists in the target collection.")
+                        msgbox.exec()
+
+                    #else:
+                    #    old_colref = FgCollectionReference.get(collection=old_collection, reference=reference)
+                    #    old_colref.delete_instance()
+
+                    #old_collection_reference = FgCollectionReference.get(reference=reference)
+                    #old_collection_reference.collection = target_collection
+                    #old_collection_reference.save()
+
+        self.reset_referenceView()
+        self.load_references()
+        event.accept()
+
+
+    def _dropEvent(self, event):
+        print("drop event", event.mimeData())
+        if not event.mimeData().hasFormat("application/x-figurist-items"):
+            event.ignore()
+            return
+
+        drop_index = self.referenceView.indexAt(event.pos())
+        if not drop_index.isValid():
+            event.ignore()
+            return
+
+        drop_item = self.reference_model.itemFromIndex(drop_index)
+        if not isinstance(drop_item.data(), FgCollection):
+            event.ignore()
+            return
+
+        target_collection = drop_item.data()
+
+        items_data = eval(bytes(event.mimeData().data("application/x-figurist-items")).decode())
+        
+        for item_type, item_id in items_data:
+            if item_type == 'reference':
+                reference = FgReference.get_by_id(item_id)
+                if event.keyboardModifiers() & Qt.ShiftModifier:
+                    # Copy action
+                    new_reference = FgReference.create(
+                        title=reference.title,
+                        author=reference.author,
+                        year=reference.year,
+                        # ... copy other fields as needed
+                    )
+                    FgCollectionReference.create(collection=target_collection, reference=new_reference)
+                else:
+                    # Move action
+                    old_collection_reference = FgCollectionReference.get(reference=reference)
+                    old_collection_reference.collection = target_collection
+                    old_collection_reference.save()
+            elif item_type == 'collection':
+                source_collection = FgCollection.get_by_id(item_id)
+                if event.keyboardModifiers() & Qt.ShiftModifier:
+                    # Copy action
+                    new_collection = FgCollection.create(
+                        name=source_collection.name,
+                        parent=target_collection
+                        # ... copy other fields as needed
+                    )
+                    # Recursively copy subcollections and references
+                    self.copy_collection_contents(source_collection, new_collection)
+                else:
+                    # Move action
+                    source_collection.parent = target_collection
+                    source_collection.save()
+
+        self.reset_referenceView()
+        self.load_references()
+        event.accept()
+
+    def copy_collection_contents(self, source_collection, target_collection):
+        # Copy references
+        for col_ref in source_collection.references:
+            FgCollectionReference.create(
+                collection=target_collection,
+                reference=col_ref.reference
+            )
+        
+        # Copy subcollections
+        for subcollection in source_collection.children:
+            new_subcollection = FgCollection.create(
+                name=subcollection.name,
+                parent=target_collection
+                # ... copy other fields as needed
+            )
+            self.copy_collection_contents(subcollection, new_subcollection)
+
     def add_figure(self):
         if self.selected_reference is None:
             return
@@ -193,39 +342,6 @@ class FiguristMainWindow(QMainWindow):
         dialog.set_reference(self.selected_reference)
         dialog.exec_()
         self.load_figure()
-
-    def on_taxonView_pressed(self, index):
-        item = self.taxonView.itemAt(self.taxonView.viewport().mapFromGlobal(QCursor.pos()))
-        if item is None:
-            # Click is outside any visible item
-            self.taxonView.clearSelection()
-            self.taxonView.setCurrentIndex(self.taxonView.rootIndex())
-        return
-
-        print("taxonView pressed", index, index.isValid())
-        if not index.isValid():
-            # Click is outside any item
-            self.taxonView.clearSelection()
-            # Optionally, clear the current index as well
-            self.taxonView.setCurrentIndex(self.taxonView.rootIndex())
-    def on_taxonView_pressed(self, index):
-        viewport_pos = self.taxonView.viewport().mapFromGlobal(QCursor.pos())
-        index_at_pos = self.taxonView.indexAt(viewport_pos)
-        
-        if not index_at_pos.isValid():
-            # Click is outside any visible item
-            self.taxonView.clearSelection()
-            self.taxonView.setCurrentIndex(self.taxonView.rootIndex())
-            print("Cleared selection")
-        else:
-            print(f"Clicked on item: {index_at_pos.data()}")
-    def on_referenceView_pressed(self, index):
-        #print("referenceView pressed", index, index.isValid())
-        if not index.isValid():
-            # Click is outside any item
-            self.referenceView.clearSelection()
-            # Optionally, clear the current index as well
-            self.referenceView.setCurrentIndex(self.referenceView.rootIndex())
 
     def update_icon_mode_columns(self):
         if self.icon_mode:
@@ -480,10 +596,13 @@ class FiguristMainWindow(QMainWindow):
                 self.selected_collection = parent_item.data()
             else:
                 self.selected_collection = None
+            #print("on reference selection changed selected reference 1:", self.selected_reference,"selected_collection:", self.selected_collection)
             if self.mode == "Reference":
                 self.selected_taxa = []
                 self.load_taxa()
+            #print("on reference selection changed selected reference 2:", self.selected_reference,"selected_collection:", self.selected_collection)
             self.filter_figures()
+            #print("on reference selection changed selected reference 3:", self.selected_reference,"selected_collection:", self.selected_collection)
         elif isinstance(obj, FgCollection):
             self.selected_collection = obj
             self.selected_reference = None
@@ -547,7 +666,7 @@ class FiguristMainWindow(QMainWindow):
 
         if selected_taxa:
             query = (query
-                    .join(TaxonFigure)
+                    .join(FgTaxonFigure)
                     .join(FgTaxon))
             conditions.append(FgTaxon.id.in_([t.id for t in selected_taxa]))
 
@@ -801,7 +920,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             obj = item.data()
             if isinstance(obj, FgReference):
                 self.selected_reference = obj
-                self.selected_collection = None
+                #self.selected_collection = None
             elif isinstance(obj, FgCollection):
                 self.selected_collection = obj
                 self.selected_reference = None
@@ -810,25 +929,55 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         action_add_collection.triggered.connect(self.on_action_add_collection_triggered)
         action_add_subcollection = QAction(self.tr("Add subcollection"))
         action_add_subcollection.triggered.connect(self.on_action_add_subcollection_triggered)
+        action_export_collection = QAction(self.tr("Export collection"))
+        action_export_collection.triggered.connect(self.on_action_export_collection_triggered)
         action_delete_collection = QAction(self.tr("Delete collection"))
         action_delete_collection.triggered.connect(self.on_action_delete_collection_triggered)
 
 
         action_add_reference = QAction(self.tr("Add reference"))
         action_add_reference.triggered.connect(self.on_action_add_reference_triggered)
+        action_edit_reference = QAction(self.tr("Edit reference"))
+        action_edit_reference.triggered.connect(self.on_action_edit_reference_triggered)
         action_delete_reference = QAction(self.tr("Delete reference"))
         action_delete_reference.triggered.connect(self.on_action_delete_reference_triggered)
 
         menu = QMenu()
-        if self.selected_collection is not None:
+        if self.selected_reference is not None:
+            menu.addAction(action_edit_reference)
+            menu.addAction(action_delete_reference)
+        elif self.selected_collection is not None:
             menu.addAction(action_add_subcollection)
             menu.addAction(action_add_reference)
+            menu.addAction(action_export_collection)
             menu.addAction(action_delete_collection)
-        elif self.selected_reference is not None:
-            menu.addAction(action_delete_reference)
-        else:
-            menu.addAction(action_add_collection)
         menu.exec_(self.referenceView.viewport().mapToGlobal(position))
+
+    def on_action_edit_reference_triggered(self):
+        if self.selected_reference is None:
+            return
+        dialog = ReferenceDialog(self)
+        dialog.set_reference(self.selected_reference)
+        dialog.exec_()
+        self.reset_referenceView()
+        self.load_references()
+
+    def on_action_export_collection_triggered(self):
+        if self.selected_collection is None:
+            return
+
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.Directory)
+        dialog.setOption(QFileDialog.ShowDirsOnly)
+        dialog.setAcceptMode(QFileDialog.AcceptSave)
+        dialog.setModal(True)
+        dialog.setDirectory(os.path.expanduser("~"))
+        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
+        directory = dialog.exec_()
+        if directory:
+            directory = dialog.selectedFiles()[0]
+            self.selected_collection.export(directory)
+            self.statusBar.showMessage(self.tr("Exported collection to {}").format(directory), 2000)
 
     def on_action_delete_collection_triggered(self):
         if self.selected_collection is None:
@@ -844,15 +993,23 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         self.load_references()
 
     def on_action_delete_reference_triggered(self):
+        #print("on delete reference 1 selected_reference:", self.selected_reference, "selected_collection:", self.selected_collection)
         if self.selected_reference is None:
             return
-        #print("delete reference:", self.selected_reference)
-        if self.selected_reference.figures.count() > 0:
-            msg = self.tr("Reference {} has figures. Delete reference and figures?").format(self.selected_reference.get_abbr())
-            ret = QMessageBox.question(self, self.tr("Delete reference"), msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if ret == QMessageBox.No:
-                return
-        self.selected_reference.delete_instance()
+        if self.selected_reference.collections.count() > 1:
+            colref = FgCollectionReference.get(reference=self.selected_reference, collection=self.selected_collection)
+            colref.delete_instance()
+            #self.selected_reference.collections[0].delete_instance()
+            #return
+        else:
+            #print("delete reference:", self.selected_reference)
+            #print("on delete reference 2 selected_reference:", self.selected_reference, "selected_collection:", self.selected_collection)
+            if self.selected_reference.figures.count() > 0:
+                msg = self.tr("Reference {} has figures. Delete reference and figures?").format(self.selected_reference.get_abbr())
+                ret = QMessageBox.question(self, self.tr("Delete reference"), msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+                if ret == QMessageBox.No:
+                    return
+            self.selected_reference.delete_instance()
         self.reset_referenceView()
         self.load_references()
 

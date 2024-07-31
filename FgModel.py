@@ -24,6 +24,30 @@ class FgCollection(Model):
     class Meta:
         database = gDatabase
 
+    def get_references(self):
+        ref_list = []
+        for colref in self.references:
+            ref_list.append(colref.reference)
+        return ref_list
+        #return self.references
+
+    def export_collection(self, base_path = fg.DEFAULT_STORAGE_DIRECTORY):
+        export_path = os.path.join(base_path, self.name)
+        if not os.path.exists(export_path):
+            os.makedirs(export_path)
+        for ref in self.get_references():
+            ref.export_reference(export_path)
+        for child in self.children:
+            child.export_collection(export_path)
+        return export_path
+    
+    def import_collection(self, base_path = fg.DEFAULT_STORAGE_DIRECTORY):
+        import_path = os.path.join(base_path, self.name)
+        for root, dirs, files in os.walk(import_path):
+            for file in files:
+                print(os.path.join(root, file))
+        return import_path
+
 class FgReference(Model):
     title = CharField()
     author = CharField()
@@ -56,6 +80,14 @@ class FgReference(Model):
         else:
             return self.author + " (" + str(self.year) + ")"
         #return self.author + " (" + str(self.year) + ")"
+
+    def export_reference(self, base_path = fg.DEFAULT_STORAGE_DIRECTORY):
+        export_path = os.path.join(base_path, self.get_abbr())
+        if not os.path.exists(export_path):
+            os.makedirs(export_path)
+        for fig in self.figures:
+            fig.export_figure(export_path)
+        return export_path
 
 class FgCollectionReference(Model):
     collection = ForeignKeyField(FgCollection, backref='references',on_delete="CASCADE")

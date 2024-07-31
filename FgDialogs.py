@@ -1046,15 +1046,13 @@ class AddFigureDialog(QDialog):
         self.figure_widget.setLayout(self.figure_layout)
         self.figure_layout.addWidget(self.prefix_widget)
         self.figure_layout.addWidget(self.figureView)
-        self.figure_layout.addWidget(self.figure_button_widget)
-
+        #self.figure_layout.addWidget(self.figure_button_widget)
 
         self.middle_widget = QWidget()
         self.middle_layout = QHBoxLayout()
         self.middle_widget.setLayout(self.middle_layout)
         self.middle_layout.addWidget(self.lblFigure,1)
         self.middle_layout.addWidget(self.figure_widget,2)
-
 
         self.bottom_widget = QWidget()
         self.bottom_layout = QHBoxLayout()

@@ -1,8 +1,10 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QPushButton, QTreeView, QSizePolicy, QHeaderView, QLabel, QInputDialog
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QRect, QSize, QMargins, QObject, QEvent
-from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen, QFont, QMouseEvent, QWheelEvent, QPainter
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QRect, QSize, QMargins, QObject, QEvent, QMimeData, pyqtSignal
+from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen, QFont, QMouseEvent, QWheelEvent, QPainter, QDrag
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QStyleOptionViewItem, QListView, QStackedWidget, QAbstractItemView
 import time, math
+from PyQt5.QtCore import QByteArray
+from FgModel import FgCollection, FgReference
 
 CLOSE_TO = { 'left': 1, 'right': 2, 'top': 4, 'bottom': 8 }
 
@@ -643,3 +645,72 @@ class FigureLabel(QLabel):
             self.curr_subfigure_index = new_index
             # refresh parent's subfigure list
             self.parent.load_subfigure_list(self.subfigure_list)
+
+class DraggableTreeView(QTreeView):
+    emptyAreaClicked = pyqtSignal()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.drag_start_position = None
+        self.setMouseTracking(True)
+
+    def _mousePressEvent(self, event):
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            # Click is outside any item
+            self.emptyAreaClicked.emit()
+        super().mousePressEvent(event)
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.drag_start_position = event.pos()
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            self.emptyAreaClicked.emit()
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if not (event.buttons() & Qt.LeftButton):
+            return
+        if not self.drag_start_position:
+            return
+        if (event.pos() - self.drag_start_position).manhattanLength() < QApplication.startDragDistance():
+            return
+
+        drag = QDrag(self)
+        mime_data = self.model().mimeData(self.selectedIndexes())
+        print("mime_data", mime_data)
+        drag.setMimeData(mime_data)
+        
+        if event.modifiers() & Qt.ShiftModifier:
+            drag.exec_(Qt.CopyAction)
+        else:
+            drag.exec_(Qt.MoveAction)
+
+    def _mouseMoveEvent(self, event):
+        if not (event.buttons() & Qt.LeftButton):
+            return
+        if not self.drag_start_position:
+            return
+        if (event.pos() - self.drag_start_position).manhattanLength() < QApplication.startDragDistance():
+            return
+
+        drag = QDrag(self)
+        mime_data = QMimeData()
+        
+        selected_indexes = self.selectedIndexes()
+        items_data = []
+        for index in selected_indexes:
+            item = self.model().itemFromIndex(index)
+            if isinstance(item.data(), FgCollection):
+                items_data.append(('collection', item.data().id))
+            elif isinstance(item.data(), FgReference):
+                items_data.append(('reference', item.data().id))
+        
+        mime_data.setData("application/x-figurist-items", QByteArray(str(items_data).encode()))
+        #mime_data.setData("application/x-figurist-items", QByteArray(str(items_data).encode()))
+        drag.setMimeData(mime_data)
+        #print("mime_data", mime_data)
+        
+        if event.modifiers() & Qt.ShiftModifier:
+            drag.exec_(Qt.CopyAction)
+        else:
+            drag.exec_(Qt.MoveAction)            

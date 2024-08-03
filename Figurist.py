@@ -28,7 +28,7 @@ import time
 logger = setup_logger(fg.PROGRAM_NAME)
 
 ICON = {'new_reference': 'icons/new_reference.png', 'about': 'icons/about.png', 'exit': 'icons/exit.png', 'preferences': 'icons/preferences.png',
-        'new_collection': 'icons/new_collection.png' } 
+        'new_collection': 'icons/new_collection.png', 'reference': 'icons/reference.png' , 'collection': 'icons/collection.png'} 
 
 class FiguristMainWindow(QMainWindow):
     def __init__(self):
@@ -471,6 +471,7 @@ class FiguristMainWindow(QMainWindow):
     def load_subcollections(self, collection, parent_item):
         for subcoll in collection.children:
             item1 = QStandardItem(subcoll.name)
+            item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
             item1.setData(subcoll)
             parent_item.appendRow([item1])
             self.load_subcollections(subcoll, item1)
@@ -481,6 +482,8 @@ class FiguristMainWindow(QMainWindow):
             item1 = QStandardItem(colref.reference.get_abbr())
             #item2 = QStandardItem(str(ref.id))
             item1.setData(colref.reference)
+            item1.setIcon(QIcon(fg.resource_path(ICON['reference'])))
+
             parent_item.appendRow([item1])
 
 
@@ -494,6 +497,7 @@ class FiguristMainWindow(QMainWindow):
             coll_list = FgCollection.select().where(FgCollection.parent==None).order_by(FgCollection.name)
             for coll in coll_list:
                 item1 = QStandardItem(coll.name)
+                item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
                 item1.setData(coll)
                 self.reference_model.appendRow([item1])
                 self.load_subcollections(coll, item1)
@@ -524,6 +528,7 @@ class FiguristMainWindow(QMainWindow):
 
             for ref in ref_list:
                 item1 = QStandardItem(ref.get_abbr())
+                item1.setIcon(QIcon(fg.resource_path(ICON['reference'])))
                 item2 = QStandardItem(str(ref.id))
                 item1.setData(ref)
                 self.reference_model.appendRow([item1,item2])#,item2,item3] )

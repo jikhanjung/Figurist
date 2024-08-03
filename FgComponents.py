@@ -674,6 +674,8 @@ class DraggableTreeView(QTreeView):
             return
         if (event.pos() - self.drag_start_position).manhattanLength() < QApplication.startDragDistance():
             return
+        if isinstance(self.model().itemFromIndex(self.selectedIndexes()[0]).data(), FgCollection):
+            return
 
         drag = QDrag(self)
         mime_data = self.model().mimeData(self.selectedIndexes())

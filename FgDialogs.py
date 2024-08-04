@@ -20,6 +20,9 @@ from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import math
 from FgComponents import FigureLabel
+import fitz
+import os
+import sys
 
 class ReferenceDialog(QDialog):
     # NewDatasetDialog shows new dataset dialog.
@@ -1028,7 +1031,6 @@ class AddFigureDialog(QDialog):
         self.cancelButton = QPushButton(self.tr("Cancel"))
         self.cancelButton.clicked.connect(self.on_btn_cancel_clicked)
 
-
         self.lblReference = QLabel(self.tr("Reference"))
         self.edtReference = QLineEdit()
         # read only edtReference
@@ -1048,10 +1050,28 @@ class AddFigureDialog(QDialog):
         self.figure_layout.addWidget(self.figureView)
         #self.figure_layout.addWidget(self.figure_button_widget)
 
+        self.pdfcontrol_widget = QWidget()
+        self.pdfcontrol_layout = QHBoxLayout()#
+        self.pdfcontrol_widget.setLayout(self.pdfcontrol_layout)
+        #self.refcontrol_layout.addWidget(self.loadButton)
+        self.page_spinner = QSpinBox()        
+        self.page_spinner.setRange(1, 1000)
+        self.page_spinner.setValue(1)
+        self.page_spinner.setSingleStep(1)
+        self.page_spinner.setSuffix(" / ")
+        self.page_spinner.setWrapping(True)
+        self.pdfcontrol_layout.addWidget(self.page_spinner)
+
+        self.left_widget = QWidget()
+        self.left_layout = QVBoxLayout()
+        self.left_widget.setLayout(self.left_layout)
+        self.left_layout.addWidget(self.pdfcontrol_widget)
+        self.left_layout.addWidget(self.lblFigure,1)
+
         self.middle_widget = QWidget()
         self.middle_layout = QHBoxLayout()
         self.middle_widget.setLayout(self.middle_layout)
-        self.middle_layout.addWidget(self.lblFigure,1)
+        self.middle_layout.addWidget(self.left_widget,1)
         self.middle_layout.addWidget(self.figure_widget,2)
 
         self.bottom_widget = QWidget()
@@ -1194,50 +1214,53 @@ class AddFigureDialog(QDialog):
             row = index.row()
             self.lblFigure.set_current_subfigure(row)
             return
-            #print("row:", row)
-            # get segment result
-            #self.subfigure_list = segmentation_results
-            cropped_pixmap, rect = self.subfigure_list[row]# in enumerate(self.subfigure_list):
-
-            scaled_pixmap = self.original_figure_image.scaled(self.lblFigure.width(), self.lblFigure.height(), Qt.KeepAspectRatio)
-            #scale pixmap
-            #pixmap = pixmap.scaled(512,700,Qt.KeepAspectRatio)
-            painter = QPainter(scaled_pixmap)
-            pen = QPen(Qt.red, 2)
-            painter.setPen(pen)
-            #painter.drawRect(0,0,100,100)
-            # scale rect according to zoom factor
-            rect = QRect(int(rect.x()*self.zoom_factor), int(rect.y()*self.zoom_factor),int( rect.width()*self.zoom_factor), int(rect.height()*self.zoom_factor))
-
-            painter.drawRect(rect)
-            painter.end()
-            self.figure_image = scaled_pixmap#pixmap.scaled(self.lblFigure.width(), self.lblFigure.height(), Qt.KeepAspectRatio)
-            self.lblFigure.setPixmap(self.figure_image)
-
-            #pixmap = item.data(Qt.DecorationRole)
-            #self.figure_image = pixmap
-            #self.lblFigure.setPixmap(self.figure_image.scaled(self.lblFigure.width(), self.lblFigure.height(), Qt.KeepAspectRatio))
-
 
     def on_btn_load_clicked(self):
         #print("Load clicked")
-        file_name, _ = QFileDialog.getOpenFileName(self, "Open Image File", "", "Image Files (*.png *.jpg *.bmp *.gif)")
-        if file_name:
+        # load image or pdf file
+        
+        #file_name, _ = QFileDialog.getOpenFileName(self, "Open Image File", "", "Image Files (*.png *.jpg *.bmp *.gif)")
+        #file_name, _ = QFileDialog.getOpenFileName(self, "Open PDF File", "", "PDF Files (*.pdf)")
+        # let user select image or pdf file
+        file_name, _ = QFileDialog.getOpenFileName(self, "Open Image or PDF File", "", "Image Files (*.png *.jpg *.bmp *.gif);;PDF Files (*.pdf)")
+
+        # if image file is selected        
+        if file_name.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
+            self.pdfcontrol_widget.hide()        
             self.lblFigure.set_figure(file_name)
             self.original_figure_image = QPixmap(file_name)
-            # scale image to fit label
-            # get lblFigure size first
-            #w, h = self.lblFigure.width(), self.lblFigure.height()
-            # get zoom factor
-            #self.zoom_factor = min(w/self.original_figure_image.width(), h/self.original_figure_image.height())
-            #print("zoom factor:", self.zoom_factor)
-            #self.figure_image = self.original_figure_image.scaled(w,h, Qt.KeepAspectRatio)
-            #self.figure_image = self.original_figure_image.scaled(512,700,Qt.KeepAspectRatio)
-
-            #self.figure_image = self.original_figure_image.scaled(512,700,Qt.KeepAspectRatio)
-            #self.lblFigure.setPixmap(self.figure_image)
             self.detectButton.setEnabled(True)
             self.model.clear()
+            self.subfigure_list = []
+            self.lblFigure.set_subfigure_list(self.subfigure_list)
+            self.update()
+        else: # if pdf file
+            self.pdfcontrol_widget.show()
+            self.pdf_document = fitz.open(file_name)
+            #print("page count:", self.pdf_document.page_count)
+            self.page_spinner.setRange(1, self.pdf_document.page_count)
+            self.page_spinner.setValue(1)
+            self.page_spinner.setSingleStep(1)
+            self.page_spinner.setSuffix(" / " + str(self.pdf_document.page_count))
+            #self.page_spinner.setWrapping(True)
+            self.page_spinner.valueChanged.connect(self.on_page_changed)
+            self.on_page_changed(1)
+    
+    def on_page_changed(self, page_number):
+        #print("Page changed:", page_number)
+        self.current_page = self.pdf_document[page_number-1]
+        pix = self.current_page.get_pixmap(dpi=600)
+        img = QImage(pix.samples, pix.width, pix.height, pix.stride, QImage.Format.Format_RGB888)  # QImage
+        self.original_figure_image = QPixmap.fromImage(img)  # QPixmap
+        #print("pixmap size:", self.original_figure_image .size())
+        self.lblFigure.set_pixmap(self.original_figure_image )
+        self.detectButton.setEnabled(True)
+        self.model.clear()
+        self.subfigure_list = []
+        self.lblFigure.set_subfigure_list(self.subfigure_list)
+        self.update()
+
+
 
 
     def on_btn_detect_clicked(self):
@@ -1496,3 +1519,128 @@ class AddFigureDialog(QDialog):
 
         painter.end()
         return result, annotated_pixmap
+    
+    def segment_figures_qt(self, qpixmap):
+        img = qpixmap.toImage()
+        
+        # Convert QImage to numpy array
+        width = img.width()
+        height = img.height()
+        ptr = img.constBits()
+        ptr.setsize(height * width * 4)
+        arr = np.frombuffer(ptr, np.uint8).reshape((height, width, 4))
+        # Convert RGBA to RGB
+        img = cv2.cvtColor(arr, cv2.COLOR_RGBA2RGB)
+        
+        original_img = img.copy()
+
+        # Calculate a scaling factor based on image size
+        scale_factor = max(1, min(width, height) / 4000)
+        
+        # Resize the image for processing
+        proc_width = int(width / scale_factor)
+        proc_height = int(height / scale_factor)
+        proc_img = cv2.resize(img, (proc_width, proc_height))
+
+        gray = cv2.cvtColor(proc_img, cv2.COLOR_RGB2GRAY)
+        
+        # Apply morphological operations
+        kernel = np.ones((5,5), np.uint8)
+        gray = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, kernel)
+        gray = cv2.morphologyEx(gray, cv2.MORPH_OPEN, kernel)
+
+        # Apply threshold
+        _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
+        
+        # Find contours
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        
+        # Calculate minimum and maximum contour area based on image size
+        total_area = proc_width * proc_height
+        min_contour_area = total_area * 0.005  # Minimum figure size (1% of image)
+        max_contour_area = total_area * 0.8   # Maximum figure size (50% of image)
+        
+        # Get bounding boxes for all contours
+        bounding_boxes = []
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if min_contour_area < area < max_contour_area:
+                x, y, w, h = cv2.boundingRect(contour)
+                bounding_boxes.append((x, y, w, h))
+
+        # Adaptive threshold adjustment
+        if len(bounding_boxes) < 10 or len(bounding_boxes) > 50:
+            # Binary search to find optimal threshold
+            low, high = 0.001, 0.05  # 0.1% to 5% of image area
+            while high - low > 0.0001:
+                mid = (low + high) / 2
+                min_contour_area = total_area * mid
+                bounding_boxes = [cv2.boundingRect(c) for c in contours if min_contour_area < cv2.contourArea(c) < max_contour_area]
+                if len(bounding_boxes) < 10:
+                    high = mid
+                elif len(bounding_boxes) > 50:
+                    low = mid
+                else:
+                    break
+
+        # Scale bounding boxes back to original size
+        bounding_boxes = [(int(x*scale_factor), int(y*scale_factor), 
+                        int(w*scale_factor), int(h*scale_factor)) 
+                        for x, y, w, h in bounding_boxes]
+
+        # Remove overlapping boxes, keeping the larger ones
+        valid_boxes = []
+        for box in bounding_boxes:
+            is_valid = True
+            for valid_box in valid_boxes:
+                if self.check_overlap(box, valid_box):
+                    if box[2] * box[3] > valid_box[2] * valid_box[3]:
+                        valid_boxes.remove(valid_box)
+                    else:
+                        is_valid = False
+                    break
+            if is_valid:
+                valid_boxes.append(box)
+
+        # Calculate average height of boxes
+        avg_height = sum(box[3] for box in valid_boxes) / len(valid_boxes)
+
+        # Assign row numbers based on y-coordinate and average height
+        for i, box in enumerate(valid_boxes):
+            box_y = box[1]
+            row = int(box_y / (avg_height * 1.2))  # 1.2 is a factor to allow some variation
+            valid_boxes[i] = box + (row,)  # Add row number as the 5th element of the tuple
+
+        # Sort boxes first by row, then by x-coordinate
+        valid_boxes.sort(key=lambda box: (box[4], box[0]))
+
+        annotated_pixmap = qpixmap.copy()
+        painter = QPainter(annotated_pixmap)
+        painter.setPen(QPen(Qt.GlobalColor.red, 2, Qt.PenStyle.SolidLine))
+
+        # Process valid boxes
+        result = []
+        for i, (x, y, w, h, _) in enumerate(valid_boxes, start=1):
+            # Add some padding
+            padding = 10
+            x = max(0, x - padding)
+            y = max(0, y - padding)
+            w = min(img.shape[1] - x, w + 2*padding)
+            h = min(img.shape[0] - y, h + 2*padding)
+
+            # Crop the figure
+            figure = original_img[y:y+h, x:x+w]
+
+            # Convert cv2 image to QPixmap
+            height, width, channel = figure.shape
+            bytes_per_line = 3 * width
+            q_img = QImage(figure.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
+            cropped_pixmap = QPixmap.fromImage(q_img)
+
+            # Add the cropped pixmap and its coordinates to the result
+            result.append((cropped_pixmap, QRect(x, y, w, h)))
+            painter.drawRect(x, y, w, h)
+
+        painter.end()
+        return result, annotated_pixmap
+

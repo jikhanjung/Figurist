@@ -597,6 +597,12 @@ class FigureLabel(QLabel):
         self.curr_subfigure_index = -1
         self.adjust_pixmap()
         self.repaint()
+    
+    def set_pixmap(self, pixmap):
+        self.orig_pixmap = pixmap
+        self.curr_subfigure_index = -1
+        self.adjust_pixmap()
+        self.repaint()
 
     def set_subfigure_list(self, subfigure_list):
         self.subfigure_list = subfigure_list

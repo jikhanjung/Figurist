@@ -929,7 +929,7 @@ class AddFigureDialog(QDialog):
         self.zoom_factor = 1.0
         self.lblFigure = FigureLabel(self)
         # set gray image
-        self.figure_image = QPixmap(512,700)
+        self.figure_image = QPixmap(200,300)
         self.figure_image.fill(Qt.gray)
         self.lblFigure.setPixmap(self.figure_image)
     
@@ -951,7 +951,7 @@ class AddFigureDialog(QDialog):
         #self.figureView.setAcceptDrops(True)
         #self.figureView.setDropIndicatorShown(True)
         self.figureView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.figureView.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        #self.figureView.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         self.lblType = QLabel(self.tr("Type"))
         self.comboType = QComboBox()
@@ -1062,7 +1062,9 @@ class AddFigureDialog(QDialog):
         self.pdf_next_button.clicked.connect(self.on_pdf_next_clicked)
         self.pdf_begin_button.clicked.connect(self.on_pdf_begin_clicked)
         self.pdf_end_button.clicked.connect(self.on_pdf_end_clicked)        
-
+        for button in [self.pdf_prev_button, self.pdf_next_button, self.pdf_begin_button, self.pdf_end_button]:
+            button.setMinimumWidth(30)
+            #button.setMaximumWidth(30)
         self.page_spinner = QSpinBox()        
         self.page_spinner.setRange(1, 1000)
         self.page_spinner.setValue(1)
@@ -1074,7 +1076,7 @@ class AddFigureDialog(QDialog):
         self.pdfcontrol_layout.addWidget(self.page_spinner)
         self.pdfcontrol_layout.addWidget(self.pdf_next_button)
         self.pdfcontrol_layout.addWidget(self.pdf_end_button)
-
+        self.pdfcontrol_widget.hide()
 
         self.left_widget = QWidget()
         self.left_layout = QVBoxLayout()
@@ -1096,6 +1098,7 @@ class AddFigureDialog(QDialog):
         self.splitter.addWidget(self.figure_widget)
         self.splitter.setStretchFactor(0,1)
         self.splitter.setStretchFactor(1,2)
+        self.splitter.setSizes([200,500]) 
         
         self.bottom_widget = QWidget()
         self.bottom_layout = QHBoxLayout()
@@ -1110,7 +1113,7 @@ class AddFigureDialog(QDialog):
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.top_widget)
-        self.layout.addWidget(self.splitter)
+        self.layout.addWidget(self.splitter,1)
         self.layout.addWidget(self.bottom_widget)
         self.layout.addWidget(self.statusBar)
         self.setLayout(self.layout)
@@ -1243,7 +1246,7 @@ class AddFigureDialog(QDialog):
         #file_name, _ = QFileDialog.getOpenFileName(self, "Open Image File", "", "Image Files (*.png *.jpg *.bmp *.gif)")
         #file_name, _ = QFileDialog.getOpenFileName(self, "Open PDF File", "", "PDF Files (*.pdf)")
         # let user select image or pdf file
-        file_name, _ = QFileDialog.getOpenFileName(self, "Open Image or PDF File", "", "Image Files (*.png *.jpg *.bmp *.gif);;PDF Files (*.pdf)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Open Image or PDF File", "", "Image or PDF Files (*.png *.jpg *.bmp *.gif *.pdf)")
 
         # if image file is selected        
         if file_name.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif')):
@@ -1255,7 +1258,7 @@ class AddFigureDialog(QDialog):
             self.subfigure_list = []
             self.lblFigure.set_subfigure_list(self.subfigure_list)
             self.update()
-        else: # if pdf file
+        elif file_name.lower().endswith('.pdf'):
             self.pdfcontrol_widget.show()
             self.pdf_document = fitz.open(file_name)
             #print("page count:", self.pdf_document.page_count)
@@ -1266,11 +1269,13 @@ class AddFigureDialog(QDialog):
             #self.page_spinner.setWrapping(True)
             self.page_spinner.valueChanged.connect(self.on_page_changed)
             self.on_page_changed(1)
+        else:
+            return
     
     def on_page_changed(self, page_number):
         #print("Page changed:", page_number)
         self.current_page = self.pdf_document[page_number-1]
-        pix = self.current_page.get_pixmap(dpi=600)
+        pix = self.current_page.get_pixmap(dpi=600, alpha=False, annots=True, matrix=fitz.Matrix(2, 2))
         img = QImage(pix.samples, pix.width, pix.height, pix.stride, QImage.Format.Format_RGB888)  # QImage
         self.original_figure_image = QPixmap.fromImage(img)  # QPixmap
         #print("pixmap size:", self.original_figure_image .size())
@@ -1300,9 +1305,6 @@ class AddFigureDialog(QDialog):
     def on_pdf_end_clicked(self):
         #print("PDF end clicked")
         self.page_spinner.setValue(self.pdf_document.page_count)
-
-
-
 
     def on_btn_detect_clicked(self):
         # get segmentation result from image
@@ -1382,7 +1384,6 @@ class AddFigureDialog(QDialog):
             parent_figure.save()
             parent_figure.add_pixmap(self.original_figure_image)
             #self.original_figure_image.save(f"{type}{number1}.png")
-
        
         for i, (cropped_pixmap, rect) in enumerate(self.subfigure_list):
             figure = FgFigure()

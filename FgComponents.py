@@ -436,8 +436,12 @@ class FigureLabel(QLabel):
             self.curr_subfigure_index = -1
         elif self.edit_mode == "NEW_SUBFIGURE_DRAG":
             #self.temp_rect = QRect(self.down_x, self.down_y, self.mouse_curr_x-self.down_x, self.mouse_curr_y-self.down_y)
-            self.subfigure_list.append((self.orig_pixmap.copy(self.temp_rect), self.temp_rect))
-            self.temp_rect = None
+            # check size of the new subfigure
+            if self.temp_rect.width() < 50 or self.temp_rect.height() < 50:
+                self.temp_rect = None
+            else:
+                self.subfigure_list.append((self.orig_pixmap.copy(self.temp_rect), self.temp_rect))
+                self.temp_rect = None
         self.set_edit_mode("NONE")
         idx, close_to = self.check_subfigure(curr_pos)
         self.adjusting_side = close_to

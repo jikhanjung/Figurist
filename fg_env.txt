@@ -9,3 +9,30 @@ python-decouple
 conda create -n Figurist python pip
 pip install pyqt5 peewee Pillow peewee-migrate pyinstaller
 pip install opencv-python python-decouple pymupdf
+
+'''
+pyqt5 
+Installing collected packages: PyQt5-Qt5, PyQt5-sip, pyqt5
+Successfully installed PyQt5-Qt5-5.15.2 PyQt5-sip-12.15.0 pyqt5-5.15.11
+ 
+Pillow
+
+peewee 
+
+peewee-migrate
+click-8.1.7 colorama-0.4.6 peewee-migrate
+
+pyinstaller
+Installing collected packages: altgraph, pywin32-ctypes, pefile, packaging, pyinstaller-hooks-contrib, pyinstaller
+Successfully installed altgraph-0.17.4 packaging-24.1 pefile-2023.2.7 pyinstaller-6.9.0 pyinstaller-hooks-contrib-2024.7 pywin32-ctypes-0.2.2
+
+opencv-python
+Installing collected packages: numpy, opencv-python
+Successfully installed numpy-2.0.1 opencv-python-4.10.0.84
+
+python-decouple
+
+pymupdf
+Installing collected packages: PyMuPDFb, pymupdf
+Successfully installed PyMuPDFb-1.24.9 pymupdf-1.24.9
+'''

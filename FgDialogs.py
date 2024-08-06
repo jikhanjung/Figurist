@@ -23,6 +23,7 @@ from FgComponents import FigureLabel
 import fitz
 import os
 import sys
+import ollama
 
 class ReferenceDialog(QDialog):
     # NewDatasetDialog shows new dataset dialog.
@@ -1017,6 +1018,9 @@ class AddFigureDialog(QDialog):
         self.figureView.setContextMenuPolicy(Qt.CustomContextMenu)
         self.figureView.customContextMenuRequested.connect(self.on_custom_context_menu)
 
+        self.caption_edit = QTextEdit()
+
+
         # set header 
         self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
 
@@ -1046,7 +1050,6 @@ class AddFigureDialog(QDialog):
         # read only edtReference
         self.edtReference.setReadOnly(True)
 
-
         self.top_widget = QWidget()
         self.top_layout = QHBoxLayout()
         self.top_widget.setLayout(self.top_layout)
@@ -1058,6 +1061,7 @@ class AddFigureDialog(QDialog):
         self.figure_widget.setLayout(self.figure_layout)
         self.figure_layout.addWidget(self.prefix_widget)
         self.figure_layout.addWidget(self.figureView)
+        self.figure_layout.addWidget(self.caption_edit)
         #self.figure_layout.addWidget(self.figure_button_widget)
 
         self.pdfcontrol_widget = QWidget()
@@ -1095,14 +1099,6 @@ class AddFigureDialog(QDialog):
         self.left_layout.addWidget(self.pdfcontrol_widget)
         self.left_layout.addWidget(self.lblFigure,1)
 
-
-        '''
-        self.middle_widget = QWidget()
-        self.middle_layout = QHBoxLayout()
-        self.middle_widget.setLayout(self.middle_layout)
-        self.middle_layout.addWidget(self.left_widget,1)
-        self.middle_layout.addWidget(self.figure_widget,2)
-        '''
         # use splitter instead of middle_widget
         self.splitter = QSplitter(Qt.Horizontal)
         self.splitter.addWidget(self.left_widget)
@@ -1141,11 +1137,60 @@ class AddFigureDialog(QDialog):
                 rect.right() * scale_factor,
                 rect.bottom() * scale_factor
             )
-            print("clip:", clip)
+            #print("clip:", clip)
             text = self.current_page.get_text("text", clip=clip)
             print("text:", text)
+            # wait cursor
+            QApplication.setOverrideCursor(Qt.WaitCursor)
+            processed_text = self.process_caption(text)
+            # restore cursor
+            QApplication.restoreOverrideCursor()
+
+            self.caption_edit.setText(processed_text)
+            #print("text:", text)
             return text
         self.lblFigure.set_text_capture_callback(on_text_capture)
+
+    def process_caption(self, caption):
+        content = '''
+Please process following caption so that:
+each subfigure caption is in one line and separated by a newline character;
+each subfigure caption should contain a scientific name enclosed in underlined brackets;
+each subfigure caption should contains specimen information if available;
+each subfigure caption should contain a scale bar information if available.
+
+For example:
+Figure 3.
+Pojetaia runnegari Jell, 1980 from the Shackleton Limestone. (1–4)
+Specimen SMNH Mo185039 in (1) lateral view, (2) dorsal view, (3) magniﬁca-
+tion of the central margin, showing laminar crystalline imprints, (4) magniﬁca-
+tion of the cardinal teeth shown in (2). (5, 6) Specimen SMNH Mo185040,
+(5) lateral view, (6) magniﬁcation of lateral surface, showing laminar crystalline
+imprints. (7) Specimen SMNH Mo185041 in lateral view. (8) Specimen SMNH
+Mo185042 in lateral view. (9) Specimen SMNH Mo185043. (5, 6, 8) imaged
+under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bars
+= 100 µm.
+
+Paragraph above should be converted to:
+1. _Pojetaia runnegari_ SMNH Mo185039, lateral view (200 µm scale bar).
+2. _Pojetaia runnegari_ SMNH Mo185039, dorsal view (200 µm scale bar).
+3. _Pojetaia runnegari_ SMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar).
+4. _Pojetaia runnegari_ SMNH Mo185039, magnification of cardinal teeth (100 µm scale bar).
+5. _Pojetaia runnegari_ SMNH Mo185040, lateral view (100 µm scale bar).
+6. _Pojetaia runnegari_ SMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar).
+7. _Pojetaia runnegari_ SMNH Mo185041, lateral view (200 µm scale bar).
+8. _Pojetaia runnegari_ SMNH Mo185042, lateral view (200 µm scale bar).
+9. _Pojetaia runnegari_ SMNH Mo185043 (200 µm scale bar).
+
+'''
+        response = ollama.chat(model='llama3', messages=[
+        {
+            'role': 'user',
+            'content': content + caption,
+        },
+        ])
+        return response['message']['content']
+        #print(response['message']['content'])
 
     def fill_selected_cells(self):
         selection_model = self.figureView.selectionModel()

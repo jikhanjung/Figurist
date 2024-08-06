@@ -1020,11 +1020,21 @@ class AddFigureDialog(QDialog):
         # set header 
         self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
 
-
-        self.loadButton = QPushButton(self.tr("Load figure"))
+        self.loadButton = QPushButton(self.tr("Load"))
         self.loadButton.clicked.connect(self.on_btn_load_clicked)
-        self.detectButton = QPushButton(self.tr("Detect Figures"))
+        self.detectButton = QPushButton(self.tr("Detect"))
         self.detectButton.clicked.connect(self.on_btn_detect_clicked)
+        self.captureButton = QPushButton(self.tr("Capture text"))
+        self.captureButton.clicked.connect(self.on_btn_capture_clicked)
+
+        self.reference_control_widget = QWidget()
+        self.reference_control_layout = QHBoxLayout()
+        self.reference_control_widget.setLayout(self.reference_control_layout)
+        self.reference_control_layout.addWidget(self.loadButton)
+        self.reference_control_layout.addWidget(self.detectButton)
+        self.reference_control_layout.addWidget(self.captureButton)
+
+
         #self.detectButton.setEnabled(False)
         self.saveButton = QPushButton(self.tr("Save"))
         self.saveButton.clicked.connect(self.on_btn_save_clicked)
@@ -1081,6 +1091,7 @@ class AddFigureDialog(QDialog):
         self.left_widget = QWidget()
         self.left_layout = QVBoxLayout()
         self.left_widget.setLayout(self.left_layout)
+        self.left_layout.addWidget(self.reference_control_widget)
         self.left_layout.addWidget(self.pdfcontrol_widget)
         self.left_layout.addWidget(self.lblFigure,1)
 
@@ -1103,8 +1114,8 @@ class AddFigureDialog(QDialog):
         self.bottom_widget = QWidget()
         self.bottom_layout = QHBoxLayout()
         self.bottom_widget.setLayout(self.bottom_layout)
-        self.bottom_layout.addWidget(self.loadButton)
-        self.bottom_layout.addWidget(self.detectButton)
+        #self.bottom_layout.addWidget(self.loadButton)
+        #self.bottom_layout.addWidget(self.detectButton)
         self.bottom_layout.addWidget(self.saveButton)
         self.bottom_layout.addWidget(self.cancelButton)
 
@@ -1117,6 +1128,24 @@ class AddFigureDialog(QDialog):
         self.layout.addWidget(self.bottom_widget)
         self.layout.addWidget(self.statusBar)
         self.setLayout(self.layout)
+
+    def on_btn_capture_clicked(self):
+        print("Capture text")
+        self.lblFigure.set_edit_mode("CAPTURE_TEXT")
+        def on_text_capture(rect):
+            dpi = 600
+            scale_factor = 72 / dpi
+            clip = fitz.Rect(
+                rect.left() * scale_factor,
+                rect.top() * scale_factor,
+                rect.right() * scale_factor,
+                rect.bottom() * scale_factor
+            )
+            print("clip:", clip)
+            text = self.current_page.get_text("text", clip=clip)
+            print("text:", text)
+            return text
+        self.lblFigure.set_text_capture_callback(on_text_capture)
 
     def fill_selected_cells(self):
         selection_model = self.figureView.selectionModel()
@@ -1477,360 +1506,6 @@ class AddFigureDialog(QDialog):
         if (x1 <= x2 <= x1 + w1 or x2 <= x1 <= x2 + w2) and (y1 <= y2 <= y1 + h1 or y2 <= y1 <= y2 + h2):
             return True
         return False
-
-    def segment_figures_qt_1(self, qpixmap):
-
-        img = qpixmap.toImage()
-        
-        # Convert QImage to numpy array
-        width = img.width()
-        height = img.height()
-        ptr = img.constBits()
-        ptr.setsize(height * width * 4)
-        arr = np.frombuffer(ptr, np.uint8).reshape((height, width, 4))
-        # Convert RGBA to RGB
-        img = cv2.cvtColor(arr, cv2.COLOR_RGBA2RGB)
-        
-        original_img = img.copy()
-        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-
-        # Apply threshold
-        _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
-
-        # Find contours
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-        # Get bounding boxes for all contours
-        bounding_boxes = []
-        for contour in contours:
-            if cv2.contourArea(contour) < 1000:  # Adjust this value as needed
-                continue
-            x, y, w, h = cv2.boundingRect(contour)
-            bounding_boxes.append((x, y, w, h))
-
-        # Remove overlapping boxes, keeping the larger ones
-        valid_boxes = []
-        for box in bounding_boxes:
-            is_valid = True
-            for valid_box in valid_boxes:
-                if self.check_overlap(box, valid_box):
-                    if box[2] * box[3] > valid_box[2] * valid_box[3]:
-                        valid_boxes.remove(valid_box)
-                    else:
-                        is_valid = False
-                    break
-            if is_valid:
-                valid_boxes.append(box)
-
-        if not valid_boxes:
-            print("No valid boxes found.")
-            return []
-
-        # Calculate average height of boxes
-        avg_height = sum(box[3] for box in valid_boxes) / len(valid_boxes)
-
-        # Assign row numbers based on y-coordinate and average height
-        for i, box in enumerate(valid_boxes):
-            box_y = box[1]
-            row = int(box_y / (avg_height * 1.2))  # 1.2 is a factor to allow some variation
-            valid_boxes[i] = box + (row,)  # Add row number as the 5th element of the tuple
-
-        # Sort boxes first by row, then by x-coordinate
-        valid_boxes.sort(key=lambda box: (box[4], box[0]))
-
-        annotated_pixmap = qpixmap.copy()
-        painter = QPainter(annotated_pixmap)
-        painter.setPen(QPen(Qt.red, 2, Qt.SolidLine))
-
-        # Process valid boxes
-        result = []
-        for i, (x, y, w, h, _) in enumerate(valid_boxes, start=1):
-            # Add some padding
-            padding = 10
-            x = max(0, x - padding)
-            y = max(0, y - padding)
-            w = min(img.shape[1] - x, w + 2*padding)
-            h = min(img.shape[0] - y, h + 2*padding)
-
-            # Crop the figure
-            figure = original_img[y:y+h, x:x+w]
-
-            # Convert cv2 image to QPixmap
-            height, width, channel = figure.shape
-            bytes_per_line = 3 * width
-            #q_img = QImage(figure.data, width, height, bytes_per_line, QImage.Format_RGB888)
-            q_img = QImage(figure.tobytes(), width, height, bytes_per_line, QImage.Format_RGB888)
-            cropped_pixmap = QPixmap.fromImage(q_img)
-
-            # Add the cropped pixmap and its coordinates to the result
-            result.append((cropped_pixmap, QRect(x, y, w, h)))
-            painter.drawRect(x, y, w, h)
-
-        painter.end()
-        return result, annotated_pixmap
-    
-    def segment_figures_qt_2(self, qpixmap):
-        img = qpixmap.toImage()
-        
-        # Convert QImage to numpy array
-        width = img.width()
-        height = img.height()
-        ptr = img.constBits()
-        ptr.setsize(height * width * 4)
-        arr = np.frombuffer(ptr, np.uint8).reshape((height, width, 4))
-        # Convert RGBA to RGB
-        img = cv2.cvtColor(arr, cv2.COLOR_RGBA2RGB)
-        
-        original_img = img.copy()
-
-        # Calculate a scaling factor based on image size
-        scale_factor = max(1, min(width, height) / 4000)
-        
-        # Resize the image for processing
-        proc_width = int(width / scale_factor)
-        proc_height = int(height / scale_factor)
-        proc_img = cv2.resize(img, (proc_width, proc_height))
-
-        gray = cv2.cvtColor(proc_img, cv2.COLOR_RGB2GRAY)
-        
-        # Apply morphological operations
-        kernel = np.ones((5,5), np.uint8)
-        gray = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, kernel)
-        gray = cv2.morphologyEx(gray, cv2.MORPH_OPEN, kernel)
-
-        # Apply threshold
-        _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
-        
-        # Find contours
-        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        
-        # Calculate minimum and maximum contour area based on image size
-        total_area = proc_width * proc_height
-        min_contour_area = total_area * 0.005  # Minimum figure size (1% of image)
-        max_contour_area = total_area * 0.8   # Maximum figure size (50% of image)
-        
-        # Get bounding boxes for all contours
-        bounding_boxes = []
-        for contour in contours:
-            area = cv2.contourArea(contour)
-            if min_contour_area < area < max_contour_area:
-                x, y, w, h = cv2.boundingRect(contour)
-                bounding_boxes.append((x, y, w, h))
-
-        # Adaptive threshold adjustment
-        if len(bounding_boxes) < 10 or len(bounding_boxes) > 50:
-            # Binary search to find optimal threshold
-            low, high = 0.001, 0.05  # 0.1% to 5% of image area
-            while high - low > 0.0001:
-                mid = (low + high) / 2
-                min_contour_area = total_area * mid
-                bounding_boxes = [cv2.boundingRect(c) for c in contours if min_contour_area < cv2.contourArea(c) < max_contour_area]
-                if len(bounding_boxes) < 10:
-                    high = mid
-                elif len(bounding_boxes) > 50:
-                    low = mid
-                else:
-                    break
-
-        # Scale bounding boxes back to original size
-        bounding_boxes = [(int(x*scale_factor), int(y*scale_factor), 
-                        int(w*scale_factor), int(h*scale_factor)) 
-                        for x, y, w, h in bounding_boxes]
-
-        # Remove overlapping boxes, keeping the larger ones
-        valid_boxes = []
-        for box in bounding_boxes:
-            is_valid = True
-            for valid_box in valid_boxes:
-                if self.check_overlap(box, valid_box):
-                    if box[2] * box[3] > valid_box[2] * valid_box[3]:
-                        valid_boxes.remove(valid_box)
-                    else:
-                        is_valid = False
-                    break
-            if is_valid:
-                valid_boxes.append(box)
-
-        # Calculate average height of boxes
-        avg_height = sum(box[3] for box in valid_boxes) / len(valid_boxes)
-
-        # Assign row numbers based on y-coordinate and average height
-        for i, box in enumerate(valid_boxes):
-            box_y = box[1]
-            row = int(box_y / (avg_height * 1.2))  # 1.2 is a factor to allow some variation
-            valid_boxes[i] = box + (row,)  # Add row number as the 5th element of the tuple
-
-        # Sort boxes first by row, then by x-coordinate
-        valid_boxes.sort(key=lambda box: (box[4], box[0]))
-
-        annotated_pixmap = qpixmap.copy()
-        painter = QPainter(annotated_pixmap)
-        painter.setPen(QPen(Qt.GlobalColor.red, 2, Qt.PenStyle.SolidLine))
-
-        # Process valid boxes
-        result = []
-        for i, (x, y, w, h, _) in enumerate(valid_boxes, start=1):
-            # Add some padding
-            padding = 10
-            x = max(0, x - padding)
-            y = max(0, y - padding)
-            w = min(img.shape[1] - x, w + 2*padding)
-            h = min(img.shape[0] - y, h + 2*padding)
-
-            # Crop the figure
-            figure = original_img[y:y+h, x:x+w]
-
-            # Convert cv2 image to QPixmap
-            height, width, channel = figure.shape
-            bytes_per_line = 3 * width
-            q_img = QImage(figure.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
-            cropped_pixmap = QPixmap.fromImage(q_img)
-
-            # Add the cropped pixmap and its coordinates to the result
-            result.append((cropped_pixmap, QRect(x, y, w, h)))
-            painter.drawRect(x, y, w, h)
-
-        painter.end()
-        return result, annotated_pixmap
-
-    def segment_figures_qt_3(self, qpixmap):
-        img = qpixmap.toImage()
-        
-        # Convert QImage to numpy array
-        width = img.width()
-        height = img.height()
-        ptr = img.constBits()
-        ptr.setsize(height * width * 4)
-        arr = np.frombuffer(ptr, np.uint8).reshape((height, width, 4))
-        # Convert RGBA to RGB
-        img = cv2.cvtColor(arr, cv2.COLOR_RGBA2RGB)
-        
-        original_img = img.copy()
-
-        # Calculate a scaling factor based on image size
-        scale_factor = max(1, min(width, height) / 4000)
-        
-        # Resize the image for processing
-        proc_width = int(width / scale_factor)
-        proc_height = int(height / scale_factor)
-        proc_img = cv2.resize(img, (proc_width, proc_height))
-
-        # Function to process the image and return bounding boxes
-        def process_image(img, invert=False):
-            gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-            
-            if invert:
-                gray = cv2.bitwise_not(gray)
-            
-            # Apply morphological operations
-            kernel = np.ones((5,5), np.uint8)
-            gray = cv2.morphologyEx(gray, cv2.MORPH_CLOSE, kernel)
-            gray = cv2.morphologyEx(gray, cv2.MORPH_OPEN, kernel)
-
-            # Apply threshold
-            _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
-            
-            # Find contours
-            contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-            
-            # Calculate minimum and maximum contour area based on image size
-            total_area = img.shape[0] * img.shape[1]
-            min_contour_area = total_area * 0.01  # Minimum figure size (1% of image)
-            max_contour_area = total_area * 0.5   # Maximum figure size (50% of image)
-            
-            # Get bounding boxes for all contours
-            bounding_boxes = []
-            for contour in contours:
-                area = cv2.contourArea(contour)
-                if min_contour_area < area < max_contour_area:
-                    x, y, w, h = cv2.boundingRect(contour)
-                    bounding_boxes.append((x, y, w, h))
-            
-            return bounding_boxes
-
-        # Process the image normally
-        bounding_boxes = process_image(proc_img)
-
-        # If we detect only one large bounding box, try inverting the image
-        if len(bounding_boxes) == 1 and cv2.contourArea(cv2.convexHull(np.array(bounding_boxes[0]))) > 0.9 * proc_width * proc_height:
-            bounding_boxes = process_image(proc_img, invert=True)
-
-        # Adaptive threshold adjustment
-        if len(bounding_boxes) < 10 or len(bounding_boxes) > 50:
-            # Binary search to find optimal threshold
-            low, high = 0.001, 0.05  # 0.1% to 5% of image area
-            while high - low > 0.0001:
-                mid = (low + high) / 2
-                min_contour_area = proc_width * proc_height * mid
-                bounding_boxes = process_image(proc_img)
-                if len(bounding_boxes) < 10:
-                    high = mid
-                elif len(bounding_boxes) > 50:
-                    low = mid
-                else:
-                    break
-
-        # Scale bounding boxes back to original size
-        bounding_boxes = [(int(x*scale_factor), int(y*scale_factor), 
-                        int(w*scale_factor), int(h*scale_factor)) 
-                        for x, y, w, h in bounding_boxes]
-
-        # Remove overlapping boxes, keeping the larger ones
-        valid_boxes = []
-        for box in bounding_boxes:
-            is_valid = True
-            for valid_box in valid_boxes:
-                if self.check_overlap(box, valid_box):
-                    if box[2] * box[3] > valid_box[2] * valid_box[3]:
-                        valid_boxes.remove(valid_box)
-                    else:
-                        is_valid = False
-                    break
-            if is_valid:
-                valid_boxes.append(box)
-
-        # Calculate average height of boxes
-        if valid_boxes:
-            avg_height = sum(box[3] for box in valid_boxes) / len(valid_boxes)
-
-            # Assign row numbers based on y-coordinate and average height
-            for i, box in enumerate(valid_boxes):
-                box_y = box[1]
-                row = int(box_y / (avg_height * 1.2))  # 1.2 is a factor to allow some variation
-                valid_boxes[i] = box + (row,)  # Add row number as the 5th element of the tuple
-
-            # Sort boxes first by row, then by x-coordinate
-            valid_boxes.sort(key=lambda box: (box[4], box[0]))
-
-        annotated_pixmap = qpixmap.copy()
-        painter = QPainter(annotated_pixmap)
-        painter.setPen(QPen(Qt.GlobalColor.red, 2, Qt.PenStyle.SolidLine))
-
-        # Process valid boxes
-        result = []
-        for i, (x, y, w, h, _) in enumerate(valid_boxes, start=1):
-            # Add some padding
-            padding = 10
-            x = max(0, x - padding)
-            y = max(0, y - padding)
-            w = min(original_img.shape[1] - x, w + 2*padding)
-            h = min(original_img.shape[0] - y, h + 2*padding)
-
-            # Crop the figure
-            figure = original_img[y:y+h, x:x+w]
-
-            # Convert cv2 image to QPixmap
-            height, width, channel = figure.shape
-            bytes_per_line = 3 * width
-            q_img = QImage(figure.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
-            cropped_pixmap = QPixmap.fromImage(q_img)
-
-            # Add the cropped pixmap and its coordinates to the result
-            result.append((cropped_pixmap, QRect(x, y, w, h)))
-            painter.drawRect(x, y, w, h)
-
-        painter.end()
-        return result, annotated_pixmap
 
     def segment_figures_qt(self, qpixmap):
         img = qpixmap.toImage()

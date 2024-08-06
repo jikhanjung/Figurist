@@ -316,7 +316,15 @@ class FigureLabel(QLabel):
         self.mouse_curr_y = me.y()
         curr_pos = [self.mouse_curr_x, self.mouse_curr_y]
         #print("mouse move", curr_pos)
-        if self.edit_mode == "NEW_SUBFIGURE_DRAG":
+        if self.edit_mode == "CAPTURE_TEXT":
+            pass
+        elif self.edit_mode == "CAPTURE_TEXT_DRAG":
+            diff_x = self.mouse_curr_x - self.down_x
+            diff_x = round(((float(diff_x)) / self.scale) * self.image_canvas_ratio)
+            diff_y = self.mouse_curr_y - self.down_y
+            diff_y = round(((float(diff_y)) / self.scale) * self.image_canvas_ratio)
+            self.temp_rect = QRect(self._2imgx(self.down_x), self._2imgy(self.down_y), diff_x, diff_y)
+        elif self.edit_mode == "NEW_SUBFIGURE_DRAG":
             diff_x = self.mouse_curr_x - self.down_x
             diff_x = round(((float(diff_x)) / self.scale) * self.image_canvas_ratio)
             diff_y = self.mouse_curr_y - self.down_y
@@ -389,20 +397,23 @@ class FigureLabel(QLabel):
         if self.edit_mode == "DOUBLE_CLICK":
             return
         if me.button() == Qt.LeftButton:
+            if self.read_only:
+                return
             #if self.object_dialog is None:
             self.mouse_down_x = me.x()
             self.mouse_down_y = me.y()
             #    return
             if self.edit_mode == "NONE":
-                if self.read_only:
-                    return
                 self.down_x = me.x()
                 self.down_y = me.y()
                 self.edit_mode = "NEW_SUBFIGURE_DRAG"
                 self.temp_rect = QRect(self._2imgx(self.down_x), self._2imgy(self.down_y), 1, 1)
+            elif self.edit_mode == "CAPTURE_TEXT":
+                self.down_x = me.x()
+                self.down_y = me.y()
+                self.edit_mode = "CAPTURE_TEXT_DRAG"
+                self.temp_rect = QRect(self._2imgx(self.down_x), self._2imgy(self.down_y), 1, 1)                
             elif self.edit_mode == "ADJUSTING_SUBFIGURE": #in ["RESIZE_LEFT", "RESIZE_RIGHT", "RESIZE_TOP", "RESIZE_BOTTOM", "MOVE"]:
-                if self.read_only:
-                    return
                 self.temp_rect = self.subfigure_list[self.curr_subfigure_index][1]
                 self.set_edit_mode("ADJUSTING_SUBFIGURE_DRAG")
                 if self.adjusting_side == 0:
@@ -410,12 +421,16 @@ class FigureLabel(QLabel):
                     self.setCursor(Qt.ClosedHandCursor)
         elif me.button() == Qt.RightButton:
             self.set_edit_mode("PAN")
-            self.temp_pan_x = self.pan_x
-            self.temp_pan_y = self.pan_y
+            #self.temp_pan_x = self.pan_x
+            #self.temp_pan_y = self.pan_y
             self.mouse_down_x = me.x()
             self.mouse_down_y = me.y()
         else:
             pass
+
+    def set_text_capture_callback(self, callback):
+        self.text_capture_callback = callback
+
 
     def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
         me = QMouseEvent(ev)
@@ -429,15 +444,26 @@ class FigureLabel(QLabel):
             self.pan_y += self.temp_pan_y
             self.temp_pan_x = 0
             self.temp_pan_y = 0
+        elif self.edit_mode == "CAPTURE_TEXT_DRAG":
+            self.text_capture_callback(self.temp_rect)
+            #text = self.get_text_from_rect(self.temp_rect)
+            #print("captured text", text)
+            #self.text_pixmap = self.orig_pixmap.copy(self.temp_rect)
+
         elif self.edit_mode == "ADJUSTING_SUBFIGURE_DRAG": #in ["NEW_SUBFIGURE_DRAG", "RESIZE_LEFT_DRAG", "RESIZE_RIGHT_DRAG", "RESIZE_TOP_DRAG", "RESIZE_BOTTOM_DRAG", "MOVE_DRAG"]:
             #print("curr_subfigure_index", self.curr_subfigure_index, self.temp_rect)
             self.subfigure_list[self.curr_subfigure_index] = (self.orig_pixmap.copy(self.temp_rect), self.temp_rect)
             self.temp_rect = None
             self.curr_subfigure_index = -1
         elif self.edit_mode == "NEW_SUBFIGURE_DRAG":
+            #print("new subfigure", self.temp_rect)
             #self.temp_rect = QRect(self.down_x, self.down_y, self.mouse_curr_x-self.down_x, self.mouse_curr_y-self.down_y)
             # check size of the new subfigure
-            if self.temp_rect.width() < 50 or self.temp_rect.height() < 50:
+            abs_width = abs(self.temp_rect.width())
+            abs_height = abs(self.temp_rect.height())
+            min_width_height = 50
+            #print("width, height", abs_width, abs_height)
+            if abs_width < min_width_height or abs_height < min_width_height:
                 self.temp_rect = None
             else:
                 self.subfigure_list.append((self.orig_pixmap.copy(self.temp_rect), self.temp_rect))

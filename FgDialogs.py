@@ -1049,6 +1049,8 @@ class AddFigureDialog(QDialog):
         self.edtReference = QLineEdit()
         # read only edtReference
         self.edtReference.setReadOnly(True)
+        self.process_caption_button = QPushButton(self.tr("Process Caption"))
+        self.process_caption_button.clicked.connect(self.on_process_caption_button_clicked)
 
         self.top_widget = QWidget()
         self.top_layout = QHBoxLayout()
@@ -1062,6 +1064,7 @@ class AddFigureDialog(QDialog):
         self.figure_layout.addWidget(self.prefix_widget)
         self.figure_layout.addWidget(self.figureView)
         self.figure_layout.addWidget(self.caption_edit)
+        self.figure_layout.addWidget(self.process_caption_button)
         #self.figure_layout.addWidget(self.figure_button_widget)
 
         self.pdfcontrol_widget = QWidget()
@@ -1125,6 +1128,21 @@ class AddFigureDialog(QDialog):
         self.layout.addWidget(self.statusBar)
         self.setLayout(self.layout)
 
+    def on_del_subfigure(self):
+        print("Delete subfigure")
+        indexes = self.figureView.selectionModel().selectedIndexes()
+        index = indexes[0]
+        row = index.row()
+        self.subfigure_list.pop(row)
+        self.model.removeRow(row)
+        self.lblFigure.set_subfigure_list(self.subfigure_list)
+
+    def show_figure_label_menu(self, pos):
+        menu = QMenu()
+        del_action = menu.addAction("Delete")
+        del_action.triggered.connect(self.on_del_subfigure)
+        menu.exec_(self.lblFigure.mapToGlobal(QPoint(*pos)))
+
     def on_btn_capture_clicked(self):
         print("Capture text")
         self.lblFigure.set_edit_mode("CAPTURE_TEXT")
@@ -1139,23 +1157,29 @@ class AddFigureDialog(QDialog):
             )
             #print("clip:", clip)
             text = self.current_page.get_text("text", clip=clip)
-            print("text:", text)
+            #print("text:", text)
+            self.caption_edit.setText(text)
+            self.update()
             # wait cursor
-            QApplication.setOverrideCursor(Qt.WaitCursor)
-            processed_text = self.process_caption(text)
-            # restore cursor
-            QApplication.restoreOverrideCursor()
 
-            self.caption_edit.setText(processed_text)
+            #self.caption_edit.setText(processed_text)
             #print("text:", text)
             return text
         self.lblFigure.set_text_capture_callback(on_text_capture)
+
+    def on_process_caption_button_clicked(self):
+        caption = self.caption_edit.toPlainText()
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        processed_text = self.process_caption(caption)
+        # restore cursor
+        QApplication.restoreOverrideCursor()
+        self.caption_edit.setText(processed_text)
 
     def process_caption(self, caption):
         content = '''
 Please process following caption so that:
 each subfigure caption is in one line and separated by a newline character;
-each subfigure caption should contain a scientific name enclosed in underlined brackets;
+each subfigure caption should contain a scientific name enclosed in underlines;
 each subfigure caption should contains specimen information if available;
 each subfigure caption should contain a scale bar information if available.
 

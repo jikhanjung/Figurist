@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QStyleOptionViewItem, Q
 import time, math
 from PyQt5.QtCore import QByteArray
 from FgModel import FgCollection, FgReference
+import ollama, openai
+from abc import ABC, abstractmethod
 
 CLOSE_TO = { 'left': 1, 'right': 2, 'top': 4, 'bottom': 8 }
 
@@ -433,25 +435,48 @@ class FigureLabel(QLabel):
 
 
     def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
+        def adjust_rect( rect ):
+
+            left = rect.left()
+            right = rect.right()
+            if left > right:
+                rect.setLeft(right)
+                rect.setRight(left)
+            top = rect.top()
+            bottom = rect.bottom()
+            if top > bottom:
+                rect.setTop(bottom)
+                rect.setBottom(top)
+            return rect
         me = QMouseEvent(ev)
         # restore cursor
         self.setCursor(Qt.ArrowCursor)
         self.mouse_curr_x = me.x()
         self.mouse_curr_y = me.y()
         curr_pos = [self.mouse_curr_x, self.mouse_curr_y]
+        if self.temp_rect is not None:
+            self.temp_rect = adjust_rect(self.temp_rect)
         if self.edit_mode == "PAN":
+            if self.temp_pan_x == 0 and self.temp_pan_y == 0:
+                # signal to parent to show context menu
+                if hasattr(self.parent, 'show_figure_label_menu'):
+                    self.set_edit_mode("NONE")
+                    self.parent.show_figure_label_menu(curr_pos)
+                return
             self.pan_x += self.temp_pan_x
             self.pan_y += self.temp_pan_y
             self.temp_pan_x = 0
             self.temp_pan_y = 0
         elif self.edit_mode == "CAPTURE_TEXT_DRAG":
             self.text_capture_callback(self.temp_rect)
+            self.temp_rect = None
             #text = self.get_text_from_rect(self.temp_rect)
             #print("captured text", text)
             #self.text_pixmap = self.orig_pixmap.copy(self.temp_rect)
 
         elif self.edit_mode == "ADJUSTING_SUBFIGURE_DRAG": #in ["NEW_SUBFIGURE_DRAG", "RESIZE_LEFT_DRAG", "RESIZE_RIGHT_DRAG", "RESIZE_TOP_DRAG", "RESIZE_BOTTOM_DRAG", "MOVE_DRAG"]:
             #print("curr_subfigure_index", self.curr_subfigure_index, self.temp_rect)
+            # adjust temp_rect so that width and height are positive
             self.subfigure_list[self.curr_subfigure_index] = (self.orig_pixmap.copy(self.temp_rect), self.temp_rect)
             self.temp_rect = None
             self.curr_subfigure_index = -1
@@ -576,6 +601,8 @@ class FigureLabel(QLabel):
                 idx = self.curr_subfigure_index+1
 
             text = "{}".format(idx)
+            if self.edit_mode == "CAPTURE_TEXT_DRAG":
+                text = "Text"
             painter.setPen(QPen(color))
             painter.setFont(QFont("Arial", 12))
             text_rect = painter.fontMetrics().boundingRect(text)
@@ -752,3 +779,83 @@ class DraggableTreeView(QTreeView):
             drag.exec_(Qt.CopyAction)
         else:
             drag.exec_(Qt.MoveAction)            
+
+
+class LLMBackend(ABC):
+    @abstractmethod
+    def chat(self, messages):
+        pass
+
+class OpenAIBackend(LLMBackend):
+    def __init__(self, model='gpt-3.5-turbo', api_key=None):
+        self.model = model
+        if api_key:
+            openai.api_key = api_key
+        elif not openai.api_key:
+            raise ValueError("OpenAI API key must be provided or set as an environment variable.")
+
+    def chat(self, messages):
+        try:
+            response = openai.ChatCompletion.create(
+                model=self.model,
+                messages=messages
+            )
+            return response.choices[0].message['content']
+        except openai.error.OpenAIError as e:
+            print(f"An error occurred: {e}")
+            return None
+
+class OllamaBackend(LLMBackend):
+    def __init__(self, model='llama3'):
+        self.model = model
+
+    def chat(self, messages):
+        response = ollama.chat(model=self.model, messages=messages)
+        return response['message']['content']
+
+class LLMChat:
+    def __init__(self, backend='ollama', model='llama3', api_key=None):
+        if backend == 'ollama':
+            self.backend = OllamaBackend(model)
+        elif backend == 'openai':
+            self.backend = OpenAIBackend(model, api_key)
+        else:
+            raise ValueError(f"Unsupported backend: {backend}")
+
+    def process_caption(self, caption):
+        content = '''
+Please process following caption so that:
+each subfigure caption is in one line and separated by a newline character;
+each subfigure caption should contain a scientific name enclosed in underlined brackets;
+each subfigure caption should contains specimen information if available;
+each subfigure caption should contain a scale bar information if available.
+
+For example:
+Figure 3.
+Pojetaia runnegari Jell, 1980 from the Shackleton Limestone. (1–4)
+Specimen SMNH Mo185039 in (1) lateral view, (2) dorsal view, (3) magniﬁca-
+tion of the central margin, showing laminar crystalline imprints, (4) magniﬁca-
+tion of the cardinal teeth shown in (2). (5, 6) Specimen SMNH Mo185040,
+(5) lateral view, (6) magniﬁcation of lateral surface, showing laminar crystalline
+imprints. (7) Specimen SMNH Mo185041 in lateral view. (8) Specimen SMNH
+Mo185042 in lateral view. (9) Specimen SMNH Mo185043. (5, 6, 8) imaged
+under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bars
+= 100 µm.
+
+Paragraph above should be converted to:
+1. _Pojetaia runnegari_ SMNH Mo185039, lateral view (200 µm scale bar).
+2. _Pojetaia runnegari_ SMNH Mo185039, dorsal view (200 µm scale bar).
+3. _Pojetaia runnegari_ SMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar).
+4. _Pojetaia runnegari_ SMNH Mo185039, magnification of cardinal teeth (100 µm scale bar).
+5. _Pojetaia runnegari_ SMNH Mo185040, lateral view (100 µm scale bar).
+6. _Pojetaia runnegari_ SMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar).
+7. _Pojetaia runnegari_ SMNH Mo185041, lateral view (200 µm scale bar).
+8. _Pojetaia runnegari_ SMNH Mo185042, lateral view (200 µm scale bar).
+9. _Pojetaia runnegari_ SMNH Mo185043 (200 µm scale bar).
+
+'''
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant that processes scientific figure captions."},
+            {"role": "user", "content": content + caption},
+        ]
+        return self.backend.chat(messages)

@@ -1179,9 +1179,10 @@ class AddFigureDialog(QDialog):
         content = '''
 Please process following caption so that:
 each subfigure caption is in one line and separated by a newline character;
-each subfigure caption should contain a scientific name enclosed in underlines;
-each subfigure caption should contains specimen information if available;
-each subfigure caption should contain a scale bar information if available.
+each caption should contain three items separated by a tab character;
+the first item is the figure number;
+the second item is the scientific name;
+the third item is the rest of the figure information such as specimen number, magnification, scale bar, etc.
 
 For example:
 Figure 3.
@@ -1196,15 +1197,15 @@ under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bar
 = 100 µm.
 
 Paragraph above should be converted to:
-1. _Pojetaia runnegari_ SMNH Mo185039, lateral view (200 µm scale bar).
-2. _Pojetaia runnegari_ SMNH Mo185039, dorsal view (200 µm scale bar).
-3. _Pojetaia runnegari_ SMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar).
-4. _Pojetaia runnegari_ SMNH Mo185039, magnification of cardinal teeth (100 µm scale bar).
-5. _Pojetaia runnegari_ SMNH Mo185040, lateral view (100 µm scale bar).
-6. _Pojetaia runnegari_ SMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar).
-7. _Pojetaia runnegari_ SMNH Mo185041, lateral view (200 µm scale bar).
-8. _Pojetaia runnegari_ SMNH Mo185042, lateral view (200 µm scale bar).
-9. _Pojetaia runnegari_ SMNH Mo185043 (200 µm scale bar).
+1\tPojetaia runnegari\tSMNH Mo185039, lateral view (200 µm scale bar).
+2\tPojetaia runnegari\tSMNH Mo185039, dorsal view (200 µm scale bar).
+3\tPojetaia runnegari\tSMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar).
+4\tPojetaia runnegari\tSMNH Mo185039, magnification of cardinal teeth (100 µm scale bar).
+5\tPojetaia runnegari\tSMNH Mo185040, lateral view (100 µm scale bar).
+6\tPojetaia runnegari\tSMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar).
+7\tPojetaia runnegari\tSMNH Mo185041, lateral view (200 µm scale bar).
+8\tPojetaia runnegari\tSMNH Mo185042, lateral view (200 µm scale bar).
+9\tPojetaia runnegari\tSMNH Mo185043 (200 µm scale bar).
 
 '''
         response = ollama.chat(model='llama3', messages=[

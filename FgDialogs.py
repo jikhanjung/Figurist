@@ -19,11 +19,12 @@ from PyQt5.QtCore import Qt, QMimeData, pyqtSignal, QModelIndex, QRect, QPoint, 
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import math
-from FgComponents import FigureLabel
+from FgComponents import FigureLabel, LLMChat
 import fitz
 import os
 import sys
 import ollama
+from decouple import config
 
 class ReferenceDialog(QDialog):
     # NewDatasetDialog shows new dataset dialog.
@@ -1176,42 +1177,24 @@ class AddFigureDialog(QDialog):
         self.caption_edit.setText(processed_text)
 
     def process_caption(self, caption):
-        content = '''
-Please process following caption so that:
-each subfigure caption is in one line and separated by a newline character;
-each caption should contain three items separated by a tab character;
-the first item is the figure number;
-the second item is the scientific name;
-the third item is the rest of the figure information such as specimen number, magnification, scale bar, etc.
+        backend = 'openai'
+        if backend == 'ollama':
+            llm_chat = LLMChat(backend='ollama', model='llama3')
+        elif backend == 'openai':
+            api_key = config("OPENAI_KEY")
+            llm_chat = LLMChat(backend='openai', model='gpt-3.5-turbo', api_key=api_key)
+        processed_caption = llm_chat.process_caption(caption)
+        print(processed_caption)
+        return processed_caption
+        processed_caption = llm_chat.process_caption(caption)
+        print(processed_caption)
+        return processed_caption
+        return
 
-For example:
-Figure 3.
-Pojetaia runnegari Jell, 1980 from the Shackleton Limestone. (1–4)
-Specimen SMNH Mo185039 in (1) lateral view, (2) dorsal view, (3) magniﬁca-
-tion of the central margin, showing laminar crystalline imprints, (4) magniﬁca-
-tion of the cardinal teeth shown in (2). (5, 6) Specimen SMNH Mo185040,
-(5) lateral view, (6) magniﬁcation of lateral surface, showing laminar crystalline
-imprints. (7) Specimen SMNH Mo185041 in lateral view. (8) Specimen SMNH
-Mo185042 in lateral view. (9) Specimen SMNH Mo185043. (5, 6, 8) imaged
-under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bars
-= 100 µm.
-
-Paragraph above should be converted to:
-1\tPojetaia runnegari\tSMNH Mo185039, lateral view (200 µm scale bar).
-2\tPojetaia runnegari\tSMNH Mo185039, dorsal view (200 µm scale bar).
-3\tPojetaia runnegari\tSMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar).
-4\tPojetaia runnegari\tSMNH Mo185039, magnification of cardinal teeth (100 µm scale bar).
-5\tPojetaia runnegari\tSMNH Mo185040, lateral view (100 µm scale bar).
-6\tPojetaia runnegari\tSMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar).
-7\tPojetaia runnegari\tSMNH Mo185041, lateral view (200 µm scale bar).
-8\tPojetaia runnegari\tSMNH Mo185042, lateral view (200 µm scale bar).
-9\tPojetaia runnegari\tSMNH Mo185043 (200 µm scale bar).
-
-'''
         response = ollama.chat(model='llama3', messages=[
         {
             'role': 'user',
-            'content': content + caption,
+            'content': instruction1 + "Please process following caption:\n\n" + caption,
         },
         ])
         return response['message']['content']

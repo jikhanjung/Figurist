@@ -7,6 +7,16 @@ from PyQt5.QtCore import QByteArray
 from FgModel import FgCollection, FgReference
 import ollama, openai
 from abc import ABC, abstractmethod
+from openai import OpenAI, OpenAIError # Import the error class directly
+import httpx
+
+import ssl
+import certifi
+import os
+
+os.environ['SSL_CERT_FILE'] = certifi.where()
+ssl_context = ssl.create_default_context(cafile=os.environ['SSL_CERT_FILE'])
+
 
 CLOSE_TO = { 'left': 1, 'right': 2, 'top': 4, 'bottom': 8 }
 
@@ -798,10 +808,28 @@ class OpenAIBackend(LLMBackend):
         try:
             response = openai.ChatCompletion.create(
                 model=self.model,
-                messages=messages
+                messages=messages,
+                #client = OpenAI(api_key=self.api_key,http_client=httpx.Client(verify=False))
+                client = OpenAI(api_key=self.api_key)
             )
             return response.choices[0].message['content']
         except openai.error.OpenAIError as e:
+            print(f"An error occurred: {e}")
+            return None
+
+class OpenAIBackend(LLMBackend):
+    def __init__(self, model='gpt-3.5-turbo', api_key=None):
+        self.model = model
+        self.client = OpenAI(api_key=api_key,http_client=httpx.Client(verify=False))
+
+    def chat(self, messages):
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages
+            )
+            return response.choices[0].message.content
+        except OpenAIError as e:
             print(f"An error occurred: {e}")
             return None
 
@@ -823,12 +851,13 @@ class LLMChat:
             raise ValueError(f"Unsupported backend: {backend}")
 
     def process_caption(self, caption):
-        content = '''
+        instruction1 = '''
 Please process following caption so that:
 each subfigure caption is in one line and separated by a newline character;
-each subfigure caption should contain a scientific name enclosed in underlined brackets;
-each subfigure caption should contains specimen information if available;
-each subfigure caption should contain a scale bar information if available.
+each caption should contain three items separated by a tab character;
+the first item is the figure number;
+the second item is the scientific name;
+the third item is the rest of the figure information such as specimen number, magnification, scale bar, etc.
 
 For example:
 Figure 3.
@@ -843,19 +872,65 @@ under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bar
 = 100 µm.
 
 Paragraph above should be converted to:
-1. _Pojetaia runnegari_ SMNH Mo185039, lateral view (200 µm scale bar).
-2. _Pojetaia runnegari_ SMNH Mo185039, dorsal view (200 µm scale bar).
-3. _Pojetaia runnegari_ SMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar).
-4. _Pojetaia runnegari_ SMNH Mo185039, magnification of cardinal teeth (100 µm scale bar).
-5. _Pojetaia runnegari_ SMNH Mo185040, lateral view (100 µm scale bar).
-6. _Pojetaia runnegari_ SMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar).
-7. _Pojetaia runnegari_ SMNH Mo185041, lateral view (200 µm scale bar).
-8. _Pojetaia runnegari_ SMNH Mo185042, lateral view (200 µm scale bar).
-9. _Pojetaia runnegari_ SMNH Mo185043 (200 µm scale bar).
+1\tPojetaia runnegari\tSMNH Mo185039, lateral view (200 µm scale bar).
+2\tPojetaia runnegari\tSMNH Mo185039, dorsal view (200 µm scale bar).
+3\tPojetaia runnegari\tSMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar).
+4\tPojetaia runnegari\tSMNH Mo185039, magnification of cardinal teeth (100 µm scale bar).
+5\tPojetaia runnegari\tSMNH Mo185040, lateral view (100 µm scale bar).
+6\tPojetaia runnegari\tSMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar).
+7\tPojetaia runnegari\tSMNH Mo185041, lateral view (200 µm scale bar).
+8\tPojetaia runnegari\tSMNH Mo185042, lateral view (200 µm scale bar).
+9\tPojetaia runnegari\tSMNH Mo185043 (200 µm scale bar).
+
+'''
+        
+        instruction2 = '''
+Another example:
+Figure 4. Helcionellids fromthe Shackleton Limestone. (1–5) Davidonia cf. D. corrugata Runnegar in Bengtson et al., 1990. (1–3) SpecimenSMNHMo185044 in
+(1) oblique lateral view, (2) apical view, (3) magnification of apical region in lateral view, showing protoconch and transition to teleoconch; (4) specimen SMNH
+Mo185045, oblique view of supra-apical field; (5) specimen SMNH Mo185046 lateral view. (6–14) Davidonia rostrata (Zhou and Xiao, 1984), (6, 7) specimen
+SMNH Mo185047, (6) lateral view, (7) dorsal view of supra-apical field; (8–11) specimen SMNH Mo185048, (8) magnification of lateral view of parietal train,
+showing polygonal crystalline imprints on the side surface, (9) dorsal view of supra-apical field, (10) lateral view, (11) magnification of oblique lateral view of
+supra-apical field, showing polygonal crystalline imprints; (12) specimen SMNH Mo182501 in lateral view; (13) specimen SMNH Mo182502 in lateral view;
+(14) specimen SMNH Mo182503 in lateral view. (15–18) Xianfengella cf. X. yatesi Parkhaev in Gravestock et al., 2001, specimen SMNH Mo185049, (15) dorsal
+view, (16) oblique apical view, (17) magnified view of supra-apical field showing crystalline imprints, (18) oblique lateral view. (19–21) Protowenella? sp. Runnegar
+and Jell, 1976 specimen SMNH Mo185050, (19) lateral view, (20) dorsal view, (21) apical view. (22–28) Anuliconus sp. Parkhaev in Gravestock et al. (2001), (22–24)
+specimen SMNHMo185051, (23) lateral view, (22) magnification of apex in lateral view, (24) apertural view; (25, 26) specimen SMNHMo185052, (25) lateral view, (26)
+apical view; (27, 28) specimen SMNH Mo185053, (27) lateral view, (28) apical view. (3, 10, 11, 17, 22, 24) Scale bars = 100 μm; all others, scale bars = 200 μm.
+
+This paragraph should be converted to:
+1\tHelcionellids\tSMNH Mo185044, oblique lateral view (200 µm scale bar).
+2\tHelcionellids\tSMNH Mo185044, apical view (200 µm scale bar).
+3\tHelcionellids\tSMNH Mo185044, magnification of apical region in lateral view, showing protoconch and transition to teleoconch 100 µm scale bar).
+4\tHelcionellids\tSMNH Mo185045, oblique view of supra-apical field (200 µm scale bar).
+5\tHelcionellids\tSMNH Mo185046, lateral view (200 µm scale bar).
+6\tDavidonia rostrata\tSMNH Mo185047, lateral view (200 µm scale bar).
+7\tDavidonia rostrata\tSMNH Mo185047, dorsal view of supra-apical field (200 µm scale bar).
+8\tDavidonia rostrata\tSMNH Mo185048, magnification of lateral view of parietal train, showing polygonal crystalline imprints on the side surface (200 µm scale bar).
+9\tDavidonia rostrata\tSMNH Mo185048, dorsal view of supra-apical field (200 µm scale bar).
+10\tDavidonia rostrata\tSMNH Mo185048, lateral view (100 µm scale bar).
+11\tDavidonia rostrata\tSMNH Mo185048, magnification of oblique lateral view of supra-apical field, showing polygonal crystalline imprints (100 µm scale bar).
+12\tDavidonia rostrata\tSMNH Mo182501, lateral view (200 µm scale bar).
+13\tDavidonia rostrata\tSMNH Mo182502, lateral view (200 µm scale bar).
+14\tDavidonia rostrata\tSMNH Mo182503, lateral view (200 µm scale bar).
+15\tXianfengella cf. X. yatesi\tSMNH Mo185049, dorsal view (200 µm scale bar).
+16\tXianfengella cf. X. yatesi\tSMNH Mo185049, oblique apical view (200 µm scale bar).
+17\tXianfengella cf. X. yatesi\tSMNH Mo185049, magnified view of supra-apical field showing crystalline imprints 100 µm scale bar).
+18\tXianfengella cf. X. yatesi\tSMNH Mo185049, oblique lateral view (200 µm scale bar).
+19\tProtowenella? sp.\tSMNH Mo185050, lateral view (200 µm scale bar).
+20\tProtowenella? sp.\tSMNH Mo185050, dorsal view (200 µm scale bar).
+21\tProtowenella? sp.\tSMNH Mo185050, apical view (200 µm scale bar).
+22\tAnuliconus sp.\tSMNH Mo185051, lateral view (100 µm scale bar).
+23\tAnuliconus sp.\tSMNH Mo185051, magnification of apex in lateral view 200 µm scale bar).
+24\tAnuliconus sp.\tSMNH Mo185051, apertural view (100 µm scale bar).
+25\tAnuliconus sp.\tSMNH Mo185052, lateral view (200 µm scale bar).
+26\tAnuliconus sp.\tSMNH Mo185052, apical view (200 µm scale bar).
+27\tAnuliconus sp.\tSMNH Mo185053, lateral view (200 µm scale bar).
+28\tAnuliconus sp.\tSMNH Mo185053, apical view (200 µm scale bar).
 
 '''
         messages = [
             {"role": "system", "content": "You are a helpful assistant that processes scientific figure captions."},
-            {"role": "user", "content": content + caption},
+            {"role": "user", "content": instruction1 + instruction2 + "Please process following caption in a similar way to the examples shown above:\n\n" + caption},
         ]
         return self.backend.chat(messages)

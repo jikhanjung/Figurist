@@ -16,6 +16,7 @@ import os
 
 os.environ['SSL_CERT_FILE'] = certifi.where()
 ssl_context = ssl.create_default_context(cafile=os.environ['SSL_CERT_FILE'])
+#ollama.set_base_url('http://172.16.116.98:11434')
 
 
 CLOSE_TO = { 'left': 1, 'right': 2, 'top': 4, 'bottom': 8 }
@@ -833,12 +834,20 @@ class OpenAIBackend(LLMBackend):
             print(f"An error occurred: {e}")
             return None
 
-class OllamaBackend(LLMBackend):
+class OllamaBackend_old(LLMBackend):
     def __init__(self, model='llama3'):
         self.model = model
-
     def chat(self, messages):
         response = ollama.chat(model=self.model, messages=messages)
+        return response['message']['content']
+
+class OllamaBackend(LLMBackend):
+    def __init__(self, model='llama3', host='http://172.16.116.98:11434'):
+        self.model = model
+        self.client = ollama.Client(host=host)
+    
+    def chat(self, messages):
+        response = self.client.chat(model=self.model, messages=messages)
         return response['message']['content']
 
 class LLMChat:

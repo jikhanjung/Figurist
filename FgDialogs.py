@@ -1177,7 +1177,7 @@ class AddFigureDialog(QDialog):
         self.caption_edit.setText(processed_text)
 
     def process_caption(self, caption):
-        backend = 'ollama'
+        backend = 'openai'
         if backend == 'ollama':
             llm_chat = LLMChat(backend='ollama', model='llama3')
         elif backend == 'openai':

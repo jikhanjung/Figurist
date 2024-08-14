@@ -10,7 +10,7 @@ from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap, QStandardItemModel, QSt
                         QFontMetrics, QIntValidator, QKeySequence
 from PyQt5.QtCore import Qt, QRect, QSortFilterProxyModel, QSize, QPoint, QTranslator,\
                          pyqtSlot, pyqtSignal, QItemSelectionModel, QTimer, QEvent, QSettings
-
+import re
 from FgModel import *
 import numpy as np
 import cv2
@@ -19,7 +19,7 @@ from PyQt5.QtCore import Qt, QMimeData, pyqtSignal, QModelIndex, QRect, QPoint, 
 from PyQt5.QtCore import Qt, QMimeData, pyqtSignal
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import math
-from FgComponents import FigureLabel, LLMChat
+from FgComponents import *
 import fitz
 import os
 import sys
@@ -909,6 +909,7 @@ class AddFigureDialog(QDialog):
         self.parent = parent
         self.initUI()
         self.reference = None
+        self.processed_caption_list = []
         #self.
         self.read_settings()
 
@@ -1019,7 +1020,48 @@ class AddFigureDialog(QDialog):
         self.figureView.setContextMenuPolicy(Qt.CustomContextMenu)
         self.figureView.customContextMenuRequested.connect(self.on_custom_context_menu)
 
-        self.caption_edit = QTextEdit()
+
+        self.raw_caption_edit = QTextEdit()
+        self.process_caption_widget = QWidget()
+        self.process_caption_layout = QHBoxLayout()
+        self.process_caption_widget.setLayout(self.process_caption_layout)
+
+        self.process_caption_target = QComboBox()
+        self.process_caption_target.addItem("OpenAI")
+        self.process_caption_target.addItem("Ollama")
+        self.process_caption_button = QPushButton(self.tr("Process Caption"))
+        self.process_caption_button.clicked.connect(self.on_process_caption_button_clicked)
+
+        self.process_caption_layout.addWidget(self.process_caption_target)
+        self.process_caption_layout.addWidget(self.process_caption_button)
+
+        self.raw_caption_widget = QWidget()
+        self.raw_caption_layout = QVBoxLayout()
+        self.raw_caption_widget.setLayout(self.raw_caption_layout)
+
+        self.raw_caption_layout.addWidget(self.raw_caption_edit)
+        self.raw_caption_layout.addWidget(self.process_caption_widget)
+
+        self.prompt_edit = QTextEdit()
+        self.prompt_edit.setText(CAPTION_PROCESSING_PROMPT_1 + "\n" + CAPTION_PROCESSING_PROMPT_2 )
+
+        self.processed_caption_widget = QWidget()
+        self.processed_caption_layout = QVBoxLayout()
+        self.processed_caption_widget.setLayout(self.processed_caption_layout)
+
+        self.processed_caption_edit = QTextEdit()
+        self.update_caption_button = QPushButton(self.tr("Update Caption"))
+        self.update_caption_button.setEnabled(False)
+        self.update_caption_button.clicked.connect(self.on_update_caption_button_clicked)
+        self.processed_caption_layout.addWidget(self.processed_caption_edit)
+        self.processed_caption_layout.addWidget(self.update_caption_button)
+
+
+        self.caption_tab_widget = QTabWidget()
+        self.caption_tab_widget.addTab(self.prompt_edit, "Prompt")
+        self.caption_tab_widget.addTab(self.raw_caption_widget, "Raw caption")
+        self.caption_tab_widget.addTab(self.processed_caption_widget, "Processed caption")
+        self.caption_tab_widget.setCurrentIndex(1)
 
 
         # set header 
@@ -1050,8 +1092,6 @@ class AddFigureDialog(QDialog):
         self.edtReference = QLineEdit()
         # read only edtReference
         self.edtReference.setReadOnly(True)
-        self.process_caption_button = QPushButton(self.tr("Process Caption"))
-        self.process_caption_button.clicked.connect(self.on_process_caption_button_clicked)
 
         self.top_widget = QWidget()
         self.top_layout = QHBoxLayout()
@@ -1059,13 +1099,13 @@ class AddFigureDialog(QDialog):
         self.top_layout.addWidget(self.lblReference)
         self.top_layout.addWidget(self.edtReference)
 
-        self.figure_widget = QWidget()
-        self.figure_layout = QVBoxLayout()
-        self.figure_widget.setLayout(self.figure_layout)
-        self.figure_layout.addWidget(self.prefix_widget)
-        self.figure_layout.addWidget(self.figureView)
-        self.figure_layout.addWidget(self.caption_edit)
-        self.figure_layout.addWidget(self.process_caption_button)
+        self.figure_list_widget = QWidget()
+        self.figure_list_layout = QVBoxLayout()
+        self.figure_list_widget.setLayout(self.figure_list_layout)
+        self.figure_list_layout.addWidget(self.prefix_widget)
+        self.figure_list_layout.addWidget(self.figureView)
+        self.figure_list_layout.addWidget(self.caption_tab_widget)
+        #self.figure_list_layout.addWidget(self.process_caption_button)
         #self.figure_layout.addWidget(self.figure_button_widget)
 
         self.pdfcontrol_widget = QWidget()
@@ -1106,7 +1146,7 @@ class AddFigureDialog(QDialog):
         # use splitter instead of middle_widget
         self.splitter = QSplitter(Qt.Horizontal)
         self.splitter.addWidget(self.left_widget)
-        self.splitter.addWidget(self.figure_widget)
+        self.splitter.addWidget(self.figure_list_widget)
         self.splitter.setStretchFactor(0,1)
         self.splitter.setStretchFactor(1,2)
         self.splitter.setSizes([200,500]) 
@@ -1128,6 +1168,26 @@ class AddFigureDialog(QDialog):
         self.layout.addWidget(self.bottom_widget)
         self.layout.addWidget(self.statusBar)
         self.setLayout(self.layout)
+
+    def on_update_caption_button_clicked(self):
+        print("Update caption")
+        if len(self.processed_caption_list) > 0 and len(self.processed_caption_list) == len(self.subfigure_list):
+            for i, caption_text in enumerate(self.processed_caption_list):
+                sub_index, taxon_name, caption = self.processed_caption_list[i].split("\t")
+                subfigure = self.subfigure_list[i]
+                type = self.comboType.currentText()
+                main_idx = self.edtNumber1.text()
+                subtype = self.comboSubType.currentText()
+                if subtype == "--None--":
+                    subtype = ""
+                subfigure.index = type + main_idx + "-" + subtype + sub_index
+                subfigure.taxon_name = taxon_name
+                subfigure.caption = caption
+            self.load_subfigure_list(self.subfigure_list)
+            self.lblFigure.set_subfigure_list(self.subfigure_list)
+                #self.figureView.model().item(i, 0).setText(sub_index)
+                #self.figureView.model().item(i, 1).setText(taxon_name)
+                #self.figureView.model().item(i, 2).setText(caption)
 
     def on_del_subfigure(self):
         print("Delete subfigure")
@@ -1159,7 +1219,7 @@ class AddFigureDialog(QDialog):
             #print("clip:", clip)
             text = self.current_page.get_text("text", clip=clip)
             #print("text:", text)
-            self.caption_edit.setText(text)
+            self.raw_caption_edit.setText(text)
             self.update()
             # wait cursor
 
@@ -1169,37 +1229,50 @@ class AddFigureDialog(QDialog):
         self.lblFigure.set_text_capture_callback(on_text_capture)
 
     def on_process_caption_button_clicked(self):
-        caption = self.caption_edit.toPlainText()
+        caption = self.raw_caption_edit.toPlainText()
         QApplication.setOverrideCursor(Qt.WaitCursor)
-        processed_text = self.process_caption(caption)
+        prompt = self.prompt_edit.toPlainText()
+        processed_text = self.process_caption(caption, prompt)
         # restore cursor
-        QApplication.restoreOverrideCursor()
-        self.caption_edit.setText(processed_text)
 
-    def process_caption(self, caption):
+        self.further_process_caption(processed_text)
+        QApplication.restoreOverrideCursor()
+        self.processed_caption_edit.setText(processed_text)
+        self.caption_tab_widget.setCurrentIndex(2)
+
+    def further_process_caption(self, processed_text):
+        title, figure_captions = processed_text.split("\n\n")
+        figure_caption_list = figure_captions.split("\n")
+        # find figure or plate number
+        #title = re.(r"(\w+)\t(\d+)", title)
+        figure_type, figure_number = title.split("\t")
+        #print("figure type:", figure_type)
+        #print("figure number:", figure_number)
+        # if comboType has figure type, set it
+        if self.comboType.findText(figure_type) >= 0:
+            self.comboType.setCurrentText(figure_type)
+        else:
+            self.comboType.setCurrentText("Figure")
+        #self.comboType.setCurrentText(figure_type)
+        self.edtNumber1.setText(figure_number)
+        self.processed_caption_list = figure_captions.split("\n")
+        if len(self.processed_caption_list) > 0 and len(self.processed_caption_list) == len(self.subfigure_list):
+            self.update_caption_button.setEnabled(True)
+        else:
+            self.update_caption_button.setEnabled(False)
+            #self.load_subfigure_list(self.processed_caption_list)
+
+
+    def process_caption(self, caption, prompt):
         backend = 'openai'
         if backend == 'ollama':
             llm_chat = LLMChat(backend='ollama', model='llama3')
         elif backend == 'openai':
             api_key = config("OPENAI_KEY")
             llm_chat = LLMChat(backend='openai', model='gpt-3.5-turbo', api_key=api_key)
-        processed_caption = llm_chat.process_caption(caption)
-        print(processed_caption)
+        processed_caption = llm_chat.process_caption(caption, prompt)
         return processed_caption
-        processed_caption = llm_chat.process_caption(caption)
-        print(processed_caption)
-        return processed_caption
-        return
-
-        response = ollama.chat(model='llama3', messages=[
-        {
-            'role': 'user',
-            'content': instruction1 + "Please process following caption:\n\n" + caption,
-        },
-        ])
-        return response['message']['content']
-        #print(response['message']['content'])
-
+    
     def fill_selected_cells(self):
         selection_model = self.figureView.selectionModel()
         if not selection_model.hasSelection():
@@ -1263,26 +1336,27 @@ class AddFigureDialog(QDialog):
             row = top_left.row()
             col = top_left.column()
             new_value = self.model.data(top_left)
-            print(f"Data changed at row {row}, column {col}: {new_value}")
+            #print(f"Data changed at row {row}, column {col}: {new_value}")
             # Update your subfigure_list or perform any other necessary actions here
 
-    def load_subfigure_list(self, figure_list):
+    def load_subfigure_list(self, subfigure_list):
         self.model.clear()
-        self.model.setHorizontalHeaderLabels(["File Name", "Index", "Taxon name", "Caption", "Comments"])
-        self.subfigure_list = figure_list
-        for i, (cropped_pixmap, rect) in enumerate(self.subfigure_list):
-            name = QStandardItem("")
-            figure_number = QStandardItem(f"{i+1}")
-            taxon_name = QStandardItem("")
-            caption = QStandardItem("")
-            comments = QStandardItem("")
+        self.model.setHorizontalHeaderLabels(["Index", "Taxon name", "Caption", "Comments"])
+        self.subfigure_list = subfigure_list
+        for i, subfigure in enumerate(self.subfigure_list):
+            #name = QStandardItem("")
+
+            index = QStandardItem(str(subfigure.index))
+            taxon_name = QStandardItem(subfigure.taxon_name)
+            caption = QStandardItem(subfigure.caption)
+            comments = QStandardItem(subfigure.comments)
             
             #name.setData(cropped_pixmap, Qt.DecorationRole)
             #name.setData(rect, Qt.UserRole)
             for item in [ taxon_name, caption, comments]:
                 item.setEditable(True)
 
-            self.model.appendRow([name, figure_number, taxon_name, caption, comments])
+            self.model.appendRow([index, taxon_name, caption, comments])
 
     def on_custom_context_menu(self, pos):
         menu = QMenu()
@@ -1398,7 +1472,12 @@ class AddFigureDialog(QDialog):
         #self.model.clear()
 
         #self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
-        self.subfigure_list = segmentation_results
+        self.subfigure_list = []
+        for i, (cropped_pixmap, rect) in enumerate(segmentation_results):
+            subfigure = SubFigure(pixmap=cropped_pixmap, rect=rect)
+            #subfigure.index = i+1
+            self.subfigure_list.append(subfigure)
+        #self.subfigure_list = segmentation_results
         self.lblFigure.set_subfigure_list(self.subfigure_list)
 
         self.load_subfigure_list(self.subfigure_list)

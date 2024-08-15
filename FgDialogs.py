@@ -1234,6 +1234,7 @@ class AddFigureDialog(QDialog):
         prompt = self.prompt_edit.toPlainText()
         processed_text = self.process_caption(caption, prompt)
         # restore cursor
+        print("processed text:", processed_text)
 
         self.further_process_caption(processed_text)
         QApplication.restoreOverrideCursor()
@@ -1241,7 +1242,8 @@ class AddFigureDialog(QDialog):
         self.caption_tab_widget.setCurrentIndex(2)
 
     def further_process_caption(self, processed_text):
-        title, figure_captions = processed_text.split("\n\n")
+        return processed_text
+        title, figure_captions = processed_text.split("\n\n",2)
         figure_caption_list = figure_captions.split("\n")
         # find figure or plate number
         #title = re.(r"(\w+)\t(\d+)", title)
@@ -1264,9 +1266,9 @@ class AddFigureDialog(QDialog):
 
 
     def process_caption(self, caption, prompt):
-        backend = 'openai'
+        backend = 'ollama'
         if backend == 'ollama':
-            llm_chat = LLMChat(backend='ollama', model='llama3')
+            llm_chat = LLMChat(backend='ollama', model='llama3.1')
         elif backend == 'openai':
             api_key = config("OPENAI_KEY")
             llm_chat = LLMChat(backend='openai', model='gpt-3.5-turbo', api_key=api_key)

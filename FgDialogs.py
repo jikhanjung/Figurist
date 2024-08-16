@@ -315,17 +315,7 @@ class PreferencesDialog(QDialog):
         settings (QSettings): The settings object for storing and retrieving preferences.
         language_label (QLabel): The label for the language selection.
         language_combobox (QComboBox): The combobox for selecting the language.
-        lblSerialPort (QLabel): The label for the serial port selection.
-        comboSerialPort (QComboBox): The combobox for selecting the serial port.
-        lblPtmFitter (QLabel): The label for the PTM fitter selection.
-        edtPtmFitter (QLineEdit): The line edit for entering the PTM fitter path.
-        btnPtmFitter (QPushButton): The button for browsing the PTM fitter executable.
-        ptmfitter_widget (QWidget): The widget for containing the PTM fitter line edit and button.
-        ptmfitter_layout (QHBoxLayout): The layout for the PTM fitter widget.
-        lblNumberOfLEDs (QLabel): The label for the number of LEDs setting.
-        edtNumberOfLEDs (QLineEdit): The line edit for entering the number of LEDs.
-        lblRetryCount (QLabel): The label for the retry count setting.
-        edtRetryCount (QLineEdit): The line edit for entering the retry count.
+
         btnOkay (QPushButton): The button for accepting the preferences and closing the dialog.
         layout (QFormLayout): The layout for arranging the preferences widgets.
     """
@@ -370,6 +360,16 @@ class PreferencesDialog(QDialog):
         self.lblZoteroKey = QLabel(self.tr("Zotero Key"))
         self.edtZoteroKey = QLineEdit()
 
+        # openai api key 
+        self.lblOpenAIKey = QLabel(self.tr("OpenAI Key"))
+        self.edtOpenAIKey = QLineEdit()
+        # Ollama IP address
+        self.lblOllamaIP = QLabel(self.tr("Ollama IP"))
+        self.edtOllamaIP = QLineEdit()
+        # Ollama port
+        self.lblOllamaPort = QLabel(self.tr("Ollama Port"))
+        self.edtOllamaPort = QLineEdit()
+        
         self.btnOkay = QPushButton(self.tr("OK"))
         self.btnOkay.clicked.connect(self.Okay)
 
@@ -377,6 +377,9 @@ class PreferencesDialog(QDialog):
 
         self.layout.addRow(self.language_label, self.language_combobox)
         self.layout.addRow(self.lblZoteroKey, self.edtZoteroKey)
+        self.layout.addRow(self.lblOpenAIKey, self.edtOpenAIKey)
+        self.layout.addRow(self.lblOllamaIP, self.edtOllamaIP)
+        self.layout.addRow(self.lblOllamaPort, self.edtOllamaPort)
         self.layout.addRow(self.btnOkay)
         self.setLayout(self.layout)
 
@@ -421,6 +424,13 @@ class PreferencesDialog(QDialog):
         self.language = self.m_app.settings.value("language", "en")
         self.prev_language = self.language
         self.update_language(self.language)
+        self.edtZoteroKey.setText(self.zotero_key)
+        self.openai_key = self.m_app.settings.value("openai_key", "")
+        self.edtOpenAIKey.setText(self.openai_key)
+        self.ollama_ip = self.m_app.settings.value("ollama_ip", "")
+        self.edtOllamaIP.setText(self.ollama_ip)
+        self.ollama_port = self.m_app.settings.value("ollama_port", "11434")
+        self.edtOllamaPort.setText(self.ollama_port)        
 
     def save_settings(self):
         """
@@ -436,6 +446,10 @@ class PreferencesDialog(QDialog):
         self.m_app.settings.setValue("IsMaximized/PreferencesWindow", self.isMaximized())
         self.m_app.settings.setValue("language", self.language_combobox.currentData())
         self.m_app.settings.setValue("zotero_key", self.zotero_key)
+        self.m_app.settings.setValue("openai_key", self.edtOpenAIKey.text())
+        self.m_app.settings.setValue("ollama_ip", self.edtOllamaIP.text())
+        self.m_app.settings.setValue("ollama_port", self.edtOllamaPort.text())
+
 
     def language_combobox_currentIndexChanged(self, index):
         """
@@ -910,16 +924,40 @@ class AddFigureDialog(QDialog):
         self.initUI()
         self.reference = None
         self.processed_caption_list = []
+        self.m_app = QApplication.instance()
         #self.
         self.read_settings()
 
     def read_settings(self):
-        settings = QSettings()
-        if settings.contains("geometry") and self.remember_geometry:
-            self.setGeometry(settings.value("geometry"))
+        self.m_app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope, fg.COMPANY_NAME, fg.PROGRAM_NAME)
+        self.remember_geometry = fg.value_to_bool(self.m_app.settings.value("WindowGeometry/RememberGeometry", True))
+        if self.remember_geometry is True:
+            self.setGeometry(self.m_app.settings.value("WindowGeometry/AddFigureWindow", QRect(100, 100, 500, 250)))
+            is_maximized = fg.value_to_bool(self.m_app.settings.value("IsMaximized/AddFigureWindow", False))
+            if is_maximized:
+                self.showMaximized()
+            else:
+                self.showNormal()
         else:
             self.setGeometry(QRect(100, 100, 1024,768))
-    
+        self.zotero_key = self.m_app.settings.value("zotero_key", "")
+        self.language = self.m_app.settings.value("language", "en")
+        self.prev_language = self.language
+        self.update_language(self.language)
+        self.openapi_key = self.m_app.settings.value("openai_key", "")
+        self.ollama_ip = self.m_app.settings.value("ollama_ip", "")
+        self.ollama_port = self.m_app.settings.value("ollama_port", "11434")
+        self.process_caption_target.clear()
+        if self.openapi_key != "":
+            #print("OpenAI key exists")
+            self.process_caption_target.addItem("OpenAI")
+        if self.ollama_ip != "":
+            #print("Ollama IP exists")
+            self.process_caption_target.addItem("Ollama http://{}:{}".format(self.ollama_ip,self.ollama_port))
+
+    def update_language(self, language):
+        pass
+
     def on_rows_moved(self, source_row, destination_row):
         print(f"Row moved from {source_row} to {destination_row}")
 
@@ -943,6 +981,7 @@ class AddFigureDialog(QDialog):
         self.figureView.setSortingEnabled(True)
         #self.figureView.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.figureView.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
+        #self.figureView.setEditTriggers(QAbstractItemView.AllEditTriggers)
         self.figureView.setAlternatingRowColors(True)
         self.figureView.setShowGrid(True)
         self.figureView.setGridStyle(Qt.SolidLine)
@@ -1009,6 +1048,7 @@ class AddFigureDialog(QDialog):
         #self.model = DragDropModel(self)
         self.model = QStandardItemModel()
         self.figureView.setModel(self.model)
+        
         #self.model.rows_moved.connect(self.on_rows_moved)  # New signal connection
         #self.model.rowsMoved.connect(self.on_rows_moved)  # New signal connection
         self.model.dataChanged.connect(self.on_data_changed)
@@ -1205,7 +1245,7 @@ class AddFigureDialog(QDialog):
         menu.exec_(self.lblFigure.mapToGlobal(QPoint(*pos)))
 
     def on_btn_capture_clicked(self):
-        print("Capture text")
+        #print("Capture text")
         self.lblFigure.set_edit_mode("CAPTURE_TEXT")
         def on_text_capture(rect):
             dpi = 600
@@ -1266,15 +1306,68 @@ class AddFigureDialog(QDialog):
 
 
     def process_caption(self, caption, prompt):
-        backend = 'ollama'
-        if backend == 'ollama':
-            llm_chat = LLMChat(backend='ollama', model='llama3.1')
+        backend = self.process_caption_target.currentText().lower()
+        if 'ollama' in backend:
+            print("ollama", self.ollama_ip, self.ollama_port)
+            llm_chat = LLMChat(backend='ollama', server_ip=self.ollama_ip, server_port=self.ollama_port, model='llama3.1')
         elif backend == 'openai':
-            api_key = config("OPENAI_KEY")
+            print("openai", self.openapi_key)
+            api_key = self.openapi_key
             llm_chat = LLMChat(backend='openai', model='gpt-3.5-turbo', api_key=api_key)
         processed_caption = llm_chat.process_caption(caption, prompt)
         return processed_caption
-    
+
+    def paste_to_table(self):
+        current_index = self.figureView.currentIndex()
+        if not current_index.isValid():
+            return
+        text = QApplication.clipboard().text()
+        #print("text:", text)
+        rows = text.split("\n")
+        #print("rows:", rows)
+        for row, row_text in enumerate(rows):
+            #print("row_text:", row_text)
+            columns = row_text.split("\t")
+            row_num = current_index.row() + row
+            for col, text in enumerate(columns):
+                col_num = current_index.column() + col
+                index = self.figureView.model().index(row_num, col_num)
+                self.figureView.model().setData(index, text, Qt.EditRole)
+        self.update_subfigure_info_from_table()
+        #self.lblFigure.update_subfigure_list(self.subfigure_list)
+
+    def update_subfigure_info_from_table(self):
+        col_heading = ["index","taxon_name","caption","comments"]
+        for i in range(self.model.rowCount()):
+            for j in range(self.model.columnCount()):
+                item = self.model.item(i,j)
+                #print(f"{col_heading[j]}: {item.text()}")
+                if hasattr(self.subfigure_list[i], col_heading[j]):
+                    setattr(self.subfigure_list[i], col_heading[j], item.text())
+        self.lblFigure.set_subfigure_list(self.subfigure_list)
+
+    def on_data_changed(self, topLeft, bottomRight, roles):
+        #print("data changed")
+        if Qt.EditRole in roles:
+            row = topLeft.row()
+            column = topLeft.column()
+            new_value = self.model.data(topLeft)
+            #print(f"Data changed at row {row}, column {column}: {new_value}")
+            
+            if 0 <= row < len(self.subfigure_list):
+                subfigure = self.subfigure_list[row]
+                if column == 0:  # Figure Number column
+                    subfigure.index = new_value
+                elif column == 1:  # Taxon name column
+                    subfigure.taxon_name = new_value
+                elif column == 2:  # Caption column
+                    subfigure.caption = new_value
+                elif column == 3:  # Comments column
+                    subfigure.comments = new_value
+
+            self.lblFigure.set_subfigure_list(self.subfigure_list)
+            self.lblFigure.update()
+
     def fill_selected_cells(self):
         selection_model = self.figureView.selectionModel()
         if not selection_model.hasSelection():
@@ -1333,7 +1426,7 @@ class AddFigureDialog(QDialog):
             row = index.row()
             subfigure = self.subfigure_list[row]
 
-    def on_data_changed(self, top_left, bottom_right, roles):
+    def on_data_changed_old(self, top_left, bottom_right, roles):
         if Qt.EditRole in roles:
             row = top_left.row()
             col = top_left.column()
@@ -1362,6 +1455,8 @@ class AddFigureDialog(QDialog):
 
     def on_custom_context_menu(self, pos):
         menu = QMenu()
+        paste_action = menu.addAction("Paste data")
+        paste_action.triggered.connect(self.paste_to_table)
         fill_action = menu.addAction("Fill Cells")
         fill_action.triggered.connect(self.fill_selected_cells)
         delete_action = menu.addAction("Delete")
@@ -1548,7 +1643,8 @@ class AddFigureDialog(QDialog):
             parent_figure.add_pixmap(self.original_figure_image)
             #self.original_figure_image.save(f"{type}{number1}.png")
        
-        for i, (cropped_pixmap, rect) in enumerate(self.subfigure_list):
+        for i, figure_info in enumerate(self.subfigure_list):
+            cropped_pixmap, rect = figure_info.pixmap, figure_info.rect
             figure = FgFigure()
             figure.reference = self.reference
             figure.parent = parent_figure
@@ -1562,11 +1658,11 @@ class AddFigureDialog(QDialog):
             figure.part2_prefix = sub_type
             figure.part2_number = sub_number
             #figure.caption = 
-            taxon_name = self.model.item(i, 2).text()
+            taxon_name = self.model.item(i, 1).text()
             taxon = self.process_taxon_name(taxon_name)
 
-            figure.caption = self.model.item(i, 3).text()
-            figure.comments = self.model.item(i, 4).text()
+            figure.caption = self.model.item(i, 2).text()
+            figure.comments = self.model.item(i, 3).text()
             figure.save()
             figure.add_pixmap(cropped_pixmap)
 

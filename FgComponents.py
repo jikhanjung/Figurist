@@ -13,6 +13,8 @@ import httpx
 import ssl
 import certifi
 import os
+from pyzotero import zotero
+import json
 
 os.environ['SSL_CERT_FILE'] = certifi.where()
 ssl_context = ssl.create_default_context(cafile=os.environ['SSL_CERT_FILE'])
@@ -266,6 +268,7 @@ each caption should contain three items separated by a tab character;
 the first item is the figure number;
 the second item is the scientific name;
 the third item is the rest of the figure information such as specimen number, magnification, scale bar, etc.
+processed caption should be enclosed by "----BEGIN----" and "----END----" lines.
 
 For example:
 Figure 3
@@ -279,6 +282,7 @@ Mo185042 in lateral view. (9) Specimen SMNH Mo185043. (5, 6, 8) imaged
 under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bars
 = 100 µm.
 Paragraph above should be converted to:
+----BEGIN----
 Figure\t3
 
 1\tPojetaia runnegari\tSMNH Mo185039, lateral view (200 µm scale bar).
@@ -290,6 +294,7 @@ Figure\t3
 7\tPojetaia runnegari\tSMNH Mo185041, lateral view (200 µm scale bar).
 8\tPojetaia runnegari\tSMNH Mo185042, lateral view (200 µm scale bar).
 9\tPojetaia runnegari\tSMNH Mo185043 (200 µm scale bar).
+----END----
 
 '''
 
@@ -308,6 +313,7 @@ specimen SMNHMo185051, (23) lateral view, (22) magnification of apex in lateral 
 apical view; (27, 28) specimen SMNH Mo185053, (27) lateral view, (28) apical view. (3, 10, 11, 17, 22, 24) Scale bars = 100 μm; all others, scale bars = 200 μm.
 
 This paragraph should be converted to:
+----BEGIN----
 Figure\t4
 
 1\tHelcionellids\tSMNH Mo185044, oblique lateral view (200 µm scale bar).
@@ -338,17 +344,19 @@ Figure\t4
 26\tAnuliconus sp.\tSMNH Mo185052, apical view (200 µm scale bar).
 27\tAnuliconus sp.\tSMNH Mo185053, lateral view (200 µm scale bar).
 28\tAnuliconus sp.\tSMNH Mo185053, apical view (200 µm scale bar).
+----END----
 
 '''
 
 class SubFigure:
-    def __init__(self, pixmap = None, rect = None, index = "", taxon_name = "", caption = "", comments = ""):
+    def __init__(self, pixmap = None, rect = None, index = "", taxon_name = "", caption = "", comments = "", page_number = -1):
         self.pixmap = pixmap
         self.rect = rect
         self.index = index
         self.taxon_name = taxon_name
         self.caption = caption
         self.comments = comments
+        self.page_number = page_number
 
 class FigureTableModel(QAbstractTableModel):
     def __init__(self, parent=None):
@@ -415,13 +423,16 @@ class FigureTableModel(QAbstractTableModel):
             else:  # icon mode
                 return f"{figure.figure_number} {figure.related_taxa[0].taxon.name if figure.related_taxa else ''}"
         elif role == Qt.DecorationRole and column == 0:
-            if figure in self.icon_cache:
-                return self.icon_cache[figure]
+            if figure in self.icon_cache and figure.modified_at == self.icon_cache[figure][0]:
+                #print("use cached icon", figure.modified_at, self.icon_cache[figure][0])
+                return self.icon_cache[figure][1]
             else:
                 QApplication.setOverrideCursor(Qt.WaitCursor)
                 icon = QIcon(figure.get_file_path())
                 QApplication.restoreOverrideCursor()
-                self.icon_cache[figure] = icon
+                ## get current time
+                #print("new icon", figure.modified_at)
+                self.icon_cache[figure] = [figure.modified_at, icon]
                 return icon
         elif role == Qt.UserRole:
             return figure
@@ -574,6 +585,7 @@ class FigureLabel(QLabel):
         self.curr_subfigure_index = -1
         self.rect = QRect()
         self.setMouseTracking(True)
+        self.page_number = -1
 
     def setReadOnly(self, read_only):
         self.read_only = read_only
@@ -799,8 +811,9 @@ class FigureLabel(QLabel):
         if self.edit_mode == "PAN":
             if self.temp_pan_x == 0 and self.temp_pan_y == 0:
                 # signal to parent to show context menu
+                print("show context menu")
+                self.set_edit_mode("NONE")
                 if hasattr(self.parent, 'show_figure_label_menu'):
-                    self.set_edit_mode("NONE")
                     self.parent.show_figure_label_menu(curr_pos)
                 return
             self.pan_x += self.temp_pan_x
@@ -835,7 +848,7 @@ class FigureLabel(QLabel):
             if abs_width < min_width_height or abs_height < min_width_height:
                 self.temp_rect = None
             else:
-                self.subfigure_list.append(SubFigure(pixmap=self.orig_pixmap.copy(self.temp_rect), rect=self.temp_rect))
+                self.subfigure_list.append(SubFigure(pixmap=self.orig_pixmap.copy(self.temp_rect), rect=self.temp_rect, page_number = self.page_number))
                 self.temp_rect = None
         self.set_edit_mode("NONE")
         idx, close_to = self.check_subfigure(curr_pos)
@@ -846,6 +859,9 @@ class FigureLabel(QLabel):
         if hasattr(self.parent, 'load_subfigure_list'):
             self.parent.load_subfigure_list(self.subfigure_list)
         self.repaint()
+
+    def set_page_number(self, page_number):
+        self.page_number = page_number
 
     def wheelEvent(self, event):
         #if self.orig_pixmap is None:
@@ -909,6 +925,8 @@ class FigureLabel(QLabel):
         for idx, subfigure in enumerate(self.subfigure_list):
             if idx == self.curr_subfigure_index:
                 continue
+            if subfigure.page_number != self.page_number:
+                continue
             pixmap, rect = subfigure.pixmap, subfigure.rect
             rect = self.rect_to_canvas(rect)
             color = Qt.blue
@@ -939,11 +957,12 @@ class FigureLabel(QLabel):
                     idx = len(self.subfigure_list)+1
             elif self.curr_subfigure_index > -1:
                 subfigure = self.subfigure_list[self.curr_subfigure_index]
-                pixmap, rect = subfigure.pixmap, subfigure.rect
-                rect = self.rect_to_canvas(rect)
-                painter.setPen(QPen(color, 2, Qt.DashLine))
-                painter.drawRect(rect)
-                idx = self.curr_subfigure_index+1
+                if subfigure.page_number == self.page_number:
+                    pixmap, rect = subfigure.pixmap, subfigure.rect
+                    rect = self.rect_to_canvas(rect)
+                    painter.setPen(QPen(color, 2, Qt.DashLine))
+                    painter.drawRect(rect)
+                    idx = self.curr_subfigure_index+1
 
             text = "{}".format(idx)
             if self.edit_mode == "CAPTURE_TEXT_DRAG":
@@ -1211,3 +1230,4 @@ class LLMChat:
             {"role": "user", "content": prompt + "Please process following caption in a similar way to the examples shown above:\n\n" + caption},
         ]
         return self.backend.chat(messages)
+

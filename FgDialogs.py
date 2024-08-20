@@ -26,6 +26,10 @@ import sys
 import ollama
 from decouple import config
 
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QTreeWidgetItem, QPushButton, QLabel, QMessageBox
+from PyQt5.QtCore import Qt, pyqtSignal
+from pyzotero import zotero
+
 class ReferenceDialog(QDialog):
     # NewDatasetDialog shows new dataset dialog.
     def __init__(self,parent):
@@ -160,6 +164,176 @@ class ReferenceDialog(QDialog):
         self.collection = collection
         self.edtCollection.setText(collection.name)
 
+class BrowsZoteroCollectionDialogOld(QDialog):
+    def __init__(self,parent):
+        super().__init__()
+        self.setWindowTitle(self.tr("Figurist - Browse Zotero Collection"))
+        self.parent = parent
+        self.initUI()
+        self.m_app = QApplication.instance()
+        self.collection = None
+        self.read_settings()
+        self.load_zotero_collections()
+
+    def read_settings(self):
+        self.m_app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope, fg.COMPANY_NAME, fg.PROGRAM_NAME)
+        self.remember_geometry = fg.value_to_bool(self.m_app.settings.value("WindowGeometry/RememberGeometry", True))
+        if self.remember_geometry is True:
+            self.setGeometry(self.m_app.settings.value("WindowGeometry/BrowseZoteroWindow", QRect(100, 100, 500, 250)))
+            is_maximized = fg.value_to_bool(self.m_app.settings.value("IsMaximized/BrowseZoteroWindow", False))
+            if is_maximized:
+                self.showMaximized()
+            else:
+                self.showNormal()
+        else:
+            self.setGeometry(QRect(100, 100, 500, 250))
+        self.language = self.m_app.settings.value("language", "en")
+        self.prev_language = self.language
+        #self.update_language(self.language)
+        self.zotero_api_key = self.m_app.settings.value("zotero_api_key", "")
+        self.zotero_user_id = self.m_app.settings.value("zotero_user_id", "")
+
+
+    def initUI(self):
+        ''' initialize UI '''
+        self.lblCollection = QLabel(self.tr("Collection"))
+        self.collectionView = QTreeView()
+
+        self.btnSelect = QPushButton(self.tr("btnSelect"))
+        self.btnSelect.clicked.connect(self.on_btn_select_clicked)
+        self.btnCancel = QPushButton(self.tr("Cancel"))
+        self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
+
+        self.btn_widget = QWidget()
+        self.btn_layout = QHBoxLayout()
+        self.btn_layout.addWidget(self.btnSelect)
+        self.btn_layout.addWidget(self.btnCancel)
+        self.btn_widget.setLayout(self.btn_layout)
+
+        #self.statusBar = QStatusBar()
+        #self.setStatusBar(self.statusBar)
+        self.all_layout = QVBoxLayout()
+
+        self.form_widget = QWidget()
+        self.form_layout = QFormLayout()
+        self.form_layout.addRow(self.lblCollection, self.collectionView)
+        self.form_widget.setLayout(self.form_layout)
+        #self.layout.addRow(self.btnSave, self.btnCancel)
+        self.all_layout.addWidget(self.form_widget)
+        self.all_layout.addWidget(self.btn_widget)
+        self.setLayout(self.all_layout)
+
+    def on_btn_cancel_clicked(self):
+        print("Cancel clicked")
+        self.reject()
+
+    def on_btn_select_clicked(self):
+        if self.collection is None:
+            return
+        print("Select clicked")
+        self.accept()
+
+    def on_collection_selection_changed(self):
+        pass
+
+    def load_zotero_collections(self):
+        zotero_api_key = self.zotero_api_key
+        zotero_user_id = self.zotero_user_id
+        if zotero_api_key == "" or zotero_user_id == "":
+            return
+           
+class BrowseZoteroCollectionDialog(QDialog):
+    collection_selected = pyqtSignal(dict)
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.parent = parent
+        self.zotero_backend = None
+        self.selected_collection = None
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle("Browse Zotero Collections")
+        self.setGeometry(100, 100, 400, 500)
+
+        layout = QVBoxLayout()
+
+        self.tree_widget = QTreeWidget()
+        self.tree_widget.setHeaderLabel("Zotero Collections")
+        self.tree_widget.itemClicked.connect(self.on_item_clicked)
+        layout.addWidget(self.tree_widget)
+
+        button_layout = QHBoxLayout()
+        self.select_button = QPushButton("Select")
+        self.select_button.clicked.connect(self.on_select)
+        self.cancel_button = QPushButton("Cancel")
+        self.cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.select_button)
+        button_layout.addWidget(self.cancel_button)
+
+        layout.addLayout(button_layout)
+        self.setLayout(layout)
+
+        self.load_zotero_collections()
+
+    def load_zotero_collections(self):
+        library_id = self.parent.m_app.settings.value("zotero_user_id", "")
+        library_type = "user"  # or "group" if it's a group library
+        api_key = self.parent.m_app.settings.value("zotero_api_key", "")
+        print("load zotero collections")
+        
+        if not library_id or not api_key:
+            QMessageBox.warning(self, "Zotero Settings Missing", "Please set your Zotero user ID and API key in the preferences.")
+            return
+
+        self.zotero_backend = ZoteroBackend(library_id, library_type, api_key)
+
+        self.tree_widget.clear()
+        collections = self.zotero_backend.get_collections()
+        for collection in collections:
+            self.add_collection_to_tree(collection, self.tree_widget.invisibleRootItem())
+
+    def load_zotero_collections(self):
+        library_id = self.parent.m_app.settings.value("zotero_user_id", "")
+        library_type = "user"  # or "group" if it's a group library
+        api_key = self.parent.m_app.settings.value("zotero_api_key", "")
+        
+        if not library_id or not api_key:
+            QMessageBox.warning(self, "Zotero Settings Missing", "Please set your Zotero user ID and API key in the preferences.")
+            return
+
+        try:
+            self.zotero_backend = ZoteroBackend(library_id, library_type, api_key)
+            
+            self.tree_widget.clear()
+            collections = self.zotero_backend.collections()
+            for collection in collections:
+                self.add_collection_to_tree(collection, self.tree_widget.invisibleRootItem())
+        except Exception as e:
+            QMessageBox.warning(self, "Zotero Connection Error", f"Failed to connect to Zotero: {str(e)}")
+            
+    def add_collection_to_tree(self, collection, parent_item):
+        item = QTreeWidgetItem(parent_item)
+        item.setText(0, collection['data']['name'])
+        item.setData(0, Qt.UserRole, collection['key'])
+
+        subcollections = self.zotero_backend.get_subcollections(collection['key'])
+        for subcollection in subcollections:
+            self.add_collection_to_tree(subcollection, item)
+
+    def on_item_clicked(self, item, column):
+        self.selected_collection = self.zotero_backend.get_collection(item.data(0, Qt.UserRole))
+
+    def on_select(self):
+        if self.selected_collection:
+            self.collection_selected.emit(self.selected_collection)
+            self.accept()
+        else:
+            QMessageBox.warning(self, "No Selection", "Please select a Zotero collection.")
+
+    def get_selected_collection(self):
+        return self.selected_collection
+
 class CollectionDialog(QDialog):
     # NewDatasetDialog shows new dataset dialog.
     def __init__(self,parent):
@@ -181,11 +355,22 @@ class CollectionDialog(QDialog):
         #self.prepare_database()
 
     def read_settings(self):
-        settings = QSettings()
-        if settings.contains("geometry") and self.remember_geometry:
-            self.setGeometry(settings.value("geometry"))
+        self.m_app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope, fg.COMPANY_NAME, fg.PROGRAM_NAME)
+        self.remember_geometry = fg.value_to_bool(self.m_app.settings.value("WindowGeometry/RememberGeometry", True))
+        if self.remember_geometry is True:
+            self.setGeometry(self.m_app.settings.value("WindowGeometry/BrowseZoteroWindow", QRect(100, 100, 500, 250)))
+            is_maximized = fg.value_to_bool(self.m_app.settings.value("IsMaximized/BrowseZoteroWindow", False))
+            if is_maximized:
+                self.showMaximized()
+            else:
+                self.showNormal()
         else:
-            self.setGeometry(QRect(100, 100, 400, 300))
+            self.setGeometry(QRect(100, 100, 500, 250))
+        self.language = self.m_app.settings.value("language", "en")
+        self.prev_language = self.language
+        #self.update_language(self.language)
+        self.zotero_api_key = self.m_app.settings.value("zotero_api_key", "")
+        self.zotero_user_id = self.m_app.settings.value("zotero_user_id", "")
 
     def initUI(self):
         ''' initialize UI '''
@@ -199,6 +384,8 @@ class CollectionDialog(QDialog):
         self.edtDescription = QTextEdit()
         self.lblZoteroKey = QLabel(self.tr("Zotero Key"))
         self.edtZoteroKey = QLineEdit()
+        self.btnBrowseZotero = QPushButton(self.tr("Browse Zotero"))
+        self.btnBrowseZotero.clicked.connect(self.on_btn_browse_zotero_clicked)
         self.btnSave = QPushButton(self.tr("Save"))
         self.btnSave.clicked.connect(self.on_btn_save_clicked)
         self.btnCancel = QPushButton(self.tr("Cancel"))
@@ -206,6 +393,7 @@ class CollectionDialog(QDialog):
 
         self.btn_widget = QWidget()
         self.btn_layout = QHBoxLayout()
+        self.btn_layout.addWidget(self.btnBrowseZotero)
         self.btn_layout.addWidget(self.btnSave)
         self.btn_layout.addWidget(self.btnCancel)
         self.btn_widget.setLayout(self.btn_layout)
@@ -226,6 +414,11 @@ class CollectionDialog(QDialog):
         self.all_layout.addWidget(self.form_widget)
         self.all_layout.addWidget(self.btn_widget)
         self.setLayout(self.all_layout)
+
+    def on_btn_browse_zotero_clicked(self):
+        print("Browse Zotero clicked")
+        self.zotero_dialog = BrowseZoteroCollectionDialog(self)
+        self.zotero_dialog.exec_()
 
     def on_btn_save_clicked(self):
         #print("Save clicked")
@@ -357,8 +550,10 @@ class PreferencesDialog(QDialog):
         self.language_combobox.setCurrentIndex(self.language_combobox.findData(self.settings.value("language", "en")))
 
 
-        self.lblZoteroKey = QLabel(self.tr("Zotero Key"))
-        self.edtZoteroKey = QLineEdit()
+        self.lblZoteroUserID = QLabel(self.tr("Zotero User ID"))
+        self.edtZoteroUserID = QLineEdit()
+        self.lblZoteroAPIKey = QLabel(self.tr("Zotero API Key"))
+        self.edtZoteroAPIKey = QLineEdit()
 
         # openai api key 
         self.lblOpenAIKey = QLabel(self.tr("OpenAI Key"))
@@ -376,7 +571,8 @@ class PreferencesDialog(QDialog):
         self.layout = QFormLayout()
 
         self.layout.addRow(self.language_label, self.language_combobox)
-        self.layout.addRow(self.lblZoteroKey, self.edtZoteroKey)
+        self.layout.addRow(self.lblZoteroUserID, self.edtZoteroUserID)
+        self.layout.addRow(self.lblZoteroAPIKey, self.edtZoteroAPIKey)
         self.layout.addRow(self.lblOpenAIKey, self.edtOpenAIKey)
         self.layout.addRow(self.lblOllamaIP, self.edtOllamaIP)
         self.layout.addRow(self.lblOllamaPort, self.edtOllamaPort)
@@ -420,11 +616,13 @@ class PreferencesDialog(QDialog):
                 self.showNormal()
         else:
             self.setGeometry(QRect(100, 100, 500, 250))
-        self.zotero_key = self.m_app.settings.value("zotero_key", "")
         self.language = self.m_app.settings.value("language", "en")
         self.prev_language = self.language
         self.update_language(self.language)
-        self.edtZoteroKey.setText(self.zotero_key)
+        self.zotero_api_key = self.m_app.settings.value("zotero_api_key", "")
+        self.edtZoteroAPIKey.setText(self.zotero_api_key)
+        self.zotero_user_id = self.m_app.settings.value("zotero_user_id", "")
+        self.edtZoteroUserID.setText(self.zotero_user_id)
         self.openai_key = self.m_app.settings.value("openai_key", "")
         self.edtOpenAIKey.setText(self.openai_key)
         self.ollama_ip = self.m_app.settings.value("ollama_ip", "")
@@ -445,7 +643,8 @@ class PreferencesDialog(QDialog):
         self.m_app.settings.setValue("WindowGeometry/PreferencesWindow", self.geometry())
         self.m_app.settings.setValue("IsMaximized/PreferencesWindow", self.isMaximized())
         self.m_app.settings.setValue("language", self.language_combobox.currentData())
-        self.m_app.settings.setValue("zotero_key", self.zotero_key)
+        self.m_app.settings.setValue("zotero_api_key", self.edtZoteroAPIKey.text())
+        self.m_app.settings.setValue("zotero_user_id", self.edtZoteroUserID.text())
         self.m_app.settings.setValue("openai_key", self.edtOpenAIKey.text())
         self.m_app.settings.setValue("ollama_ip", self.edtOllamaIP.text())
         self.m_app.settings.setValue("ollama_port", self.edtOllamaPort.text())
@@ -508,7 +707,7 @@ class PreferencesDialog(QDialog):
         #print("lang_text:", lang_text)
         self.language_label.setText(lang_text)
         #print("language_label after:", self.language_label.text())
-        self.lblZoteroKey.setText(self.tr("Zotero Key"))
+        self.lblZoteroAPIKey.setText(self.tr("Zotero Key"))
         self.btnOkay.setText(self.tr("OK"))
         self.update()
 
@@ -664,6 +863,7 @@ class FigureDialog(QDialog):
         self.parent = parent
         self.initUI()
         self.figure = None
+        self.figure_changed = False
         self.read_settings()
 
     def read_settings(self):
@@ -675,12 +875,34 @@ class FigureDialog(QDialog):
     
     def initUI(self):
         ''' initialize UI '''
-        self.lblFigure = FigureLabel()
+        self.lblFigure = FigureLabel(self)
         #self.lblFigure.setFixedSize(600,400)
-        self.lblFile = QLabel(self.tr("File"))
-        self.edtFile = QLineEdit()
+        #self.lblFile = QLabel(self.tr("File"))
+        #self.edtFile = QLineEdit()
+
         self.lblFigureNumber = QLabel(self.tr("Figure Number"))
+
+        self.edt_part1_prefix = QLineEdit()
+        self.edt_part1_number = QLineEdit()
+        self.edt_part_separator = QComboBox()
+        self.edt_part2_prefix = QLineEdit()
+        self.edt_part2_number = QLineEdit()
         self.edtFigureNumber = QLineEdit()
+        self.edt_part_separator.addItem("Dash(-)", "-")
+        self.edt_part_separator.addItem("Dot(.)", ".")
+        self.edt_part_separator.addItem("Space", " ")
+        self.edt_part_separator.addItem("None", "")
+
+        self.figure_number_widget = QWidget()
+        self.figure_number_layout = QHBoxLayout()
+        self.figure_number_widget.setLayout(self.figure_number_layout)
+        self.figure_number_layout.addWidget(self.edt_part1_prefix)
+        self.figure_number_layout.addWidget(self.edt_part1_number)
+        self.figure_number_layout.addWidget(self.edt_part_separator)
+        self.figure_number_layout.addWidget(self.edt_part2_prefix)
+        self.figure_number_layout.addWidget(self.edt_part2_number)
+        self.figure_number_layout.addWidget(self.edtFigureNumber)
+        
         self.lblCaption = QLabel(self.tr("Caption"))
         self.edtCaption = QLineEdit()
         self.lblComments = QLabel(self.tr("Comments"))
@@ -706,8 +928,8 @@ class FigureDialog(QDialog):
 
         self.form_widget = QWidget()
         self.form_layout = QFormLayout()
-        self.form_layout.addRow(self.lblFile, self.edtFile)
-        self.form_layout.addRow(self.lblFigureNumber, self.edtFigureNumber)
+        #self.form_layout.addRow(self.lblFile, self.edtFile)
+        self.form_layout.addRow(self.lblFigureNumber, self.figure_number_widget)
         self.form_layout.addRow(self.lblCaption, self.edtCaption)
         self.form_layout.addRow(self.lblComments, self.edtComments)
         self.form_widget.setLayout(self.form_layout)
@@ -717,15 +939,44 @@ class FigureDialog(QDialog):
         self.all_layout.addWidget(self.btn_widget)
         self.setLayout(self.all_layout)
 
+    def show_figure_label_menu(self, pos):
+        menu = QMenu()
+        paste_action = menu.addAction("Paste")
+        paste_action.triggered.connect(self.on_paste)
+        menu.exec_(self.lblFigure.mapToGlobal(QPoint(*pos)))
+
+    def on_paste(self):
+        print("Paste clicked")
+        # paste clipboard image to label
+        clipboard = QApplication.clipboard()
+        mime_data = clipboard.mimeData()
+        #print("mime data:", mime_data)
+        if mime_data.hasImage():
+            image = mime_data.imageData()
+            #print("image:", image)
+            self.lblFigure.set_pixmap(QPixmap(image))
+            self.lblFigure.setReadOnly(True)
+            self.figure_changed = True
+
     def on_btn_save_clicked(self):
         #print("Save clicked")
         if self.figure is None:
             self.figure = FgFigure()
         #self.figure = FgFigure()
+        if self.figure_changed:
+            self.figure.add_pixmap(self.lblFigure.orig_pixmap)
+        
         self.figure.file_name = self.edtFile.text()
-        self.figure.figure_number = self.edtFigureNumber.text()
+        #self.figure.figure_number = self.edtFigureNumber.text()
+        self.figure.part1_number = self.edt_part1_number.text()
+        self.figure.part1_prefix = self.edt_part1_prefix.text()
+        self.figure.part_separator = self.edt_part_separator.currentData()
+        self.figure.part2_number = self.edt_part2_number.text()
+        self.figure.part2_prefix = self.edt_part2_prefix.text()
+        self.figure.update_figure_number()
         self.figure.caption = self.edtCaption.text()
         self.figure.comments = self.edtComments.text()
+        self.figure.modified_at = datetime.datetime.now()
         self.figure.save()
         self.accept()
 
@@ -748,6 +999,13 @@ class FigureDialog(QDialog):
 
         self.edtFile.setText(figure.file_name)
         self.edtFigureNumber.setText(figure.figure_number)
+        self.edt_part1_number.setText(figure.part1_number)
+        self.edt_part1_prefix.setText(figure.part1_prefix)
+        # set combobox to current value
+        index = self.edt_part_separator.findData(figure.part_separator)
+        self.edt_part_separator.setCurrentIndex(index)
+        self.edt_part2_number.setText(figure.part2_number)
+        self.edt_part2_prefix.setText(figure.part2_prefix)
         self.edtCaption.setText(figure.caption)
         self.edtComments.setText(figure.comments)
 
@@ -925,35 +1183,11 @@ class AddFigureDialog(QDialog):
         self.reference = None
         self.processed_caption_list = []
         self.m_app = QApplication.instance()
+        self.subfigure_list = []
+        self.figure_list = []
         #self.
         self.read_settings()
 
-    def read_settings(self):
-        self.m_app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope, fg.COMPANY_NAME, fg.PROGRAM_NAME)
-        self.remember_geometry = fg.value_to_bool(self.m_app.settings.value("WindowGeometry/RememberGeometry", True))
-        if self.remember_geometry is True:
-            self.setGeometry(self.m_app.settings.value("WindowGeometry/AddFigureWindow", QRect(100, 100, 500, 250)))
-            is_maximized = fg.value_to_bool(self.m_app.settings.value("IsMaximized/AddFigureWindow", False))
-            if is_maximized:
-                self.showMaximized()
-            else:
-                self.showNormal()
-        else:
-            self.setGeometry(QRect(100, 100, 1024,768))
-        self.zotero_key = self.m_app.settings.value("zotero_key", "")
-        self.language = self.m_app.settings.value("language", "en")
-        self.prev_language = self.language
-        self.update_language(self.language)
-        self.openapi_key = self.m_app.settings.value("openai_key", "")
-        self.ollama_ip = self.m_app.settings.value("ollama_ip", "")
-        self.ollama_port = self.m_app.settings.value("ollama_port", "11434")
-        self.process_caption_target.clear()
-        if self.openapi_key != "":
-            #print("OpenAI key exists")
-            self.process_caption_target.addItem("OpenAI")
-        if self.ollama_ip != "":
-            #print("Ollama IP exists")
-            self.process_caption_target.addItem("Ollama http://{}:{}".format(self.ollama_ip,self.ollama_port))
 
     def update_language(self, language):
         pass
@@ -975,25 +1209,30 @@ class AddFigureDialog(QDialog):
         self.lblFigure.setPixmap(self.figure_image)
     
 
-        self.figureView = QTableView()
+        self.tempFigureView = QTableView()
         #self.figureView.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.figureView.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.figureView.setSortingEnabled(True)
+        self.tempFigureView.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.tempFigureView.setSortingEnabled(True)
         #self.figureView.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.figureView.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
+        self.tempFigureView.setEditTriggers(QAbstractItemView.DoubleClicked | QAbstractItemView.EditKeyPressed)
         #self.figureView.setEditTriggers(QAbstractItemView.AllEditTriggers)
-        self.figureView.setAlternatingRowColors(True)
-        self.figureView.setShowGrid(True)
-        self.figureView.setGridStyle(Qt.SolidLine)
-        self.figureView.setWordWrap(True)
-        self.figureView.setCornerButtonEnabled(False)
+        self.tempFigureView.setAlternatingRowColors(True)
+        self.tempFigureView.setShowGrid(True)
+        self.tempFigureView.setGridStyle(Qt.SolidLine)
+        self.tempFigureView.setWordWrap(True)
+        self.tempFigureView.setCornerButtonEnabled(False)
         #self.figureView.setDragDropMode(QAbstractItemView.InternalMove)  # Enable drag and drop
         #self.figureView.setDragEnabled(True)
         #self.figureView.setDragEnabled(True)
         #self.figureView.setAcceptDrops(True)
         #self.figureView.setDropIndicatorShown(True)
-        self.figureView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tempFigureView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         #self.figureView.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        self.mainFigureView = QTableView()
+        self.mainFigureView.setAlternatingRowColors(True)
+        self.mainFigureView.setShowGrid(True)
+        self.mainFigureView.setGridStyle(Qt.SolidLine)
 
         self.lblType = QLabel(self.tr("Type"))
         self.comboType = QComboBox()
@@ -1046,20 +1285,16 @@ class AddFigureDialog(QDialog):
         #self.model.rows_moved.connect(self.update_subfigure_list)     
 
         #self.model = DragDropModel(self)
-        self.model = QStandardItemModel()
-        self.figureView.setModel(self.model)
-        
-        #self.model.rows_moved.connect(self.on_rows_moved)  # New signal connection
-        #self.model.rowsMoved.connect(self.on_rows_moved)  # New signal connection
-        self.model.dataChanged.connect(self.on_data_changed)
+        self.tempModel = QStandardItemModel()
+        self.tempFigureView.setModel(self.tempModel)
+        self.tempModel.dataChanged.connect(self.on_data_changed)
+        self.tempFigureView.selectionModel().selectionChanged.connect(self.on_temp_figure_selection_changed)
+        self.tempFigureView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.tempFigureView.customContextMenuRequested.connect(self.on_custom_context_menu)
 
-        # selection changed
-        self.figureView.selectionModel().selectionChanged.connect(self.on_selection_changed)
-
-        # figureView custom menu
-        self.figureView.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.figureView.customContextMenuRequested.connect(self.on_custom_context_menu)
-
+        self.mainModel = QStandardItemModel()
+        self.mainFigureView.setModel(self.mainModel)
+        self.mainFigureView.selectionModel().selectionChanged.connect(self.on_main_figure_selection_changed)
 
         self.raw_caption_edit = QTextEdit()
         self.process_caption_widget = QWidget()
@@ -1105,7 +1340,7 @@ class AddFigureDialog(QDialog):
 
 
         # set header 
-        self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
+        self.tempModel.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
 
         self.loadButton = QPushButton(self.tr("Load"))
         self.loadButton.clicked.connect(self.on_btn_load_clicked)
@@ -1125,6 +1360,8 @@ class AddFigureDialog(QDialog):
         #self.detectButton.setEnabled(False)
         self.saveButton = QPushButton(self.tr("Save"))
         self.saveButton.clicked.connect(self.on_btn_save_clicked)
+        self.clearButton = QPushButton(self.tr("Clear"))
+        self.clearButton.clicked.connect(self.on_btn_clear_clicked)
         self.cancelButton = QPushButton(self.tr("Cancel"))
         self.cancelButton.clicked.connect(self.on_btn_cancel_clicked)
 
@@ -1139,12 +1376,38 @@ class AddFigureDialog(QDialog):
         self.top_layout.addWidget(self.lblReference)
         self.top_layout.addWidget(self.edtReference)
 
-        self.figure_list_widget = QWidget()
-        self.figure_list_layout = QVBoxLayout()
-        self.figure_list_widget.setLayout(self.figure_list_layout)
-        self.figure_list_layout.addWidget(self.prefix_widget)
-        self.figure_list_layout.addWidget(self.figureView)
-        self.figure_list_layout.addWidget(self.caption_tab_widget)
+
+        self.save_clear_button_widget = QWidget()
+        self.save_clear_button_layout = QHBoxLayout()
+        self.save_clear_button_widget.setLayout(self.save_clear_button_layout)
+        self.save_clear_button_layout.addWidget(self.saveButton)
+        self.save_clear_button_layout.addWidget(self.clearButton)
+
+        self.temp_figure_list_widget = QWidget()
+        self.temp_figure_list_layout = QVBoxLayout()
+        self.temp_figure_list_widget.setLayout(self.temp_figure_list_layout)
+        self.temp_figure_list_layout.addWidget(self.prefix_widget)
+        self.temp_figure_list_layout.addWidget(self.tempFigureView)
+        self.temp_figure_list_layout.addWidget(self.caption_tab_widget)
+        self.temp_figure_list_layout.addWidget(self.save_clear_button_widget)
+
+        #self.temp_figure_list_layout.addWidget(self.saveButton)
+
+        self.main_figure_label = FigureLabel()
+        self.main_figure_label.setReadOnly(True)
+        self.main_figure_splitter = QSplitter(Qt.Vertical)
+        self.main_figure_splitter.addWidget(self.mainFigureView)
+        self.main_figure_splitter.addWidget(self.main_figure_label)
+        self.main_figure_splitter.setStretchFactor(0,3)
+        self.main_figure_splitter.setStretchFactor(1,1)
+
+
+        #self.main_figure_list_widget = QWidget()
+        #self.main_figure_list_layout = QVBoxLayout()
+        #self.main_figure_list_widget.setLayout(self.main_figure_list_layout)
+        #self.main_figure_list_layout.addWidget(self.mainFigureView)
+        #self.main_figure_list_layout.addWidget(self.main_figure_label)
+
         #self.figure_list_layout.addWidget(self.process_caption_button)
         #self.figure_layout.addWidget(self.figure_button_widget)
 
@@ -1186,17 +1449,19 @@ class AddFigureDialog(QDialog):
         # use splitter instead of middle_widget
         self.splitter = QSplitter(Qt.Horizontal)
         self.splitter.addWidget(self.left_widget)
-        self.splitter.addWidget(self.figure_list_widget)
+        self.splitter.addWidget(self.temp_figure_list_widget)
+        self.splitter.addWidget(self.main_figure_splitter)
         self.splitter.setStretchFactor(0,1)
         self.splitter.setStretchFactor(1,2)
-        self.splitter.setSizes([200,500]) 
+        self.splitter.setStretchFactor(2,1)
+        self.splitter.setSizes([200,500,200]) 
         
         self.bottom_widget = QWidget()
         self.bottom_layout = QHBoxLayout()
         self.bottom_widget.setLayout(self.bottom_layout)
         #self.bottom_layout.addWidget(self.loadButton)
         #self.bottom_layout.addWidget(self.detectButton)
-        self.bottom_layout.addWidget(self.saveButton)
+        #self.bottom_layout.addWidget(self.saveButton)
         self.bottom_layout.addWidget(self.cancelButton)
 
         self.statusBar = QLineEdit()
@@ -1205,12 +1470,39 @@ class AddFigureDialog(QDialog):
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.top_widget)
         self.layout.addWidget(self.splitter,1)
-        self.layout.addWidget(self.bottom_widget)
+        #self.layout.addWidget(self.bottom_widget)
         self.layout.addWidget(self.statusBar)
         self.setLayout(self.layout)
 
+    def read_settings(self):
+        self.m_app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope, fg.COMPANY_NAME, fg.PROGRAM_NAME)
+        self.remember_geometry = fg.value_to_bool(self.m_app.settings.value("WindowGeometry/RememberGeometry", True))
+        if self.remember_geometry is True:
+            self.setGeometry(self.m_app.settings.value("WindowGeometry/AddFigureWindow", QRect(100, 100, 500, 250)))
+            is_maximized = fg.value_to_bool(self.m_app.settings.value("IsMaximized/AddFigureWindow", False))
+            if is_maximized:
+                self.showMaximized()
+            else:
+                self.showNormal()
+        else:
+            self.setGeometry(QRect(100, 100, 1024,768))
+        self.zotero_key = self.m_app.settings.value("zotero_key", "")
+        self.language = self.m_app.settings.value("language", "en")
+        self.prev_language = self.language
+        self.update_language(self.language)
+        self.openapi_key = self.m_app.settings.value("openai_key", "")
+        self.ollama_ip = self.m_app.settings.value("ollama_ip", "")
+        self.ollama_port = self.m_app.settings.value("ollama_port", "11434")
+        self.process_caption_target.clear()
+        if self.openapi_key != "":
+            #print("OpenAI key exists")
+            self.process_caption_target.addItem("OpenAI")
+        if self.ollama_ip != "":
+            #print("Ollama IP exists")
+            self.process_caption_target.addItem("Ollama http://{}:{}".format(self.ollama_ip,self.ollama_port))
+
     def on_update_caption_button_clicked(self):
-        print("Update caption")
+        #print("Update caption")
         if len(self.processed_caption_list) > 0 and len(self.processed_caption_list) == len(self.subfigure_list):
             for i, caption_text in enumerate(self.processed_caption_list):
                 sub_index, taxon_name, caption = self.processed_caption_list[i].split("\t")
@@ -1220,7 +1512,7 @@ class AddFigureDialog(QDialog):
                 subtype = self.comboSubType.currentText()
                 if subtype == "--None--":
                     subtype = ""
-                subfigure.index = type + main_idx + "-" + subtype + sub_index
+                subfigure.index = sub_index #type + main_idx + "-" + subtype + sub_index
                 subfigure.taxon_name = taxon_name
                 subfigure.caption = caption
             self.load_subfigure_list(self.subfigure_list)
@@ -1230,12 +1522,12 @@ class AddFigureDialog(QDialog):
                 #self.figureView.model().item(i, 2).setText(caption)
 
     def on_del_subfigure(self):
-        print("Delete subfigure")
-        indexes = self.figureView.selectionModel().selectedIndexes()
+        #print("Delete subfigure")
+        indexes = self.tempFigureView.selectionModel().selectedIndexes()
         index = indexes[0]
         row = index.row()
         self.subfigure_list.pop(row)
-        self.model.removeRow(row)
+        self.tempModel.removeRow(row)
         self.lblFigure.set_subfigure_list(self.subfigure_list)
 
     def show_figure_label_menu(self, pos):
@@ -1259,6 +1551,10 @@ class AddFigureDialog(QDialog):
             #print("clip:", clip)
             text = self.current_page.get_text("text", clip=clip)
             #print("text:", text)
+            # if shift is clicked:
+            if QApplication.keyboardModifiers() == Qt.ShiftModifier:
+                text = self.raw_caption_edit.toPlainText() + "\n" + text
+
             self.raw_caption_edit.setText(text)
             self.update()
             # wait cursor
@@ -1274,16 +1570,25 @@ class AddFigureDialog(QDialog):
         prompt = self.prompt_edit.toPlainText()
         processed_text = self.process_caption(caption, prompt)
         # restore cursor
-        print("processed text:", processed_text)
+        #print("processed text:", processed_text)
 
-        self.further_process_caption(processed_text)
+        processed_text = self.further_process_caption(processed_text)
         QApplication.restoreOverrideCursor()
         self.processed_caption_edit.setText(processed_text)
         self.caption_tab_widget.setCurrentIndex(2)
 
     def further_process_caption(self, processed_text):
-        return processed_text
-        title, figure_captions = processed_text.split("\n\n",2)
+        if processed_text.find("----BEGIN----") < 0:
+            return processed_text
+        if processed_text.find("----END----") < 0:
+            return processed_text
+        
+        # get text between begin and end line
+        processed_text = processed_text.split("----BEGIN----",1)[1]
+        processed_text = processed_text.split("----END----",1)[0]
+        # trim white spaces
+        processed_text = processed_text.strip()
+        title, figure_captions = processed_text.split("\n\n",1)
         figure_caption_list = figure_captions.split("\n")
         # find figure or plate number
         #title = re.(r"(\w+)\t(\d+)", title)
@@ -1298,27 +1603,30 @@ class AddFigureDialog(QDialog):
         #self.comboType.setCurrentText(figure_type)
         self.edtNumber1.setText(figure_number)
         self.processed_caption_list = figure_captions.split("\n")
+            #self.load_subfigure_list(self.processed_caption_list)
+        self.check_update_caption_button()
+        return processed_text
+
+    def check_update_caption_button(self):
         if len(self.processed_caption_list) > 0 and len(self.processed_caption_list) == len(self.subfigure_list):
             self.update_caption_button.setEnabled(True)
         else:
             self.update_caption_button.setEnabled(False)
-            #self.load_subfigure_list(self.processed_caption_list)
-
 
     def process_caption(self, caption, prompt):
         backend = self.process_caption_target.currentText().lower()
         if 'ollama' in backend:
-            print("ollama", self.ollama_ip, self.ollama_port)
+            #print("ollama", self.ollama_ip, self.ollama_port)
             llm_chat = LLMChat(backend='ollama', server_ip=self.ollama_ip, server_port=self.ollama_port, model='llama3.1')
         elif backend == 'openai':
-            print("openai", self.openapi_key)
+            #print("openai", self.openapi_key)
             api_key = self.openapi_key
             llm_chat = LLMChat(backend='openai', model='gpt-3.5-turbo', api_key=api_key)
         processed_caption = llm_chat.process_caption(caption, prompt)
         return processed_caption
 
     def paste_to_table(self):
-        current_index = self.figureView.currentIndex()
+        current_index = self.tempFigureView.currentIndex()
         if not current_index.isValid():
             return
         text = QApplication.clipboard().text()
@@ -1331,16 +1639,16 @@ class AddFigureDialog(QDialog):
             row_num = current_index.row() + row
             for col, text in enumerate(columns):
                 col_num = current_index.column() + col
-                index = self.figureView.model().index(row_num, col_num)
-                self.figureView.model().setData(index, text, Qt.EditRole)
+                index = self.tempFigureView.model().index(row_num, col_num)
+                self.tempFigureView.model().setData(index, text, Qt.EditRole)
         self.update_subfigure_info_from_table()
         #self.lblFigure.update_subfigure_list(self.subfigure_list)
 
     def update_subfigure_info_from_table(self):
         col_heading = ["index","taxon_name","caption","comments"]
-        for i in range(self.model.rowCount()):
-            for j in range(self.model.columnCount()):
-                item = self.model.item(i,j)
+        for i in range(self.tempModel.rowCount()):
+            for j in range(self.tempModel.columnCount()):
+                item = self.tempModel.item(i,j)
                 #print(f"{col_heading[j]}: {item.text()}")
                 if hasattr(self.subfigure_list[i], col_heading[j]):
                     setattr(self.subfigure_list[i], col_heading[j], item.text())
@@ -1351,7 +1659,7 @@ class AddFigureDialog(QDialog):
         if Qt.EditRole in roles:
             row = topLeft.row()
             column = topLeft.column()
-            new_value = self.model.data(topLeft)
+            new_value = self.tempModel.data(topLeft)
             #print(f"Data changed at row {row}, column {column}: {new_value}")
             
             if 0 <= row < len(self.subfigure_list):
@@ -1369,7 +1677,7 @@ class AddFigureDialog(QDialog):
             self.lblFigure.update()
 
     def fill_selected_cells(self):
-        selection_model = self.figureView.selectionModel()
+        selection_model = self.tempFigureView.selectionModel()
         if not selection_model.hasSelection():
             return
 
@@ -1378,12 +1686,12 @@ class AddFigureDialog(QDialog):
             return
 
         for index in selection_model.selectedIndexes():
-            self.model.setData(index, value, Qt.EditRole)
+            self.tempModel.setData(index, value, Qt.EditRole)
 
     def move_up(self):
         #print("Move up")
         row = -1
-        indexes = self.figureView.selectionModel().selectedIndexes()
+        indexes = self.tempFigureView.selectionModel().selectedIndexes()
         if len(indexes) > 0:
             index = indexes[0]
             row = index.row()
@@ -1392,18 +1700,18 @@ class AddFigureDialog(QDialog):
                 self.subfigure_list[row], self.subfigure_list[row-1] = self.subfigure_list[row-1], self.subfigure_list[row]
         self.load_subfigure_list(self.subfigure_list)
         if row > 0:
-            self.figureView.selectRow(row-1)
+            self.tempFigureView.selectRow(row-1)
         # select row-1 row
 
     def select_row(self, row):
-        self.figureView.selectRow(row)
+        self.tempFigureView.selectRow(row)
 
     def clear_selection(self):
-        self.figureView.clearSelection()
+        self.tempFigureView.clearSelection()
     
     def move_down(self):
         #print("Move down")
-        indexes = self.figureView.selectionModel().selectedIndexes()
+        indexes = self.tempFigureView.selectionModel().selectedIndexes()
         if len(indexes) > 0:
             index = indexes[0]
             row = index.row()
@@ -1413,14 +1721,14 @@ class AddFigureDialog(QDialog):
 
         self.load_subfigure_list(self.subfigure_list)
         # select row+1 row
-        self.figureView.selectRow(row+1)
+        self.tempFigureView.selectRow(row+1)
 
     def on_add_subfigure(self):
         print("Add subfigure")
     
     def on_edit_subfigure(self):
         print("Edit subfigure")
-        indexes = self.figureView.selectionModel().selectedIndexes()
+        indexes = self.tempFigureView.selectionModel().selectedIndexes()
         if len(indexes) > 0:
             index = indexes[0]
             row = index.row()
@@ -1430,13 +1738,13 @@ class AddFigureDialog(QDialog):
         if Qt.EditRole in roles:
             row = top_left.row()
             col = top_left.column()
-            new_value = self.model.data(top_left)
+            new_value = self.tempModel.data(top_left)
             #print(f"Data changed at row {row}, column {col}: {new_value}")
             # Update your subfigure_list or perform any other necessary actions here
 
     def load_subfigure_list(self, subfigure_list):
-        self.model.clear()
-        self.model.setHorizontalHeaderLabels(["Index", "Taxon name", "Caption", "Comments"])
+        self.tempModel.clear()
+        self.tempModel.setHorizontalHeaderLabels(["Index", "Taxon name", "Caption", "Comments"])
         self.subfigure_list = subfigure_list
         for i, subfigure in enumerate(self.subfigure_list):
             #name = QStandardItem("")
@@ -1451,7 +1759,8 @@ class AddFigureDialog(QDialog):
             for item in [ taxon_name, caption, comments]:
                 item.setEditable(True)
 
-            self.model.appendRow([index, taxon_name, caption, comments])
+            self.tempModel.appendRow([index, taxon_name, caption, comments])
+        self.check_update_caption_button()
 
     def on_custom_context_menu(self, pos):
         menu = QMenu()
@@ -1461,12 +1770,12 @@ class AddFigureDialog(QDialog):
         fill_action.triggered.connect(self.fill_selected_cells)
         delete_action = menu.addAction("Delete")
         delete_action.triggered.connect(self.on_delete_subfigure)
-        menu.exec_(self.figureView.viewport().mapToGlobal(pos))
+        menu.exec_(self.tempFigureView.viewport().mapToGlobal(pos))
 
     def on_delete_subfigure(self):
         #print("Delete figure")
         # get selected index
-        indexes = self.figureView.selectionModel().selectedIndexes()
+        indexes = self.tempFigureView.selectionModel().selectedIndexes()
         if len(indexes) > 0:
             index = indexes[0]
             row = index.row()
@@ -1475,14 +1784,14 @@ class AddFigureDialog(QDialog):
             #self.subfigure_list = segmentation_results
             cropped_pixmap, rect = self.subfigure_list[row]
             # remove item from model
-            self.model.removeRow(row)
+            self.tempModel.removeRow(row)
             # remove item from subfigure_list
             self.subfigure_list.pop(row)
             # update figure image
         self.lblFigure.set_subfigure_list(self.subfigure_list)
         self.update()
 
-    def on_selection_changed(self, selected, deselected):
+    def on_temp_figure_selection_changed(self, selected, deselected):
         #print("selection changed")
         # get selected index
         indexes = selected.indexes()
@@ -1490,6 +1799,18 @@ class AddFigureDialog(QDialog):
             index = indexes[0]
             row = index.row()
             self.lblFigure.set_current_subfigure(row)
+            pixmap = self.subfigure_list[row].pixmap
+            self.main_figure_label.set_pixmap(pixmap)
+            return
+
+    def on_main_figure_selection_changed(self, selected, deselected):
+        #print("selection changed")
+        # get selected index
+        indexes = selected.indexes()
+        if len(indexes) > 0:
+            index = indexes[0]
+            row = index.row()
+            self.main_figure_label.set_figure(self.figure_list[row].get_file_path())
             return
 
     def on_btn_load_clicked(self):
@@ -1507,7 +1828,7 @@ class AddFigureDialog(QDialog):
             self.lblFigure.set_figure(file_name)
             self.original_figure_image = QPixmap(file_name)
             self.detectButton.setEnabled(True)
-            self.model.clear()
+            self.tempModel.clear()
             self.subfigure_list = []
             self.lblFigure.set_subfigure_list(self.subfigure_list)
             self.update()
@@ -1527,16 +1848,18 @@ class AddFigureDialog(QDialog):
     
     def on_page_changed(self, page_number):
         #print("Page changed:", page_number)
+        self.page_number = page_number
         self.current_page = self.pdf_document[page_number-1]
         pix = self.current_page.get_pixmap(dpi=600, alpha=False, annots=True, matrix=fitz.Matrix(2, 2))
         img = QImage(pix.samples, pix.width, pix.height, pix.stride, QImage.Format.Format_RGB888)  # QImage
         self.original_figure_image = QPixmap.fromImage(img)  # QPixmap
         #print("pixmap size:", self.original_figure_image .size())
         self.lblFigure.set_pixmap(self.original_figure_image )
+        self.lblFigure.set_page_number(page_number)
         self.detectButton.setEnabled(True)
-        self.model.clear()
-        self.subfigure_list = []
-        self.lblFigure.set_subfigure_list(self.subfigure_list)
+        #self.tempModel.clear()
+        #self.subfigure_list = []
+        #self.lblFigure.set_subfigure_list(self.subfigure_list)
         self.update()
 
     def on_pdf_prev_clicked(self):
@@ -1571,7 +1894,7 @@ class AddFigureDialog(QDialog):
         #self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
         self.subfigure_list = []
         for i, (cropped_pixmap, rect) in enumerate(segmentation_results):
-            subfigure = SubFigure(pixmap=cropped_pixmap, rect=rect)
+            subfigure = SubFigure(pixmap=cropped_pixmap, rect=rect, page_number=self.page_number)
             #subfigure.index = i+1
             self.subfigure_list.append(subfigure)
         #self.subfigure_list = segmentation_results
@@ -1580,8 +1903,9 @@ class AddFigureDialog(QDialog):
         self.load_subfigure_list(self.subfigure_list)
 
 
-        self.figureView.resizeColumnsToContents()
-        self.figureView.resizeRowsToContents()
+        self.tempFigureView.resizeColumnsToContents()
+        self.tempFigureView.resizeRowsToContents()
+        self.check_update_caption_button()
 
     def update_subfigure_list(self, source_row, destination_row):
         print(f"Updating subfigure_list: Moving from {source_row} to {destination_row}")
@@ -1594,8 +1918,8 @@ class AddFigureDialog(QDialog):
             self.subfigure_list.insert(destination_row, moved_item)
 
         # reload the figureView from self.subfigure_list
-        self.model.clear()
-        self.model.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
+        self.tempModel.clear()
+        self.tempModel.setHorizontalHeaderLabels(["File Name", "Figure Number", "Caption", "Comments"])
         for i, (cropped_pixmap, rect) in enumerate(self.subfigure_list):
             name = QStandardItem(f"Figure{i+1}")
             figure_number = QStandardItem(f"Figure{i+1}")
@@ -1604,8 +1928,16 @@ class AddFigureDialog(QDialog):
             
             name.setData(cropped_pixmap, Qt.DecorationRole)
             name.setData(rect, Qt.UserRole)
-            self.model.appendRow([name, figure_number, caption, comments])
+            self.tempModel.appendRow([name, figure_number, caption, comments])
         print(f"New subfigure_list order: {[item[1] for item in self.subfigure_list]}")
+
+    def on_btn_clear_clicked(self):
+        self.tempModel.clear()
+        self.subfigure_list = []
+        self.lblFigure.set_subfigure_list(self.subfigure_list)
+        # clear caption
+        self.raw_caption_edit.clear()
+        self.processed_caption_edit.clear()
 
     def on_btn_save_clicked(self):
         # wait cursor
@@ -1637,6 +1969,13 @@ class AddFigureDialog(QDialog):
             parent_figure.figure_number = f"{type}{number1}"
             #figure.caption = self.model.item(0, 3).text()
             #figure.comments = self.model.item(0, 4).text()
+            parent_figure.part1_prefix = type
+            parent_figure.part1_number = number1
+            parent_figure.part2_prefix = ""
+            parent_figure.part2_number = ""
+            parent_figure.part_separator = ""
+            parent_figure.update_figure_number()
+
             parent_figure.reference = self.reference
             parent_figure.file_path = ""
             parent_figure.save()
@@ -1650,19 +1989,21 @@ class AddFigureDialog(QDialog):
             figure.parent = parent_figure
             sub_number = sub_number_list[i]
             figure.file_name = f"{type}{number1}{separator}{sub_type}{sub_number}.png"
-            figure.figure_number = f"{type}{number1}{separator}{sub_type}{sub_number}"
+            #figure.figure_number = f"{type}{number1}{separator}{sub_type}{sub_number}"
             figure.file_path = ""
             #print("figure number:", figure.figure_number)
             figure.part1_prefix = type
             figure.part1_number = number1
             figure.part2_prefix = sub_type
             figure.part2_number = sub_number
+            figure.part_separator = separator
+            figure.update_figure_number()
             #figure.caption = 
-            taxon_name = self.model.item(i, 1).text()
+            taxon_name = self.tempModel.item(i, 1).text()
             taxon = self.process_taxon_name(taxon_name)
 
-            figure.caption = self.model.item(i, 2).text()
-            figure.comments = self.model.item(i, 3).text()
+            figure.caption = self.tempModel.item(i, 2).text()
+            figure.comments = self.tempModel.item(i, 3).text()
             figure.save()
             figure.add_pixmap(cropped_pixmap)
 
@@ -1672,7 +2013,8 @@ class AddFigureDialog(QDialog):
 
         # restore cursor
         QApplication.restoreOverrideCursor()
-        self.accept()
+        self.load_main_figure_list()
+        #self.accept()
     
     def update_taxon_figure(self, taxon, figure):
         taxfig = FgTaxonFigure.select().where(FgTaxonFigure.figure == figure, FgTaxonFigure.taxon == taxon)
@@ -1705,7 +2047,7 @@ class AddFigureDialog(QDialog):
             if len(name_list) > 1:
                 ''' this is a species '''
                 genus, created = FgTaxon.get_or_create(name=name_list[0])
-                print("genus:",genus)
+                #print("genus:",genus)
                 genus.rank = "Genus"
                 genus.save()
                 taxon.parent = genus
@@ -1716,7 +2058,7 @@ class AddFigureDialog(QDialog):
         return taxon
 
     def on_btn_cancel_clicked(self):
-        print("Cancel clicked")
+        #print("Cancel clicked")
         self.reject()
 
     def detect_figures(self):
@@ -1727,6 +2069,21 @@ class AddFigureDialog(QDialog):
         self.reference = ref
         self.setWindowTitle(self.tr("Figurist - Figure Information for ") + ref.get_abbr())
         self.edtReference.setText(ref.get_abbr())
+        self.load_main_figure_list()
+
+
+    def load_main_figure_list(self):
+
+        self.figure_list = [ f for f in self.reference.figures ]
+        self.mainModel.clear()
+        self.mainModel.setHorizontalHeaderLabels(["Figure Number", "Taxon Name", "Caption"])
+        for i, figure in enumerate(self.figure_list):
+            figure_number = QStandardItem(figure.figure_number)
+            taxon_name = QStandardItem(figure.get_taxon_name())
+            caption = QStandardItem(figure.caption)
+            self.mainModel.appendRow([figure_number, taxon_name, caption])
+
+
 
 
     def check_overlap(self, box1, box2):

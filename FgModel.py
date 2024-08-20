@@ -119,6 +119,7 @@ class FgFigure(Model):
     part1_number = CharField(null=True)
     part2_prefix = CharField(null=True)
     part2_number = CharField(null=True)
+    part_separator = CharField(null=True,default='-')
     caption = TextField(null=True)
     comments = TextField(null=True)
     reference = ForeignKeyField(FgReference, backref='figures', null=True,on_delete="CASCADE")
@@ -129,6 +130,22 @@ class FgFigure(Model):
 
     class Meta:
         database = gDatabase
+
+    def get_taxon_name(self):
+        if self.related_taxa.count() > 0:
+            return self.related_taxa[0].taxon.name
+        else:
+            return ""
+
+    def update_figure_number(self):
+        if self.part1_number is not None:
+            self.figure_number = self.part1_prefix + self.part1_number 
+            if self.part2_number is not None:
+                separator = separator or ""
+                self.figure_number += separator + self.part2_prefix + self.part2_number
+            return self.figure_number
+        else:
+            return self.figure_number
 
     def get_figure_name(self):
         name = self.figure_number

@@ -447,7 +447,9 @@ class FiguristMainWindow(QMainWindow):
             self.dlg = ReferenceDialog(self)
             self.dlg.setModal(True)
             self.dlg.set_reference( self.selected_reference )
-            self.dlg.set_collection( self.selected_collection )
+            if self.selected_collection is not None:
+                self.dlg.set_collection( self.selected_collection )
+            #self.dlg.set_collection( self.selected_collection )
             ret = self.dlg.exec_()
             self.reset_referenceView()
             self.load_references()
@@ -627,6 +629,13 @@ class FiguristMainWindow(QMainWindow):
         #self.figureView.setHeaderHidden(True)
         pass
 
+    def load_children(self, taxon, parent_item):
+        for child in taxon.children:
+            item1 = QStandardItem(child.name)
+            item1.setData(child)
+            parent_item.appendRow([item1])
+            self.load_children(child, item1)
+
     def load_taxa(self):
         self.taxonView.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.taxonView.setHeaderHidden(True)
@@ -640,14 +649,19 @@ class FiguristMainWindow(QMainWindow):
             taxref = FgTaxonReference.select().where(FgTaxonReference.reference == self.selected_reference)
             for tr in taxref:
                 taxa_list.append(tr.taxon)
+            for taxon in taxa_list:
+                item1 = QStandardItem(taxon.name)
+                item1.setData(taxon)
+                self.taxon_model.appendRow([item1])
         else:
-            taxa_list = FgTaxon.select().order_by(FgTaxon.name)
+            taxa_list = FgTaxon.select().where(FgTaxon.parent==None).order_by(FgTaxon.name)
             #print("taxa_list:", taxa_list)
+            for taxon in taxa_list:
+                item1 = QStandardItem(taxon.name)
+                item1.setData(taxon)
+                self.taxon_model.appendRow([item1])
+                self.load_children(taxon, item1)
 
-        for taxon in taxa_list:
-            item1 = QStandardItem(taxon.name)
-            item1.setData(taxon)
-            self.taxon_model.appendRow([item1])
         self.taxonView.expandAll()
         
         # Set up the selection model
@@ -1086,6 +1100,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             #figure_id = figure_data.get('id')
             #print("figure_id:", figure_id)
             #print("figure:", figure.id, figure)
+            #ref = figure.reference
             if figure.children.count() > 0:
                 continue
                 #msg = self.tr("Figure {} has subfigures. Delete figure and subfigures?").format(figure.figure_number)

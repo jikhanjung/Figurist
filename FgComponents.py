@@ -1231,3 +1231,58 @@ class LLMChat:
         ]
         return self.backend.chat(messages)
 
+
+
+import ssl
+import certifi
+import requests
+from pyzotero import zotero
+#from cryptography import x509
+#from cryptography.hazmat.backends import default_backend
+#from cryptography.hazmat.primitives import serialization
+import os
+import subprocess
+import tempfile
+
+import logging
+import urllib3
+
+class ZoteroBackend(zotero.Zotero):
+    def __init__(self, library_id, library_type, api_key):
+        super().__init__(library_id, library_type, api_key)
+        self.session = requests.Session()
+        #self.session.verify = self.create_ssl_context()
+
+    def create_ssl_context(self):
+        return
+        '''
+        context = ssl.create_default_context(cafile=certifi.where())
+        
+        # Add certificates from Windows store
+        windows_certs = get_windows_cert_store()
+        with tempfile.NamedTemporaryFile(mode='wb', delete=False, suffix='.pem') as temp_cert_file:
+            temp_cert_file.write(windows_certs)
+            temp_cert_path = temp_cert_file.name
+
+        context.load_verify_locations(cafile=temp_cert_path)
+        
+        # Clean up temporary file
+        os.unlink(temp_cert_path)
+        
+        return context
+        '''
+
+    def _request(self, method, url, **kwargs):
+        return self.session.request(method, url, **kwargs)
+    
+    def get_collections(self):
+        return self.collections()
+
+    def get_collection(self, collection_key):
+        return self.collection(collection_key)
+
+    def get_items_in_collection(self, collection_key):
+        return self.collection_items(collection_key)
+
+    def get_subcollections(self, collection_key):
+        return self.collections_sub(collection_key)

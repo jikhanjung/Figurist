@@ -951,6 +951,7 @@ class FigureLabel(QLabel):
 
         color = Qt.red
         if self.temp_rect is not None or self.curr_subfigure_index > -1:
+            rect = None
             if self.temp_rect is not None:
                 #print("paintEvent temp rect:", self.temp_rect)
                 rect = self.rect_to_canvas(self.temp_rect)
@@ -968,18 +969,18 @@ class FigureLabel(QLabel):
                     painter.setPen(QPen(color, 2, Qt.DashLine))
                     painter.drawRect(rect)
                     idx = self.curr_subfigure_index+1
-
-            text = "{}".format(idx)
-            if self.edit_mode == "CAPTURE_TEXT_DRAG":
-                text = "Text"
-            painter.setPen(QPen(color))
-            painter.setFont(QFont("Arial", 12))
-            text_rect = painter.fontMetrics().boundingRect(text)
-            text_rect.setWidth(text_rect.width() + 10)
-            text_rect.setHeight(text_rect.height() + 10)
-            text_rect.moveCenter(rect.center())
-            painter.fillRect(text_rect, Qt.white)
-            painter.drawText(text_rect, Qt.AlignCenter, text)
+            if rect is not None:
+                text = "{}".format(idx)
+                if self.edit_mode == "CAPTURE_TEXT_DRAG":
+                    text = "Text"
+                painter.setPen(QPen(color))
+                painter.setFont(QFont("Arial", 12))
+                text_rect = painter.fontMetrics().boundingRect(text)
+                text_rect.setWidth(text_rect.width() + 10)
+                text_rect.setHeight(text_rect.height() + 10)
+                text_rect.moveCenter(rect.center())
+                painter.fillRect(text_rect, Qt.white)
+                painter.drawText(text_rect, Qt.AlignCenter, text)
 
 
 

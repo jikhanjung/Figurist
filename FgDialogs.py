@@ -1957,6 +1957,10 @@ class AddFigureDialog(QDialog):
         # restore cursor
         QApplication.restoreOverrideCursor()
         self.load_main_figure_list()
+        # set tab to raw caption
+        self.caption_tab_widget.setCurrentIndex(1)
+        # clear 
+        self.on_btn_clear_clicked()
         #self.accept()
     
     def update_taxon_figure(self, taxon, figure):

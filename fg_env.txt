@@ -12,7 +12,7 @@ pyzotero
 conda create -n Figurist python pip
 pip install pyqt5 peewee Pillow peewee-migrate pyinstaller
 pip install opencv-python python-decouple pymupdf
-pip install ollama openai
+pip install ollama openai pyzotero
 
 '''
 pyqt5 

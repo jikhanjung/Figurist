@@ -18,6 +18,7 @@ class FgCollection(Model):
     description = TextField(null=True)
     parent = ForeignKeyField('self', backref='children', null=True,on_delete="CASCADE")
     zotero_key = CharField()
+    zotero_version = CharField(null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
 
@@ -59,6 +60,7 @@ class FgReference(Model):
     doi = CharField()
     url = CharField()
     zotero_key = CharField()
+    zotero_version = CharField(null=True)
     abbreviation = CharField(null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)

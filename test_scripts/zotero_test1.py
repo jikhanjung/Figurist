@@ -12,6 +12,7 @@ import tempfile
 import logging
 import urllib3
 
+
 logging.basicConfig(level=logging.DEBUG)
 urllib3.connectionpool.HTTPConnection.debuglevel = 1
 urllib3.connectionpool.HTTPSConnection.debuglevel = 1

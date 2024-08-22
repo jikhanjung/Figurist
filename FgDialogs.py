@@ -163,105 +163,44 @@ class ReferenceDialog(QDialog):
     def set_collection(self, collection):
         self.collection = collection
         self.edtCollection.setText(collection.name)
-
-class BrowsZoteroCollectionDialogOld(QDialog):
-    def __init__(self,parent):
-        super().__init__()
-        self.setWindowTitle(self.tr("Figurist - Browse Zotero Collection"))
-        self.parent = parent
-        self.initUI()
-        self.m_app = QApplication.instance()
-        self.collection = None
-        self.read_settings()
-        self.load_zotero_collections()
-
-    def read_settings(self):
-        self.m_app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope, fg.COMPANY_NAME, fg.PROGRAM_NAME)
-        self.remember_geometry = fg.value_to_bool(self.m_app.settings.value("WindowGeometry/RememberGeometry", True))
-        if self.remember_geometry is True:
-            self.setGeometry(self.m_app.settings.value("WindowGeometry/BrowseZoteroWindow", QRect(100, 100, 500, 250)))
-            is_maximized = fg.value_to_bool(self.m_app.settings.value("IsMaximized/BrowseZoteroWindow", False))
-            if is_maximized:
-                self.showMaximized()
-            else:
-                self.showNormal()
-        else:
-            self.setGeometry(QRect(100, 100, 500, 250))
-        self.language = self.m_app.settings.value("language", "en")
-        self.prev_language = self.language
-        #self.update_language(self.language)
-        self.zotero_api_key = self.m_app.settings.value("zotero_api_key", "")
-        self.zotero_user_id = self.m_app.settings.value("zotero_user_id", "")
-
-
-    def initUI(self):
-        ''' initialize UI '''
-        self.lblCollection = QLabel(self.tr("Collection"))
-        self.collectionView = QTreeView()
-
-        self.btnSelect = QPushButton(self.tr("btnSelect"))
-        self.btnSelect.clicked.connect(self.on_btn_select_clicked)
-        self.btnCancel = QPushButton(self.tr("Cancel"))
-        self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
-
-        self.btn_widget = QWidget()
-        self.btn_layout = QHBoxLayout()
-        self.btn_layout.addWidget(self.btnSelect)
-        self.btn_layout.addWidget(self.btnCancel)
-        self.btn_widget.setLayout(self.btn_layout)
-
-        #self.statusBar = QStatusBar()
-        #self.setStatusBar(self.statusBar)
-        self.all_layout = QVBoxLayout()
-
-        self.form_widget = QWidget()
-        self.form_layout = QFormLayout()
-        self.form_layout.addRow(self.lblCollection, self.collectionView)
-        self.form_widget.setLayout(self.form_layout)
-        #self.layout.addRow(self.btnSave, self.btnCancel)
-        self.all_layout.addWidget(self.form_widget)
-        self.all_layout.addWidget(self.btn_widget)
-        self.setLayout(self.all_layout)
-
-    def on_btn_cancel_clicked(self):
-        print("Cancel clicked")
-        self.reject()
-
-    def on_btn_select_clicked(self):
-        if self.collection is None:
-            return
-        print("Select clicked")
-        self.accept()
-
-    def on_collection_selection_changed(self):
-        pass
-
-    def load_zotero_collections(self):
-        zotero_api_key = self.zotero_api_key
-        zotero_user_id = self.zotero_user_id
-        if zotero_api_key == "" or zotero_user_id == "":
-            return
            
 class BrowseZoteroCollectionDialog(QDialog):
     collection_selected = pyqtSignal(dict)
 
-    def __init__(self, parent):
+    def __init__(self, parent, collection_name=""):
         super().__init__(parent)
         self.parent = parent
         self.zotero_backend = None
         self.selected_collection = None
+        self.collection_name = collection_name
         self.initUI()
+        if self.collection_name != "":
+            self.load_zotero_collections(self.collection_name)
 
     def initUI(self):
         self.setWindowTitle("Browse Zotero Collections")
         self.setGeometry(100, 100, 400, 500)
 
-        layout = QVBoxLayout()
+        self.layout = QVBoxLayout()
+
+        self.search_widget = QWidget()
+        self.search_layout = QHBoxLayout()
+        self.search_widget.setLayout(self.search_layout)
+
+        self.edt_search = QLineEdit()
+        self.edt_search.setPlaceholderText("Enter search word")
+        self.edt_search.setText(self.collection_name)
+        #self.edt_search.textChanged.connect(self.on_search)
+        self.btn_search = QPushButton("Search")
+        self.btn_search.clicked.connect(self.on_search)
+        self.search_layout.addWidget(self.edt_search)
+        self.search_layout.addWidget(self.btn_search)
+        self.layout.addWidget(self.search_widget)
 
         self.tree_widget = QTreeWidget()
         self.tree_widget.setHeaderLabel("Zotero Collections")
         self.tree_widget.itemClicked.connect(self.on_item_clicked)
-        layout.addWidget(self.tree_widget)
+        self.layout.addWidget(self.tree_widget)
 
         button_layout = QHBoxLayout()
         self.select_button = QPushButton("Select")
@@ -271,29 +210,16 @@ class BrowseZoteroCollectionDialog(QDialog):
         button_layout.addWidget(self.select_button)
         button_layout.addWidget(self.cancel_button)
 
-        layout.addLayout(button_layout)
-        self.setLayout(layout)
+        self.layout.addLayout(button_layout)
+        self.setLayout(self.layout)
 
-        self.load_zotero_collections()
+        #self.load_zotero_collections()
 
-    def load_zotero_collections(self):
-        library_id = self.parent.m_app.settings.value("zotero_user_id", "")
-        library_type = "user"  # or "group" if it's a group library
-        api_key = self.parent.m_app.settings.value("zotero_api_key", "")
-        print("load zotero collections")
-        
-        if not library_id or not api_key:
-            QMessageBox.warning(self, "Zotero Settings Missing", "Please set your Zotero user ID and API key in the preferences.")
-            return
+    def on_search(self):
+        keyword = self.edt_search.text()
+        self.load_zotero_collections(keyword)
 
-        self.zotero_backend = ZoteroBackend(library_id, library_type, api_key)
-
-        self.tree_widget.clear()
-        collections = self.zotero_backend.get_collections()
-        for collection in collections:
-            self.add_collection_to_tree(collection, self.tree_widget.invisibleRootItem())
-
-    def load_zotero_collections(self):
+    def load_zotero_collections(self, keyword=""):
         library_id = self.parent.m_app.settings.value("zotero_user_id", "")
         library_type = "user"  # or "group" if it's a group library
         api_key = self.parent.m_app.settings.value("zotero_api_key", "")
@@ -302,31 +228,35 @@ class BrowseZoteroCollectionDialog(QDialog):
             QMessageBox.warning(self, "Zotero Settings Missing", "Please set your Zotero user ID and API key in the preferences.")
             return
 
+        # application wait cursor
+        QApplication.setOverrideCursor(Qt.WaitCursor)
         try:
             self.zotero_backend = ZoteroBackend(library_id, library_type, api_key)
             
             self.tree_widget.clear()
-            collections = self.zotero_backend.collections()
+            collections = self.zotero_backend.collections(q=keyword)
             for collection in collections:
                 self.add_collection_to_tree(collection, self.tree_widget.invisibleRootItem())
         except Exception as e:
             QMessageBox.warning(self, "Zotero Connection Error", f"Failed to connect to Zotero: {str(e)}")
-            
+        # application normal cursor
+        QApplication.restoreOverrideCursor()
+        
     def add_collection_to_tree(self, collection, parent_item):
         item = QTreeWidgetItem(parent_item)
         item.setText(0, collection['data']['name'])
         item.setData(0, Qt.UserRole, collection['key'])
 
-        subcollections = self.zotero_backend.get_subcollections(collection['key'])
+        subcollections = self.zotero_backend.collections_sub(collection['key'])
         for subcollection in subcollections:
             self.add_collection_to_tree(subcollection, item)
 
     def on_item_clicked(self, item, column):
-        self.selected_collection = self.zotero_backend.get_collection(item.data(0, Qt.UserRole))
+        self.selected_collection = self.zotero_backend.collection(item.data(0, Qt.UserRole))
 
     def on_select(self):
         if self.selected_collection:
-            self.collection_selected.emit(self.selected_collection)
+            #self.collection_selected.emit(self.selected_collection)
             self.accept()
         else:
             QMessageBox.warning(self, "No Selection", "Please select a Zotero collection.")
@@ -358,8 +288,8 @@ class CollectionDialog(QDialog):
         self.m_app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope, fg.COMPANY_NAME, fg.PROGRAM_NAME)
         self.remember_geometry = fg.value_to_bool(self.m_app.settings.value("WindowGeometry/RememberGeometry", True))
         if self.remember_geometry is True:
-            self.setGeometry(self.m_app.settings.value("WindowGeometry/BrowseZoteroWindow", QRect(100, 100, 500, 250)))
-            is_maximized = fg.value_to_bool(self.m_app.settings.value("IsMaximized/BrowseZoteroWindow", False))
+            self.setGeometry(self.m_app.settings.value("WindowGeometry/CollectionDialog", QRect(100, 100, 500, 250)))
+            is_maximized = fg.value_to_bool(self.m_app.settings.value("IsMaximized/CollectionDialog", False))
             if is_maximized:
                 self.showMaximized()
             else:
@@ -384,16 +314,21 @@ class CollectionDialog(QDialog):
         self.edtDescription = QTextEdit()
         self.lblZoteroKey = QLabel(self.tr("Zotero Key"))
         self.edtZoteroKey = QLineEdit()
-        self.btnBrowseZotero = QPushButton(self.tr("Browse Zotero"))
+        self.btnBrowseZotero = QPushButton(self.tr("Zotero"))
         self.btnBrowseZotero.clicked.connect(self.on_btn_browse_zotero_clicked)
         self.btnSave = QPushButton(self.tr("Save"))
         self.btnSave.clicked.connect(self.on_btn_save_clicked)
         self.btnCancel = QPushButton(self.tr("Cancel"))
         self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
+        self.collection_name_widget = QWidget()
+        self.collection_name_layout = QHBoxLayout()
+        self.collection_name_widget.setLayout(self.collection_name_layout)
+        self.collection_name_layout.addWidget(self.edtCollectionName)
+        self.collection_name_layout.addWidget(self.btnBrowseZotero)
 
         self.btn_widget = QWidget()
         self.btn_layout = QHBoxLayout()
-        self.btn_layout.addWidget(self.btnBrowseZotero)
+        #self.btn_layout.addWidget(self.btnBrowseZotero)
         self.btn_layout.addWidget(self.btnSave)
         self.btn_layout.addWidget(self.btnCancel)
         self.btn_widget.setLayout(self.btn_layout)
@@ -405,7 +340,7 @@ class CollectionDialog(QDialog):
         self.form_widget = QWidget()
         self.form_layout = QFormLayout()
         self.form_layout.addRow(self.lblParent, self.edtParent)
-        self.form_layout.addRow(self.lblCollectionName, self.edtCollectionName)
+        self.form_layout.addRow(self.lblCollectionName, self.collection_name_widget)
         self.form_layout.addRow(self.lblDescription, self.edtDescription)
         self.form_layout.addRow(self.lblZoteroKey, self.edtZoteroKey)
         #self.form_layout.addRow(self.btnSave, self.btnCancel)
@@ -416,9 +351,17 @@ class CollectionDialog(QDialog):
         self.setLayout(self.all_layout)
 
     def on_btn_browse_zotero_clicked(self):
-        print("Browse Zotero clicked")
-        self.zotero_dialog = BrowseZoteroCollectionDialog(self)
-        self.zotero_dialog.exec_()
+        #print("Browse Zotero clicked")
+        collection_name = self.edtCollectionName.text() or ""
+        #if collection_name 
+        self.zotero_dialog = BrowseZoteroCollectionDialog(self, collection_name)
+        ret = self.zotero_dialog.exec_()
+        if ret == QDialog.Accepted:
+            collection = self.zotero_dialog.get_selected_collection()
+            if collection:
+                self.edtZoteroKey.setText(collection['key'])
+                self.edtCollectionName.setText(collection['data']['name'])
+
 
     def on_btn_save_clicked(self):
         #print("Save clicked")
@@ -434,7 +377,7 @@ class CollectionDialog(QDialog):
         self.accept()
 
     def on_btn_cancel_clicked(self):
-        print("Cancel clicked")
+        #print("Cancel clicked")
         self.reject()
 
     def set_collection(self, collection):
@@ -444,7 +387,7 @@ class CollectionDialog(QDialog):
             self.edtParent.setText(self.parent_collection.name)
         self.edtCollectionName.setText(collection.name)
         self.edtDescription.setText(collection.description)
-        #self.edtZoteroKey.setText(collection.zotero_key)
+        self.edtZoteroKey.setText(collection.zotero_key)
 
     def set_parent_collection(self, parent_collection):
         self.parent_collection = parent_collection

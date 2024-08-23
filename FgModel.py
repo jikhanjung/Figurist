@@ -17,6 +17,7 @@ class FgCollection(Model):
     name = CharField()
     description = TextField(null=True)
     parent = ForeignKeyField('self', backref='children', null=True,on_delete="CASCADE")
+    zotero_library_id = CharField(null=True)
     zotero_key = CharField()
     zotero_version = CharField(null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
@@ -59,6 +60,7 @@ class FgReference(Model):
     pages = CharField()
     doi = CharField()
     url = CharField()
+    zotero_library_id = CharField(null=True)
     zotero_key = CharField()
     zotero_version = CharField(null=True)
     abbreviation = CharField(null=True)
@@ -67,6 +69,9 @@ class FgReference(Model):
 
     class Meta:
         database = gDatabase
+
+    def get_attachment_path(self):
+        return os.path.join(fg.DEFAULT_ATTACHMENT_DIRECTORY, str(self.zotero_key))
 
     def add_figure(self, file_path):
         fig = FgFigure()

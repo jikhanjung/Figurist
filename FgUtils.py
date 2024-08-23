@@ -12,6 +12,7 @@ USER_PROFILE_DIRECTORY = os.path.expanduser('~')
 
 DEFAULT_DB_DIRECTORY = os.path.join( USER_PROFILE_DIRECTORY, COMPANY_NAME, PROGRAM_NAME )
 DEFAULT_STORAGE_DIRECTORY = os.path.join(DEFAULT_DB_DIRECTORY, "data/")
+DEFAULT_ATTACHMENT_DIRECTORY = os.path.join(DEFAULT_DB_DIRECTORY, "attachment/")
 DEFAULT_LOG_DIRECTORY = os.path.join(DEFAULT_DB_DIRECTORY, "logs/")
 DB_BACKUP_DIRECTORY = os.path.join(DEFAULT_DB_DIRECTORY, "backups/")
 
@@ -23,6 +24,8 @@ if not os.path.exists(DEFAULT_LOG_DIRECTORY):
     os.makedirs(DEFAULT_LOG_DIRECTORY)
 if not os.path.exists(DB_BACKUP_DIRECTORY):
     os.makedirs(DB_BACKUP_DIRECTORY)
+if not os.path.exists(DEFAULT_ATTACHMENT_DIRECTORY):
+    os.makedirs(DEFAULT_ATTACHMENT_DIRECTORY)
 
 def resource_path(relative_path):
     try:

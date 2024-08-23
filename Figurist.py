@@ -54,7 +54,11 @@ class FiguristMainWindow(QMainWindow):
 
     def initUI(self):
         ''' initialize UI '''
+        self.figure_tab = QTabWidget()
         self.figureView = FgFigureView()
+        self.pdfView = PDFViewWidget()
+        self.figure_tab.addTab(self.pdfView, self.tr("PDF"))
+        self.figure_tab.addTab(self.figureView, self.tr("Figures"))
         self.referenceView = DraggableTreeView()
         self.taxonView = QTreeView()
         self.referenceView.setDragEnabled(True)
@@ -82,7 +86,7 @@ class FiguristMainWindow(QMainWindow):
         self.right_widget = QWidget()
         self.right_layout = QVBoxLayout()
         self.right_widget.setLayout(self.right_layout)
-        self.right_layout.addWidget(self.figureView)
+        self.right_layout.addWidget(self.figure_tab)
         self.right_layout.addWidget(self.button_widget)
         self.toggle_view_button.clicked.connect(self.toggle_view)
         self.add_figure_button.clicked.connect(self.add_figure)
@@ -444,6 +448,8 @@ class FiguristMainWindow(QMainWindow):
     def on_referenceView_doubleClicked(self):
         #obj = 
         if self.selected_reference is not None:
+            self.on_action_edit_reference_triggered()
+            return
             self.dlg = ReferenceDialog(self)
             self.dlg.setModal(True)
             self.dlg.set_reference( self.selected_reference )
@@ -454,12 +460,7 @@ class FiguristMainWindow(QMainWindow):
             self.reset_referenceView()
             self.load_references()
         else:
-            self.dlg = CollectionDialog(self)
-            self.dlg.setModal(True)
-            self.dlg.set_collection( self.selected_collection )
-            ret = self.dlg.exec_()
-            self.reset_referenceView()
-            self.load_references()
+            self.on_action_edit_collection_triggered()
 
     def reset_referenceView(self):
         self.reference_model = QStandardItemModel()
@@ -607,6 +608,20 @@ class FiguristMainWindow(QMainWindow):
             if self.mode == "Reference":
                 self.selected_taxa = []
                 self.load_taxa()
+                if self.selected_reference.zotero_key is not None and self.selected_reference.zotero_key != "":
+                    pdf_dir = self.selected_reference.get_attachment_path()
+                    if os.path.exists(pdf_dir):
+                        #print("pdf_dir:", pdf_dir)
+                        # get file list from pdf_dif
+                        pdf_files = [f for f in os.listdir(pdf_dir) if os.path.isfile(os.path.join(pdf_dir, f))]
+                        if len(pdf_files) > 0:
+                            #print("pdf_files:", pdf_files)
+                            self.pdfView.set_pdf(Path(pdf_dir) / pdf_files[0])
+                        # set tab to pdf
+                        self.figure_tab.setCurrentIndex(0)
+                    else:
+                        #self.pdfView.clear()
+                        self.figure_tab.setCurrentIndex(1)
             #print("on reference selection changed selected reference 2:", self.selected_reference,"selected_collection:", self.selected_collection)
             self.filter_figures()
             #print("on reference selection changed selected reference 3:", self.selected_reference,"selected_collection:", self.selected_collection)
@@ -811,6 +826,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
     def select_reference(self,reference,node=None):
+        #`print("select reference", reference)
         if reference is None:
             return
         if node is None:
@@ -820,8 +836,11 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             item = node.child(i,0)
             if item.data() == reference:
                 self.referenceView.setCurrentIndex(item.index())
-                break
-            self.select_reference(reference,node.child(i,0))
+                return True
+            ret = self.select_reference(reference,node.child(i,0))
+            if ret:
+                return True
+        return False
 
     def on_action_new_reference_triggered(self):
         dialog = ReferenceDialog(self)
@@ -946,6 +965,8 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     
         action_add_collection = QAction(self.tr("Add collection"))
         action_add_collection.triggered.connect(self.on_action_add_collection_triggered)
+        action_edit_collection = QAction(self.tr("Edit collection"))
+        action_edit_collection.triggered.connect(self.on_action_edit_collection_triggered)
         action_add_subcollection = QAction(self.tr("Add subcollection"))
         action_add_subcollection.triggered.connect(self.on_action_add_subcollection_triggered)
         action_export_collection = QAction(self.tr("Export collection"))
@@ -966,20 +987,36 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             menu.addAction(action_edit_reference)
             menu.addAction(action_delete_reference)
         elif self.selected_collection is not None:
-            menu.addAction(action_add_subcollection)
-            menu.addAction(action_add_reference)
+            menu.addAction(action_edit_collection)
             menu.addAction(action_export_collection)
             menu.addAction(action_delete_collection)
+            menu.addAction(action_add_subcollection)
+            menu.addAction(action_add_reference)
         menu.exec_(self.referenceView.viewport().mapToGlobal(position))
+
+    def on_action_edit_collection_triggered(self):
+        col = self.selected_collection
+
+        self.dlg = CollectionDialog(self)
+        self.dlg.setModal(True)
+        self.dlg.set_collection( self.selected_collection )
+        ret = self.dlg.exec_()
+        self.reset_referenceView()
+        self.load_references()
+        self.select_reference(col)
 
     def on_action_edit_reference_triggered(self):
         if self.selected_reference is None:
             return
+        ref = self.selected_reference
+        print("edit reference:", ref)
         dialog = ReferenceDialog(self)
         dialog.set_reference(self.selected_reference)
         dialog.exec_()
         self.reset_referenceView()
         self.load_references()
+        print("edit ref done:", ref)
+        self.select_reference(ref)
 
     def on_action_export_collection_triggered(self):
         if self.selected_collection is None:
@@ -1045,6 +1082,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         dialog.exec_()
         self.reset_referenceView()
         self.load_references()
+        self.select_reference(self.selected_collection)
 
     def on_action_add_reference_triggered(self):
         dialog = ReferenceDialog(self)

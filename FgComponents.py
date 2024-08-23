@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QWidget, QPushButton, QTreeView, QSizePolicy, QHeaderView, QLabel, QInputDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QTreeView, QSizePolicy, QHeaderView, QLabel, QInputDialog, QSpinBox
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QRect, QSize, QMargins, QObject, QEvent, QMimeData, pyqtSignal
-from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen, QFont, QMouseEvent, QWheelEvent, QPainter, QDrag
+from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen, QFont, QMouseEvent, QWheelEvent, QPainter, QDrag, QImage
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QStyleOptionViewItem, QListView, QStackedWidget, QAbstractItemView
 import time, math
 from PyQt5.QtCore import QByteArray
@@ -9,6 +9,7 @@ import ollama
 from abc import ABC, abstractmethod
 from openai import OpenAI, OpenAIError # Import the error class directly
 
+import fitz
 import os
 from pyzotero import zotero
 import httpx
@@ -1265,7 +1266,8 @@ class RequestsLikeResponse:
 class ZoteroBackend(zotero.Zotero):
     def __init__(self, library_id, library_type, api_key):
         super().__init__(library_id, library_type, api_key)
-        self.httpx_client = httpx.Client(verify=False)
+        #self.httpx_client = httpx.Client(verify=False)
+        self.httpx_client = httpx.Client(verify=False, follow_redirects=True)
         self.ssl_verification_disabled = False
 
     def _retrieve_data(self, request=None, params=None):
@@ -1284,7 +1286,8 @@ class ZoteroBackend(zotero.Zotero):
                 self.request = requests.get(
                     url=full_url,
                     headers=headers,
-                    params=params
+                    params=params,
+                    allow_redirects=True
                 )
                 self.request.raise_for_status()
                 return self.request
@@ -1354,3 +1357,90 @@ def error_handler(zot, response, exc):
             raise error_codes.get(response.status_code)(err_msg(response))
     else:
         raise zotero.ze.HTTPError(err_msg(response))
+    
+class PDFViewWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.page_number = 1
+        self.initUI()
+
+    def initUI(self):
+        self.pdfcontrol_widget = QWidget()
+        self.pdfcontrol_layout = QHBoxLayout()#
+        self.pdfcontrol_widget.setLayout(self.pdfcontrol_layout)
+        #self.refcontrol_layout.addWidget(self.loadButton)
+        self.pdf_prev_button = QPushButton("<")
+        self.pdf_next_button = QPushButton(">")
+        self.pdf_begin_button = QPushButton("<<")
+        self.pdf_end_button = QPushButton(">>")
+        self.pdf_prev_button.clicked.connect(self.on_pdf_prev_clicked)
+        self.pdf_next_button.clicked.connect(self.on_pdf_next_clicked)
+        self.pdf_begin_button.clicked.connect(self.on_pdf_begin_clicked)
+        self.pdf_end_button.clicked.connect(self.on_pdf_end_clicked)        
+        for button in [self.pdf_prev_button, self.pdf_next_button, self.pdf_begin_button, self.pdf_end_button]:
+            button.setMinimumWidth(30)
+            #button.setMaximumWidth(30)
+        self.page_spinner = QSpinBox()        
+        self.page_spinner.setRange(1, 1000)
+        self.page_spinner.setValue(1)
+        self.page_spinner.setSingleStep(1)
+        self.page_spinner.setSuffix(" / ")
+        self.page_spinner.setWrapping(True)
+        self.pdfcontrol_layout.addWidget(self.pdf_begin_button)
+        self.pdfcontrol_layout.addWidget(self.pdf_prev_button)
+        self.pdfcontrol_layout.addWidget(self.page_spinner)
+        self.pdfcontrol_layout.addWidget(self.pdf_next_button)
+        self.pdfcontrol_layout.addWidget(self.pdf_end_button)
+        #self.pdfcontrol_widget.hide()
+        self.page_spinner.valueChanged.connect(self.on_page_changed)
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+        self.pdf_label = FigureLabel()
+        self.layout.addWidget(self.pdfcontrol_widget,0)
+        self.layout.addWidget(self.pdf_label,1)
+
+    def set_pdf(self, file_name):
+        self.pdf_document = fitz.open(file_name)
+        self.page_number = 1        
+        self.page_spinner.setRange(1, self.pdf_document.page_count)
+        self.page_spinner.setValue(1)
+        self.page_spinner.setSingleStep(1)
+        self.page_spinner.setSuffix(" / " + str(self.pdf_document.page_count))
+        self.on_page_changed( self.page_number)
+        #self.page_spinner.setWrapping(True)
+
+    def on_page_changed(self, page_number):
+        #print("Page changed:", page_number)
+        self.page_number = page_number
+        self.current_page = self.pdf_document[page_number-1]
+        pix = self.current_page.get_pixmap(dpi=600, alpha=False, annots=True, matrix=fitz.Matrix(2, 2))
+        img = QImage(pix.samples, pix.width, pix.height, pix.stride, QImage.Format.Format_RGB888)  # QImage
+        self.original_figure_image = QPixmap.fromImage(img)  # QPixmap
+        #print("pixmap size:", self.original_figure_image .size())
+        self.pdf_label.set_pixmap(self.original_figure_image )
+        self.pdf_label.set_page_number(page_number)
+        #self.detectButton.setEnabled(True)
+        #self.tempModel.clear()
+        #self.subfigure_list = []
+        #self.lblFigure.set_subfigure_list(self.subfigure_list)
+        self.update()        
+
+    def on_pdf_prev_clicked(self):
+        #print("PDF prev clicked")
+        current_page = self.page_spinner.value()
+        if current_page > 1:
+            self.page_spinner.setValue(current_page-1)
+    
+    def on_pdf_next_clicked(self):
+        #print("PDF next clicked")
+        current_page = self.page_spinner.value()
+        if current_page < self.pdf_document.page_count:
+            self.page_spinner.setValue(current_page+1)
+    
+    def on_pdf_begin_clicked(self):
+        #print("PDF begin clicked")
+        self.page_spinner.setValue(1)
+    
+    def on_pdf_end_clicked(self):
+        #print("PDF end clicked")
+        self.page_spinner.setValue(self.pdf_document.page_count)

@@ -29,6 +29,7 @@ from decouple import config
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QTreeWidgetItem, QPushButton, QLabel, QMessageBox
 from PyQt5.QtCore import Qt, pyqtSignal
 from pyzotero import zotero
+import FgUtils as fg
 
 class ReferenceDialog(QDialog):
     # NewDatasetDialog shows new dataset dialog.
@@ -42,6 +43,7 @@ class ReferenceDialog(QDialog):
         self.remember_geometry = True
         self.m_app = QApplication.instance()
         self.read_settings()
+        self.collection = None
         #self.move(self.parent.pos()+QPoint(100,100))
         close_shortcut = QShortcut(QKeySequence("Ctrl+W"), self)
         close_shortcut.activated.connect(self.close) 
@@ -134,17 +136,20 @@ class ReferenceDialog(QDialog):
         self.ref.zotero_key = self.edtZoteroKey.text()
         self.ref.save()
 
-        colref = FgCollectionReference.select().where(FgCollectionReference.collection == self.collection, FgCollectionReference.reference == self.ref)
-        if colref.count() == 0:
-            colref = FgCollectionReference()
-            colref.collection = self.collection
-            colref.reference = self.ref
-            colref.save()
+        if self.collection is None:
+            pass
+        else:
+            colref = FgCollectionReference.select().where(FgCollectionReference.collection == self.collection, FgCollectionReference.reference == self.ref)
+            if colref.count() == 0:
+                colref = FgCollectionReference()
+                colref.collection = self.collection
+                colref.reference = self.ref
+                colref.save()
 
         self.accept()
 
     def on_btn_cancel_clicked(self):
-        print("Cancel clicked")
+        #print("Cancel clicked")
         self.reject()
 
     def set_reference(self, ref):
@@ -374,7 +379,119 @@ class CollectionDialog(QDialog):
         if self.parent_collection:
             self.collection.parent = self.parent_collection
         self.collection.save()
+        try:
+            if self.collection.zotero_key != "":
+                # application wait cursor
+                QApplication.setOverrideCursor(Qt.WaitCursor)
+                self.synchronize_zotero_collection(self.collection)
+                # application normal cursor
+                QApplication.restoreOverrideCursor()
+        except Exception as e:
+            QMessageBox.warning(self, "Zotero Synchronization Error", f"Failed to synchronize with Zotero: {str(e)}")
+
         self.accept()
+
+    def synchronize_zotero_collection(self, collection):
+        library_id = self.zotero_user_id
+        library_type = "user"
+        api_key = self.zotero_api_key
+        if not library_id or not api_key:
+            QMessageBox.warning(self, "Zotero Settings Missing", "Please set your Zotero user ID and API key in the preferences.")
+            return
+        
+        self.zotero_backend = ZoteroBackend(library_id, library_type, api_key)
+        # get items in the collection
+        item_list = self.zotero_backend.collection_items(collection.zotero_key)
+        attachment_list = []
+        for item in item_list:
+            #print(item)
+            if item['data']['itemType'] == "attachment":
+                attachment_list.append(item)
+                continue
+            item_key = item['key']
+            item_type = item['data']['itemType']
+            item_title = item['data']['title']
+            item_url = item['data']['url']
+            #item_abstract = item['data'].get('abstractNote', "")
+            #item_authors = item['data'].get('creators', [])
+            #item_author_list = []
+            #for author in item_authors:
+            #    item_author_list.append(author['lastName'])
+            #item_authors_str = ", ".join(item_author_list)
+            item_journal = item['data'].get('publicationTitle', "")
+            item_volume = item['data'].get('volume', "")
+            item_issue = item['data'].get('issue', "")
+            item_pages = item['data'].get('pages', "")
+            item_doi = item['data'].get('DOI', "")
+            #item_year = item['data'].get('date', "")
+            item_authors_str = item['meta']['creatorSummary']
+            item_year = item['meta']['parsedDate']
+            if len(item_year) > 4:
+                item_year = item_year[:4]
+            #'meta': {'creatorSummary': 'Palmer and Rowell', 'parsedDate': '1995', 'numChildren': 1}
+            # try read first and then if not exist, create. not get_or_create
+            item_reference = FgReference.select().where(FgReference.zotero_key == item_key)
+            if item_reference.count() == 0:
+                item_reference = FgReference()
+            else:
+                item_reference = item_reference[0]
+            item_reference.title = item_title
+            item_reference.author = item_authors_str
+            item_reference.journal = item_journal
+            item_reference.volume = item_volume
+            item_reference.issue = item_issue
+            item_reference.pages = item_pages
+            item_reference.doi = item_doi
+            item_reference.year = item_year
+            item_reference.url = item_url
+            item_reference.zotero_key = item_key
+            item_reference.save()
+            # add reference to collection
+            colref, created = FgCollectionReference.get_or_create(collection=collection, reference=item_reference)
+            colref.save()
+            # add reference to parent collection
+            #if collection.parent:
+            #    colref, created = FgCollectionReference.get_or_create(collection=collection.parent, reference=item_reference)
+            #    colref.save()
+        # get attachments
+        for attachment in attachment_list:
+            #print("attachment data:", attachment['data'])
+            attachment_key = attachment['key']
+            attachment_file_type = attachment['data']['contentType']
+            if attachment_file_type != "application/pdf":
+                continue
+            attachment_type = attachment['data']['itemType']
+            attachment_title = attachment['data']['title']
+            attachment_filename = attachment['data']['filename']
+            if 'parentItem' not in attachment['data']:
+                continue
+            attachment_parent = attachment['data']['parentItem']
+            attachment_directory = os.path.join( fg.DEFAULT_ATTACHMENT_DIRECTORY, attachment_parent )
+            if not os.path.exists(attachment_directory):
+                os.makedirs(attachment_directory)
+            attachment_filename = os.path.join(attachment_directory, attachment_key + ".pdf")
+            # get file from zotero
+            attachment_file = self.zotero_backend.file(attachment_key)
+            with open(attachment_filename, "wb") as f:
+                f.write(attachment_file)
+
+            # add attachment to parent collection
+            #if collection.parent:
+            #    colref, created = FgCollectionAttachment.get_or_create(collection=collection.parent, attachment=attachment_reference)
+            #    colref.save()  
+
+
+        sub_collection_list = self.zotero_backend.collections_sub(collection.zotero_key)
+        for sub_collection in sub_collection_list:
+            sub_collection_name = sub_collection['data']['name']
+            sub_collection_key = sub_collection['key']
+            sub_collection_obj, created = FgCollection.get_or_create(name=sub_collection_name, zotero_key=sub_collection_key, parent=collection)
+            sub_collection_obj.save()
+            self.synchronize_zotero_collection(sub_collection_obj)
+
+
+            
+        
 
     def on_btn_cancel_clicked(self):
         #print("Cancel clicked")
@@ -778,7 +895,7 @@ class TaxonDialog(QDialog):
         self.accept()
     
     def on_btn_cancel_clicked(self):
-        print("Cancel clicked")
+        #print("Cancel clicked")
         self.reject()
 
     def update_taxon_figure(self, taxon, figure):
@@ -924,7 +1041,7 @@ class FigureDialog(QDialog):
         self.accept()
 
     def on_btn_cancel_clicked(self):
-        print("Cancel clicked")
+        #print("Cancel clicked")
         self.reject()
 
     def load_figure(self, figure):
@@ -1513,9 +1630,11 @@ class AddFigureDialog(QDialog):
         prompt = self.prompt_edit.toPlainText()
         processed_text = self.process_caption(caption, prompt)
         # restore cursor
-        #print("processed text:", processed_text)
-
-        processed_text = self.further_process_caption(processed_text)
+        print("processed text:", processed_text)
+        if processed_text is None:
+            processed_text = "Caption processing failed"
+        else:
+            processed_text = self.further_process_caption(processed_text)
         QApplication.restoreOverrideCursor()
         self.processed_caption_edit.setText(processed_text)
         self.caption_tab_widget.setCurrentIndex(2)
@@ -1788,7 +1907,19 @@ class AddFigureDialog(QDialog):
             self.on_page_changed(1)
         else:
             return
-    
+
+    def load_pdf_file(self, file_name):
+        self.pdfcontrol_widget.show()
+        self.pdf_document = fitz.open(file_name)
+        #print("page count:", self.pdf_document.page_count)
+        self.page_spinner.setRange(1, self.pdf_document.page_count)
+        self.page_spinner.setValue(1)
+        self.page_spinner.setSingleStep(1)
+        self.page_spinner.setSuffix(" / " + str(self.pdf_document.page_count))
+        #self.page_spinner.setWrapping(True)
+        self.page_spinner.valueChanged.connect(self.on_page_changed)
+        self.on_page_changed(1)
+
     def on_page_changed(self, page_number):
         #print("Page changed:", page_number)
         self.page_number = page_number
@@ -2017,6 +2148,16 @@ class AddFigureDialog(QDialog):
         self.setWindowTitle(self.tr("Figurist - Figure Information for ") + ref.get_abbr())
         self.edtReference.setText(ref.get_abbr())
         self.load_main_figure_list()
+        pdf_dir = self.reference.get_attachment_path()
+        if os.path.exists(pdf_dir):
+            #print("pdf_dir:", pdf_dir)
+            # get file list from pdf_dif
+            pdf_files = [f for f in os.listdir(pdf_dir) if os.path.isfile(os.path.join(pdf_dir, f))]
+            if len(pdf_files) > 0:
+                #print("pdf_files:", pdf_files)
+                self.load_pdf_file(Path(pdf_dir) / pdf_files[0])
+                #_pdf(Path(pdf_dir) / pdf_files[0])
+            # set tab to pdf
 
 
     def load_main_figure_list(self):

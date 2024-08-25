@@ -1026,7 +1026,7 @@ class FigureDialog(QDialog):
         if self.figure_changed:
             self.figure.add_pixmap(self.lblFigure.orig_pixmap)
         
-        self.figure.file_name = self.edtFile.text()
+        #self.figure.file_name = self.edtFile.text()
         #self.figure.figure_number = self.edtFigureNumber.text()
         self.figure.part1_number = self.edt_part1_number.text()
         self.figure.part1_prefix = self.edt_part1_prefix.text()
@@ -1057,7 +1057,7 @@ class FigureDialog(QDialog):
         # scale image to fit label
         #self.figure_image = self.figure_image.scaled(600,400,Qt.KeepAspectRatio)
 
-        self.edtFile.setText(figure.file_name)
+        #self.edtFile.setText(figure.file_name)
         self.edtFigureNumber.setText(figure.figure_number)
         self.edt_part1_number.setText(figure.part1_number)
         self.edt_part1_prefix.setText(figure.part1_prefix)

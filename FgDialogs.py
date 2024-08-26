@@ -387,6 +387,7 @@ class CollectionDialog(QDialog):
                 # application normal cursor
                 QApplication.restoreOverrideCursor()
         except Exception as e:
+            QApplication.restoreOverrideCursor()
             QMessageBox.warning(self, "Zotero Synchronization Error", f"Failed to synchronize with Zotero: {str(e)}")
 
         self.accept()

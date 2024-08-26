@@ -592,6 +592,7 @@ class FigureLabel(QLabel):
         self.rect = QRect()
         self.setMouseTracking(True)
         self.page_number = -1
+        self.image_canvas_ratio = 1.0
 
     def setReadOnly(self, read_only):
         self.read_only = read_only
@@ -1396,6 +1397,7 @@ class PDFViewWidget(QWidget):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.pdf_label = FigureLabel()
+        self.pdf_label.setReadOnly(True)
         self.layout.addWidget(self.pdfcontrol_widget,0)
         self.layout.addWidget(self.pdf_label,1)
 

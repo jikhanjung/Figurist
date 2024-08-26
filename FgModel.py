@@ -8,6 +8,7 @@ from pathlib import Path
 import copy
 import FgUtils as fg
 import shutil
+import json
 
 DATABASE_FILENAME = fg.PROGRAM_NAME + ".db"
 database_path = os.path.join(fg.DEFAULT_DB_DIRECTORY, DATABASE_FILENAME)
@@ -35,6 +36,8 @@ class FgCollection(Model):
 
     def export_collection(self, base_path = fg.DEFAULT_STORAGE_DIRECTORY):
         export_path = os.path.join(base_path, self.name)
+        if self.zotero_key is not None and self.zotero_key != '':
+            export_path += "[" + self.zotero_key + "]"
         if not os.path.exists(export_path):
             os.makedirs(export_path)
         for ref in self.get_references():
@@ -89,12 +92,31 @@ class FgReference(Model):
         #return self.author + " (" + str(self.year) + ")"
 
     def export_reference(self, base_path = fg.DEFAULT_STORAGE_DIRECTORY):
+
+        # make sure export path exists
         export_path = os.path.join(base_path, self.get_abbr())
+        if self.zotero_key is not None and self.zotero_key != '':
+            export_path += "[" + self.zotero_key + "]"
         if not os.path.exists(export_path):
             os.makedirs(export_path)
+
+        # export figure image files
         for fig in self.figures:
             fig.export_figure(export_path)
-        return export_path
+
+        # export figure info file
+        infofile_path = os.path.join(export_path, "figure_info.json")
+        figure_data = []
+        for fig in self.figures:
+            figure_data.append({
+                "figure_number": fig.figure_number,
+                "taxon_name": fig.get_taxon_name(),
+                "caption": fig.caption
+            })
+        with open(infofile_path, 'w', encoding='utf-8') as infofile:
+            json.dump(figure_data, infofile, ensure_ascii=False, indent=2)
+
+        return True
 
 class FgCollectionReference(Model):
     collection = ForeignKeyField(FgCollection, backref='references',on_delete="CASCADE")
@@ -267,6 +289,10 @@ class FgFigure(Model):
         afile.close()
         md5hash = hasher.hexdigest()
         return md5hash, image_data
+
+    def export_figure(self, reference_path = fg.DEFAULT_STORAGE_DIRECTORY):
+        shutil.copyfile(self.get_file_path(), os.path.join(reference_path, self.figure_number + ".png"))
+        return True
 
 class FgTaxonReference(Model):
     taxon = ForeignKeyField(FgTaxon, backref='related_references',on_delete="CASCADE")

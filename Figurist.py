@@ -28,7 +28,8 @@ import time
 logger = setup_logger(fg.PROGRAM_NAME)
 
 ICON = {'new_reference': 'icons/new_reference.png', 'about': 'icons/about.png', 'exit': 'icons/exit.png', 'preferences': 'icons/preferences.png',
-        'new_collection': 'icons/new_collection.png', 'reference': 'icons/reference.png' , 'collection': 'icons/collection.png'} 
+        'new_collection': 'icons/new_collection.png', 'reference': 'icons/reference.png' , 'collection': 'icons/collection.png',
+        'reference_zotero': 'icons/reference_zotero.png', 'collection_zotero': 'icons/collection_zotero.png'} 
 
 class FiguristMainWindow(QMainWindow):
     def __init__(self):
@@ -474,7 +475,10 @@ class FiguristMainWindow(QMainWindow):
     def load_subcollections(self, collection, parent_item):
         for subcoll in collection.children:
             item1 = QStandardItem(subcoll.name)
-            item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
+            if subcoll.zotero_key is not None and subcoll.zotero_key != "":
+                item1.setIcon(QIcon(fg.resource_path(ICON['collection_zotero'])))
+            else:
+                item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
             item1.setData(subcoll)
             parent_item.appendRow([item1])
             self.load_subcollections(subcoll, item1)
@@ -485,7 +489,10 @@ class FiguristMainWindow(QMainWindow):
             item1 = QStandardItem(colref.reference.get_abbr())
             #item2 = QStandardItem(str(ref.id))
             item1.setData(colref.reference)
-            item1.setIcon(QIcon(fg.resource_path(ICON['reference'])))
+            if colref.reference.zotero_key is not None and colref.reference.zotero_key != "":
+                item1.setIcon(QIcon(fg.resource_path(ICON['reference_zotero'])))
+            else:
+                item1.setIcon(QIcon(fg.resource_path(ICON['reference'])))
 
             parent_item.appendRow([item1])
 
@@ -500,7 +507,11 @@ class FiguristMainWindow(QMainWindow):
             coll_list = FgCollection.select().where(FgCollection.parent==None).order_by(FgCollection.name)
             for coll in coll_list:
                 item1 = QStandardItem(coll.name)
-                item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
+                if coll.zotero_key is not None and coll.zotero_key != "":
+                    item1.setIcon(QIcon(fg.resource_path(ICON['collection_zotero'])))
+                else:
+                    item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
+                #item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
                 item1.setData(coll)
                 self.reference_model.appendRow([item1])
                 self.load_subcollections(coll, item1)
@@ -1032,7 +1043,7 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         directory = dialog.exec_()
         if directory:
             directory = dialog.selectedFiles()[0]
-            self.selected_collection.export(directory)
+            self.selected_collection.export_collection(directory)
             self.statusBar.showMessage(self.tr("Exported collection to {}").format(directory), 2000)
 
     def on_action_delete_collection_triggered(self):

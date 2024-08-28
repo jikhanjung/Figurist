@@ -420,11 +420,12 @@ class CollectionDialog(QDialog):
         item_list = self.zotero_backend.collection_items(collection.zotero_key)
         attachment_list = []
         for item in item_list:
-            #print(item)
+            item_key = item['key']
+            #print("ref:", item_key)
+            #print("item:", item)
             if item['data']['itemType'] == "attachment":
                 attachment_list.append(item)
                 continue
-            item_key = item['key']
             item_type = item['data']['itemType']
             item_title = item['data']['title']
             item_url = item['data']['url']
@@ -447,11 +448,12 @@ class CollectionDialog(QDialog):
                 item_year = item_year[:4]
             #'meta': {'creatorSummary': 'Palmer and Rowell', 'parsedDate': '1995', 'numChildren': 1}
             # try read first and then if not exist, create. not get_or_create
-            ref = FgReference.select().where(FgReference.zotero_key == item_key and FgReference.zotero_library_id == library_id)
-            if ref.count() == 0:
-                ref = FgReference()
-            else:
-                ref = ref[0]
+            ref = FgReference.get_or_create(zotero_key=item_key, zotero_library_id=library_id)[0]
+            #ref = FgReference.select().where(FgReference.zotero_key == item_key, FgReference.zotero_library_id == library_id)
+            #if ref.count() == 0:
+            #    ref = FgReference()
+            #else:
+            #    ref = ref[0]
             ref.title = item_title
             ref.author = item_authors_str
             ref.journal = item_journal
@@ -463,7 +465,8 @@ class CollectionDialog(QDialog):
             ref.url = item_url
             ref.zotero_key = item_key
             ref.zotero_library_id = library_id
-            ref.zotero_version = item_version            
+            ref.zotero_version = item_version
+            ref.zotero_data = item
             ref.save()
             # add reference to collection
             colref, created = FgCollectionReference.get_or_create(collection=collection, reference=ref)
@@ -475,25 +478,43 @@ class CollectionDialog(QDialog):
         # get attachments
         for attachment in attachment_list:
             #print("attachment data:", attachment['data'])
+            # get key
             attachment_key = attachment['key']
-            attachment_file_type = attachment['data']['contentType']
-            if attachment_file_type != "application/pdf":
+            #print("att:", attachment_key)
+
+            # check file type
+            attachment_filetype = attachment['data']['contentType']
+            if attachment_filetype != "application/pdf":
                 continue
-            attachment_type = attachment['data']['itemType']
-            attachment_title = attachment['data']['title']
             attachment_filename = attachment['data']['filename']
+
+            # check if parent item exists. it should exist, but just in case, check and pass if not exist
             if 'parentItem' not in attachment['data']:
                 continue
             attachment_parent = attachment['data']['parentItem']
-            attachment_directory = os.path.join( fg.DEFAULT_ATTACHMENT_DIRECTORY, attachment_parent )
-            if not os.path.exists(attachment_directory):
-                os.makedirs(attachment_directory)
-            attachment_filename = os.path.join(attachment_directory, attachment_key + ".pdf")
-            # get file from zotero
-            attachment_file = self.zotero_backend.file(attachment_key)
-            with open(attachment_filename, "wb") as f:
-                f.write(attachment_file)
+            ref = FgReference.select().where(FgReference.zotero_key == attachment_parent, FgReference.zotero_library_id == library_id)
+            if ref.count() == 0:
+                continue
 
+            #att = FgAttachment.get_or_create(zotero_key=attachment_key, zotero_library_id=library_id)[0]
+            att = FgAttachment.select().where(FgAttachment.zotero_key == attachment_key, FgAttachment.zotero_library_id == library_id)
+            if att.count() == 0:
+                att = FgAttachment()
+            else:
+                att = att[0]
+
+            att.reference = ref
+            att.zotero_key = attachment_key
+            att.zotero_library_id = library_id
+            att.zotero_version = attachment['data']['version']
+            att.filename = attachment_filename
+            att.title = attachment_filename
+            att.filetype = attachment_filetype
+            att.zotero_data = attachment
+            att.save()
+
+            attachment_file = self.zotero_backend.file(attachment_key)
+            att.save_file(attachment_file)
             # add attachment to parent collection
             #if collection.parent:
             #    colref, created = FgCollectionAttachment.get_or_create(collection=collection.parent, attachment=attachment_reference)

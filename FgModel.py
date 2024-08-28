@@ -78,6 +78,26 @@ class FgCollection(Model):
                 print(os.path.join(root, file))
         return import_path
 
+    def delete_instance(self, recursive=False, delete_nullable=False):
+        #print('delete collection instance')
+        
+        with gDatabase.atomic():
+            # First, get all reference IDs associated with this collection
+            refs_to_check = (FgReference
+                             .select(FgReference.id)
+                             .join(FgCollectionReference)
+                             .where(FgCollectionReference.collection == self))
+            ref_ids = [ref.id for ref in refs_to_check]
+
+            # Now delete the collection (this will also delete associated CollectionReferences due to CASCADE)
+            super().delete_instance(recursive, delete_nullable)
+
+            # Check each reference and delete if it's no longer associated with any collection
+            for ref_id in ref_ids:
+                ref = FgReference.get_or_none(FgReference.id == ref_id)
+                if ref and not ref.collections.count():
+                    ref.delete_instance()
+
 class FgReference(Model):
     title = CharField(default='',null=True)
     author = CharField(null=True)
@@ -122,7 +142,7 @@ class FgReference(Model):
         #if 
         export_name = "[Ref_{}] {}".format(self.id, self.get_abbr())
         if self.zotero_key is not None and self.zotero_key != '':
-            export_name += " [" + self.zotero_key + "]"
+            export_name += " [{}]".format(self.zotero_key)
         return export_name
 
     def export_reference(self, base_path = fg.DEFAULT_STORAGE_DIRECTORY):
@@ -180,9 +200,9 @@ class FgReference(Model):
 
 class FgAttachment(Model):
     reference = ForeignKeyField(FgReference, backref='attachments',on_delete="CASCADE")
-    file_name = CharField(null=True)
-    file_path = CharField(null=True)
-    file_type = CharField(null=True)
+    title = CharField(default='',null=True)
+    filetype = CharField(null=True)
+    filename = CharField(null=True)
     zotero_library_id = CharField(null=True)
     zotero_key = CharField(null=True)
     zotero_version = CharField(null=True)
@@ -194,9 +214,16 @@ class FgAttachment(Model):
         database = gDatabase
 
     def get_file_path(self):
-        return os.path.join(fg.DEFAULT_ATTACHMENT_DIRECTORY, str(self.zotero_key), self.file_name)
-    
+        return os.path.join(fg.DEFAULT_ATTACHMENT_DIRECTORY, str(self.reference.id))
 
+    def save_file(self, attachment_file):
+        attachment_directory = self.get_file_path()
+        if not os.path.exists(attachment_directory):
+            os.makedirs(attachment_directory)
+        attachment_filename = os.path.join(attachment_directory, str(self.id) + ".pdf")
+        # get file from zotero
+        with open(attachment_filename, "wb") as f:
+            f.write(attachment_file)
 
 class FgCollectionReference(Model):
     collection = ForeignKeyField(FgCollection, backref='references',on_delete="CASCADE")

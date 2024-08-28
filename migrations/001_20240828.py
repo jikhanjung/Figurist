@@ -1,4 +1,4 @@
-"""Peewee migrations -- 001_20240729.py.
+"""Peewee migrations -- 001_20240828.py.
 
 Some examples (model - class or model name)::
 
@@ -38,37 +38,60 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your migrations here."""
     
     @migrator.create_model
-    class FgCollection(pw.Model):
-        id = pw.AutoField()
-        name = pw.CharField(max_length=255)
-        description = pw.TextField(null=True)
-        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True, on_delete='CASCADE')
-        zotero_key = pw.CharField(max_length=255)
-        created_at = pw.DateTimeField()
-        modified_at = pw.DateTimeField()
-
-        class Meta:
-            table_name = "fgcollection"
-
-    @migrator.create_model
     class FgReference(pw.Model):
         id = pw.AutoField()
-        title = pw.CharField(max_length=255)
-        author = pw.CharField(max_length=255)
-        journal = pw.CharField(max_length=255)
-        year = pw.CharField(max_length=255)
-        volume = pw.CharField(max_length=255)
-        issue = pw.CharField(max_length=255)
-        pages = pw.CharField(max_length=255)
-        doi = pw.CharField(max_length=255)
-        url = pw.CharField(max_length=255)
-        zotero_key = pw.CharField(max_length=255)
+        title = pw.CharField(default='', max_length=255, null=True)
+        author = pw.CharField(max_length=255, null=True)
+        journal = pw.CharField(max_length=255, null=True)
+        year = pw.CharField(max_length=255, null=True)
+        volume = pw.CharField(max_length=255, null=True)
+        issue = pw.CharField(max_length=255, null=True)
+        pages = pw.CharField(max_length=255, null=True)
+        doi = pw.CharField(max_length=255, null=True)
+        url = pw.CharField(max_length=255, null=True)
+        zotero_library_id = pw.CharField(max_length=255, null=True)
+        zotero_key = pw.CharField(max_length=255, null=True)
+        zotero_version = pw.CharField(max_length=255, null=True)
+        zotero_data = pw.TextField(null=True)
         abbreviation = pw.CharField(max_length=255, null=True)
         created_at = pw.DateTimeField()
         modified_at = pw.DateTimeField()
 
         class Meta:
             table_name = "fgreference"
+
+    @migrator.create_model
+    class FgAttachment(pw.Model):
+        id = pw.AutoField()
+        reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], on_delete='CASCADE')
+        title = pw.CharField(max_length=255, null=True)
+        filetype = pw.CharField(max_length=255, null=True)
+        filename = pw.CharField(max_length=255, null=True)
+        zotero_library_id = pw.CharField(max_length=255, null=True)
+        zotero_key = pw.CharField(max_length=255, null=True)
+        zotero_version = pw.CharField(max_length=255, null=True)
+        zotero_data = pw.TextField(null=True)
+        created_at = pw.DateTimeField()
+        modified_at = pw.DateTimeField()
+
+        class Meta:
+            table_name = "fgattachment"
+
+    @migrator.create_model
+    class FgCollection(pw.Model):
+        id = pw.AutoField()
+        name = pw.CharField(default='', max_length=255, null=True)
+        description = pw.TextField(null=True)
+        parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True, on_delete='CASCADE')
+        zotero_library_id = pw.CharField(max_length=255, null=True)
+        zotero_key = pw.CharField(max_length=255, null=True)
+        zotero_version = pw.CharField(max_length=255, null=True)
+        zotero_data = pw.TextField(null=True)
+        created_at = pw.DateTimeField()
+        modified_at = pw.DateTimeField()
+
+        class Meta:
+            table_name = "fgcollection"
 
     @migrator.create_model
     class FgCollectionReference(pw.Model):
@@ -91,6 +114,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         part1_number = pw.CharField(max_length=255, null=True)
         part2_prefix = pw.CharField(max_length=255, null=True)
         part2_number = pw.CharField(max_length=255, null=True)
+        part_separator = pw.CharField(default='-', max_length=255, null=True)
         caption = pw.TextField(null=True)
         comments = pw.TextField(null=True)
         reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], null=True, on_delete='CASCADE')
@@ -154,6 +178,8 @@ def rollback(migrator: Migrator, database: pw.Database, *, fake=False):
 
     migrator.remove_model('fgcollectionreference')
 
-    migrator.remove_model('fgreference')
-
     migrator.remove_model('fgcollection')
+
+    migrator.remove_model('fgattachment')
+
+    migrator.remove_model('fgreference')

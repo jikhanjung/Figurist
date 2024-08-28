@@ -474,7 +474,12 @@ class FiguristMainWindow(QMainWindow):
 
     def load_subcollections(self, collection, parent_item):
         for subcoll in collection.children:
-            item1 = QStandardItem(subcoll.name)
+            #item1 = QStandardItem(subcoll.name)
+            item1_text = subcoll.name
+            if subcoll.references.count() > 0:
+                item1_text += " (" + str(subcoll.references.count()) + ")"
+            item1 = QStandardItem( item1_text )
+
             if subcoll.zotero_key is not None and subcoll.zotero_key != "":
                 item1.setIcon(QIcon(fg.resource_path(ICON['collection_zotero'])))
             else:
@@ -486,7 +491,10 @@ class FiguristMainWindow(QMainWindow):
 
     def load_references_in_collection(self, collection, parent_item):
         for colref in collection.references:
-            item1 = QStandardItem(colref.reference.get_abbr())
+            item1_text = colref.reference.get_abbr() 
+            if colref.reference.attachments.count() > 0:
+                item1_text += " 📄"
+            item1 = QStandardItem(item1_text)
             #item2 = QStandardItem(str(ref.id))
             item1.setData(colref.reference)
             if colref.reference.zotero_key is not None and colref.reference.zotero_key != "":
@@ -506,7 +514,10 @@ class FiguristMainWindow(QMainWindow):
         if self.mode == "Reference":
             coll_list = FgCollection.select().where(FgCollection.parent==None).order_by(FgCollection.name)
             for coll in coll_list:
-                item1 = QStandardItem(coll.name)
+                item1_text = coll.name
+                if coll.references.count() > 0:
+                    item1_text += " (" + str(coll.references.count()) + ")"
+                item1 = QStandardItem( item1_text )
                 if coll.zotero_key is not None and coll.zotero_key != "":
                     item1.setIcon(QIcon(fg.resource_path(ICON['collection_zotero'])))
                 else:

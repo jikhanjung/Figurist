@@ -285,6 +285,7 @@ class CollectionDialog(QDialog):
         #self.move(self.parent.pos()+QPoint(100,100))
         close_shortcut = QShortcut(QKeySequence("Ctrl+W"), self)
         close_shortcut.activated.connect(self.close) 
+        self.zotero_backend = None
 
         self.initUI()
         #self.prepare_database()
@@ -376,6 +377,7 @@ class CollectionDialog(QDialog):
         self.collection.name = self.edtCollectionName.text()
         self.collection.description = self.edtDescription.toPlainText()
         self.collection.zotero_key = self.edtZoteroKey.text()
+        self.collection.zotero_library_id = self.zotero_user_id
         if self.parent_collection:
             self.collection.parent = self.parent_collection
         self.collection.save()
@@ -392,7 +394,7 @@ class CollectionDialog(QDialog):
 
         self.accept()
 
-    def synchronize_zotero_collection(self, collection):
+    def synchronize_zotero_collection(self, collection, update_this=True):
         library_id = self.zotero_user_id
         library_type = "user"
         api_key = self.zotero_api_key
@@ -400,7 +402,20 @@ class CollectionDialog(QDialog):
             QMessageBox.warning(self, "Zotero Settings Missing", "Please set your Zotero user ID and API key in the preferences.")
             return
         
-        self.zotero_backend = ZoteroBackend(library_id, library_type, api_key)
+        if self.zotero_backend is None:
+            self.zotero_backend = ZoteroBackend(library_id, library_type, api_key)
+
+        # first get the collection
+        if update_this:
+            zcoll = self.zotero_backend.collection(collection.zotero_key)
+            #print("zcoll:", zcoll)
+            collection.name = zcoll['data']['name']
+            collection.zotero_version = zcoll['data']['version']
+            collection.zotero_library_id = library_id
+            #print("collection:", collection, collection.name, collection.zotero_version, collection.zotero_library_id)
+            collection.save()
+            #collection_description = collection['data'].get('description', "")        #
+
         # get items in the collection
         item_list = self.zotero_backend.collection_items(collection.zotero_key)
         attachment_list = []
@@ -424,6 +439,7 @@ class CollectionDialog(QDialog):
             item_issue = item['data'].get('issue', "")
             item_pages = item['data'].get('pages', "")
             item_doi = item['data'].get('DOI', "")
+            item_version = item['data']['version']
             #item_year = item['data'].get('date', "")
             item_authors_str = item['meta']['creatorSummary']
             item_year = item['meta']['parsedDate']
@@ -431,24 +447,26 @@ class CollectionDialog(QDialog):
                 item_year = item_year[:4]
             #'meta': {'creatorSummary': 'Palmer and Rowell', 'parsedDate': '1995', 'numChildren': 1}
             # try read first and then if not exist, create. not get_or_create
-            item_reference = FgReference.select().where(FgReference.zotero_key == item_key)
-            if item_reference.count() == 0:
-                item_reference = FgReference()
+            ref = FgReference.select().where(FgReference.zotero_key == item_key and FgReference.zotero_library_id == library_id)
+            if ref.count() == 0:
+                ref = FgReference()
             else:
-                item_reference = item_reference[0]
-            item_reference.title = item_title
-            item_reference.author = item_authors_str
-            item_reference.journal = item_journal
-            item_reference.volume = item_volume
-            item_reference.issue = item_issue
-            item_reference.pages = item_pages
-            item_reference.doi = item_doi
-            item_reference.year = item_year
-            item_reference.url = item_url
-            item_reference.zotero_key = item_key
-            item_reference.save()
+                ref = ref[0]
+            ref.title = item_title
+            ref.author = item_authors_str
+            ref.journal = item_journal
+            ref.volume = item_volume
+            ref.issue = item_issue
+            ref.pages = item_pages
+            ref.doi = item_doi
+            ref.year = item_year
+            ref.url = item_url
+            ref.zotero_key = item_key
+            ref.zotero_library_id = library_id
+            ref.zotero_version = item_version            
+            ref.save()
             # add reference to collection
-            colref, created = FgCollectionReference.get_or_create(collection=collection, reference=item_reference)
+            colref, created = FgCollectionReference.get_or_create(collection=collection, reference=ref)
             colref.save()
             # add reference to parent collection
             #if collection.parent:
@@ -484,15 +502,18 @@ class CollectionDialog(QDialog):
 
         sub_collection_list = self.zotero_backend.collections_sub(collection.zotero_key)
         for sub_collection in sub_collection_list:
+            #print("sub_collection:", sub_collection)
             sub_collection_name = sub_collection['data']['name']
             sub_collection_key = sub_collection['key']
-            sub_collection_obj, created = FgCollection.get_or_create(name=sub_collection_name, zotero_key=sub_collection_key, parent=collection)
-            sub_collection_obj.save()
-            self.synchronize_zotero_collection(sub_collection_obj)
-
-
-            
-        
+            sub_collection_version = sub_collection['data']['version']
+            sub_collection_library_id = library_id
+            coll, created = FgCollection.get_or_create(zotero_key=sub_collection_key, parent=collection, zotero_library_id=library_id)
+            coll.zotero_version = sub_collection_version
+            coll.zotero_library_id = sub_collection_library_id
+            coll.name = sub_collection_name
+            #print("sub_collection:", coll, coll.name, coll.zotero_version, coll.zotero_library_id)
+            coll.save()
+            self.synchronize_zotero_collection(coll, update_this=False)
 
     def on_btn_cancel_clicked(self):
         #print("Cancel clicked")

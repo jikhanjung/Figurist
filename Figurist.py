@@ -79,7 +79,7 @@ class FiguristMainWindow(QMainWindow):
         self.button_widget = QWidget()
         self.button_layout = QHBoxLayout()
         self.button_widget.setLayout(self.button_layout)
-        self.add_figure_button = QPushButton(self.tr("Add Figure"))
+        self.add_figure_button = QPushButton(self.tr("Add Figures"))
         self.toggle_view_button = QPushButton(self.tr("Toggle View"))
         self.button_layout.addWidget(self.add_figure_button)
         self.button_layout.addWidget(self.toggle_view_button)
@@ -546,7 +546,7 @@ class FiguristMainWindow(QMainWindow):
                 item2 = QStandardItem(str(ref.id))
                 item1.setData(ref)
                 self.reference_model.appendRow([item1,item2])#,item2,item3] )
-        self.referenceView.expandAll()
+        #self.referenceView.expandAll()
         self.referenceView.hideColumn(1)
 
     def on_figure_selection_changed(self, selected, deselected):
@@ -604,9 +604,12 @@ class FiguristMainWindow(QMainWindow):
     def on_reference_selection_changed(self, selected, deselected):
         indexes = selected.indexes()
         if len(indexes) == 0:
+            self.pdfView.clear()
             return
         index = indexes[0]
         obj = self.reference_model.itemFromIndex(index).data()
+        self.pdfView.clear()
+        self.figure_tab.setCurrentIndex(1)
         if isinstance(obj, FgReference):
             self.selected_reference = obj
             # get parent item of the selected item
@@ -630,15 +633,13 @@ class FiguristMainWindow(QMainWindow):
                             self.pdfView.set_pdf(Path(pdf_dir) / pdf_files[0])
                         # set tab to pdf
                         self.figure_tab.setCurrentIndex(0)
-                    else:
-                        #self.pdfView.clear()
-                        self.figure_tab.setCurrentIndex(1)
             #print("on reference selection changed selected reference 2:", self.selected_reference,"selected_collection:", self.selected_collection)
             self.filter_figures()
             #print("on reference selection changed selected reference 3:", self.selected_reference,"selected_collection:", self.selected_collection)
         elif isinstance(obj, FgCollection):
             self.selected_collection = obj
             self.selected_reference = None
+
         #print("selected reference:", self.selected_reference)
         return
         #else:
@@ -1032,17 +1033,11 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     def on_action_export_collection_triggered(self):
         if self.selected_collection is None:
             return
-
-        dialog = QFileDialog()
-        dialog.setFileMode(QFileDialog.Directory)
-        dialog.setOption(QFileDialog.ShowDirsOnly)
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
-        dialog.setModal(True)
-        dialog.setDirectory(os.path.expanduser("~"))
-        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-        directory = dialog.exec_()
+        directory = QFileDialog.getExistingDirectory(self, 'Select Directory', os.path.expanduser("~"))
+        #print("directory:", directory)
+        #directory = dialog.exec_()
         if directory:
-            directory = dialog.selectedFiles()[0]
+            #directory = dialog.selectedFiles()[0]
             self.selected_collection.export_collection(directory)
             self.statusBar.showMessage(self.tr("Exported collection to {}").format(directory), 2000)
 

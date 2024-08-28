@@ -1087,6 +1087,11 @@ class FigureLabel(QLabel):
             # refresh parent's subfigure list
             self.parent.load_subfigure_list(self.subfigure_list)
 
+    def clear(self):
+        self.orig_pixmap = None
+        self.curr_pixmap = None
+        self.repaint()
+
 class DraggableTreeView(QTreeView):
     emptyAreaClicked = pyqtSignal()
     def __init__(self, parent=None):
@@ -1413,6 +1418,8 @@ class PDFViewWidget(QWidget):
 
     def on_page_changed(self, page_number):
         #print("Page changed:", page_number)
+        if self.pdf_document is None:
+            return
         self.page_number = page_number
         self.current_page = self.pdf_document[page_number-1]
         pix = self.current_page.get_pixmap(dpi=600, alpha=False, annots=True, matrix=fitz.Matrix(2, 2))
@@ -1446,3 +1453,15 @@ class PDFViewWidget(QWidget):
     def on_pdf_end_clicked(self):
         #print("PDF end clicked")
         self.page_spinner.setValue(self.pdf_document.page_count)
+    
+    def clear(self):
+        #print("clear pdf")
+        self.pdf_label.clear()
+        self.page_number = -1
+        self.pdf_document = None
+        self.page_spinner.setRange(1, 1)
+        self.page_spinner.setValue(1)
+        self.page_spinner.setSingleStep(1)
+        self.page_spinner.setSuffix("")
+
+        self.update()

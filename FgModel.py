@@ -71,12 +71,34 @@ class FgCollection(Model):
 
         return export_path
     
-    def import_collection(self, base_path = fg.DEFAULT_STORAGE_DIRECTORY):
-        import_path = os.path.join(base_path, self.name)
-        for root, dirs, files in os.walk(import_path):
-            for file in files:
-                print(os.path.join(root, file))
-        return import_path
+    def import_collection(self, collection_path, parent_collection=None):
+        #print('import collection', collection_path)
+        collection_info_file_path = os.path.join(collection_path, "collection_info.json")
+        if not os.path.exists(collection_info_file_path):
+            return False
+        
+        with open(collection_info_file_path, 'r', encoding='utf-8') as collection_info_file:
+            collection_data = json.load(collection_info_file)
+            self.name = collection_data["name"]
+            self.description = collection_data["description"]
+            self.zotero_library_id = collection_data["zotero_library_id"]
+            self.zotero_key = collection_data["zotero_key"]
+            self.zotero_version = collection_data["zotero_version"]
+            if parent_collection is not None:
+                self.parent = parent_collection
+            self.save()
+        # get the list of subcollections that are directories in the collection path and begins with "[Col_{id}]"
+        subcollections = [d for d in os.listdir(collection_path) if os.path.isdir(os.path.join(collection_path, d)) and d.startswith("[Col_")]        
+        for subcollection in subcollections:
+            new_collection = FgCollection()
+            new_collection.import_collection(os.path.join(collection_path, subcollection), self)
+        # get the list of references that are directories in the collection path and begins with "[Ref_{id}]"
+        references = [d for d in os.listdir(collection_path) if os.path.isdir(os.path.join(collection_path, d)) and d.startswith("[Ref_")]
+        for reference in references:
+            new_reference = FgReference()
+            new_reference.import_reference(os.path.join(collection_path, reference), self)
+
+        return True
 
     def delete_instance(self, recursive=False, delete_nullable=False):
         #print('delete collection instance')
@@ -152,14 +174,11 @@ class FgReference(Model):
         if not os.path.exists(export_path):
             os.makedirs(export_path)
 
-        # export figure image files
-        for fig in self.figures:
-            fig.export_figure(export_path)
-
-        # export figure info file
+        # export figure
         figure_info_file_path = os.path.join(export_path, "figure_info.json")
         figure_data = []
         for fig in self.figures:
+            fig.export_figure_file(export_path)
             figure_data.append({
                 "id": fig.id,
                 "figure_number": fig.figure_number,
@@ -196,6 +215,88 @@ class FgReference(Model):
         with open(reference_info_file_path, 'w', encoding='utf-8') as reference_info_file:
             json.dump(reference_data, reference_info_file, ensure_ascii=False, indent=2)
 
+        # attachments export
+        attachment_info_file_path = os.path.join(export_path, "attachment_info.json")
+        attachment_data = []
+        for attachment in self.attachments:
+            attachment_data.append({
+                "id": attachment.id,
+                "title": attachment.title,
+                "filetype": attachment.filetype,
+                "filename": attachment.filename,
+                "zotero_library_id": attachment.zotero_library_id,
+                "zotero_key": attachment.zotero_key,
+                "zotero_version": attachment.zotero_version,
+            })
+            attachment.export_attachment_file(export_path)
+        with open(attachment_info_file_path, 'w', encoding='utf-8') as attachment_info_file:
+            json.dump(attachment_data, attachment_info_file, ensure_ascii=False, indent=2)
+
+        return True
+
+    def import_reference(self, reference_path, parent_collection=None):
+        #print('import reference', reference_path)
+        reference_info_file_path = os.path.join(reference_path, "reference_info.json")
+        if not os.path.exists(reference_info_file_path):
+            return False
+        
+        with open(reference_info_file_path, 'r', encoding='utf-8') as reference_info_file:
+            reference_data = json.load(reference_info_file)
+            self.title = reference_data["title"]
+            self.author = reference_data["author"]
+            self.journal = reference_data["journal"]
+            self.year = reference_data["year"]
+            self.volume = reference_data["volume"]
+            self.issue = reference_data["issue"]
+            self.pages = reference_data["pages"]
+            self.doi = reference_data["doi"]
+            self.url = reference_data["url"]
+            self.abbreviation = reference_data["abbreviation"]
+            self.zotero_library_id = reference_data["zotero_library_id"]
+            self.zotero_key = reference_data["zotero_key"]
+            self.zotero_version = reference_data["zotero_version"]
+            self.save()
+            if parent_collection is not None:
+                FgCollectionReference.create(collection=parent_collection, reference=self)
+        # get the list of figures that are directories in the reference path and begins with "[Fig_{id}]"
+        figure_info_file = os.path.join(reference_path, "figure_info.json")
+        if os.path.exists(figure_info_file):
+            with open(figure_info_file, 'r', encoding='utf-8') as figure_info_file:
+                figure_data = json.load(figure_info_file)
+                for fig in figure_data:
+                    new_figure = FgFigure()
+                    new_figure.reference = self
+                    new_figure.file_name = fig["file_name"]
+                    new_figure.file_path = fig["file_path"]
+                    new_figure.part1_prefix = fig["part1_prefix"]
+                    new_figure.part1_number = fig["part1_number"]
+                    new_figure.part2_prefix = fig["part2_prefix"]
+                    new_figure.part2_number = fig["part2_number"]
+                    new_figure.part_separator = fig["part_separator"]
+                    new_figure.update_figure_number()
+                    new_figure.caption = fig["caption"]
+                    new_figure.save()
+                    new_figure.add_file(os.path.join(reference_path, new_figure.file_name))
+
+        # get the list of attachments that are directories in the reference path and begins with "[Att_{id}]"
+        attachment_info_file = os.path.join(reference_path, "attachment_info.json")
+        if os.path.exists(attachment_info_file):
+            with open(attachment_info_file, 'r', encoding='utf-8') as attachment_info_file:
+                attachment_data = json.load(attachment_info_file)
+                for att in attachment_data:
+                    new_attachment = FgAttachment()
+                    new_attachment.reference = self
+                    new_attachment.title = att["title"]
+                    new_attachment.filetype = att["filetype"]
+                    new_attachment.filename = att["filename"]
+                    new_attachment.zotero_library_id = att["zotero_library_id"]
+                    new_attachment.zotero_key = att["zotero_key"]
+                    new_attachment.zotero_version = att["zotero_version"]
+                    new_attachment.save()
+                    # open and read file content
+                    with open(os.path.join(reference_path, new_attachment.filename), "rb") as f:
+                        new_attachment.save_file(f.read())
+                    #new_attachment.export_attachment_file(os.path.join(reference_path, new_attachment.filename))
         return True
 
 class FgAttachment(Model):
@@ -214,16 +315,21 @@ class FgAttachment(Model):
         database = gDatabase
 
     def get_file_path(self):
-        return os.path.join(fg.DEFAULT_ATTACHMENT_DIRECTORY, str(self.reference.id))
+        return os.path.join(fg.DEFAULT_ATTACHMENT_DIRECTORY, str(self.reference.id), str(self.id) + ".pdf")
 
     def save_file(self, attachment_file):
-        attachment_directory = self.get_file_path()
-        if not os.path.exists(attachment_directory):
-            os.makedirs(attachment_directory)
-        attachment_filename = os.path.join(attachment_directory, str(self.id) + ".pdf")
+        attachment_path = self.get_file_path()
+        dirname = os.path.dirname(attachment_path)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+        #attachment_filename = os.path.join(attachment_path)
         # get file from zotero
-        with open(attachment_filename, "wb") as f:
+        with open(attachment_path, "wb") as f:
             f.write(attachment_file)
+
+    def export_attachment_file(self, base_path = fg.DEFAULT_STORAGE_DIRECTORY):
+        shutil.copyfile(self.get_file_path(), os.path.join(base_path, self.filename))
+        return True
 
 class FgCollectionReference(Model):
     collection = ForeignKeyField(FgCollection, backref='references',on_delete="CASCADE")
@@ -397,7 +503,7 @@ class FgFigure(Model):
         md5hash = hasher.hexdigest()
         return md5hash, image_data
 
-    def export_figure(self, reference_path = fg.DEFAULT_STORAGE_DIRECTORY):
+    def export_figure_file(self, reference_path = fg.DEFAULT_STORAGE_DIRECTORY):
         shutil.copyfile(self.get_file_path(), os.path.join(reference_path, self.figure_number + ".png"))
         return True
 

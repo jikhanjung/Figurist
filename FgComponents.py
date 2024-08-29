@@ -857,6 +857,8 @@ class FigureLabel(QLabel):
             else:
                 self.subfigure_list.append(SubFigure(pixmap=self.orig_pixmap.copy(self.temp_rect), rect=self.temp_rect, page_number = self.page_number))
                 self.temp_rect = None
+            if hasattr(self.parent, 'set_figure_pixmap'):
+                self.parent.set_figure_pixmap(self.orig_pixmap)
         self.set_edit_mode("NONE")
         idx, close_to = self.check_subfigure(curr_pos)
         self.adjusting_side = close_to

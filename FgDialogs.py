@@ -373,6 +373,7 @@ class CollectionDialog(QDialog):
         #print("Save clicked")
         if self.collection is None:
             self.collection = FgCollection()
+            self.collection.zotero_version = 0
         #self.ref = FgReference()
         self.collection.name = self.edtCollectionName.text()
         self.collection.description = self.edtDescription.toPlainText()
@@ -385,7 +386,7 @@ class CollectionDialog(QDialog):
             if self.collection.zotero_key != "":
                 # application wait cursor
                 QApplication.setOverrideCursor(Qt.WaitCursor)
-                self.synchronize_zotero_collection(self.collection)
+                self.synchronize_zotero_collection(self.collection, since=self.collection.zotero_version)
                 # application normal cursor
                 QApplication.restoreOverrideCursor()
         except Exception as e:
@@ -394,7 +395,7 @@ class CollectionDialog(QDialog):
 
         self.accept()
 
-    def synchronize_zotero_collection(self, collection, update_this=True):
+    def synchronize_zotero_collection(self, collection, update_this=True, since=0):
         library_id = self.zotero_user_id
         library_type = "user"
         api_key = self.zotero_api_key
@@ -407,7 +408,7 @@ class CollectionDialog(QDialog):
 
         # first get the collection
         if update_this:
-            zcoll = self.zotero_backend.collection(collection.zotero_key)
+            zcoll = self.zotero_backend.collection(collection.zotero_key, since=since)
             #print("zcoll:", zcoll)
             collection.name = zcoll['data']['name']
             collection.zotero_version = zcoll['data']['version']
@@ -417,7 +418,7 @@ class CollectionDialog(QDialog):
             #collection_description = collection['data'].get('description', "")        #
 
         # get items in the collection
-        item_list = self.zotero_backend.collection_items(collection.zotero_key)
+        item_list = self.zotero_backend.collection_items(collection.zotero_key, since=since)
         attachment_list = []
         for item in item_list:
             item_key = item['key']
@@ -521,7 +522,7 @@ class CollectionDialog(QDialog):
             #    colref.save()  
 
 
-        sub_collection_list = self.zotero_backend.collections_sub(collection.zotero_key)
+        sub_collection_list = self.zotero_backend.collections_sub(collection.zotero_key, since=since)
         for sub_collection in sub_collection_list:
             #print("sub_collection:", sub_collection)
             sub_collection_name = sub_collection['data']['name']
@@ -534,7 +535,7 @@ class CollectionDialog(QDialog):
             coll.name = sub_collection_name
             #print("sub_collection:", coll, coll.name, coll.zotero_version, coll.zotero_library_id)
             coll.save()
-            self.synchronize_zotero_collection(coll, update_this=False)
+            self.synchronize_zotero_collection(coll, update_this=False,since=since)
 
     def on_btn_cancel_clicked(self):
         #print("Cancel clicked")
@@ -1276,7 +1277,7 @@ class DragDropModel(QStandardItemModel):
         else:
             return default_flags | Qt.ItemIsDropEnabled
             
-class AddFigureDialog(QDialog):
+class AddFiguresDialog(QDialog):
     def __init__(self,parent):
         super().__init__()
         self.setWindowTitle(self.tr("Figurist - Figure Information"))
@@ -1999,9 +2000,14 @@ class AddFigureDialog(QDialog):
         #print("PDF end clicked")
         self.page_spinner.setValue(self.pdf_document.page_count)
 
+    def set_figure_pixmap(self, pixmap):
+        self.figure_pixmap = pixmap
+
     def on_btn_detect_clicked(self):
         # get segmentation result from image
         # call segment_figures_qt function
+        #self.figure_page_pixmap = self.original_figure_image
+        self.set_figure_pixmap(self.original_figure_image)
         segmentation_results, annotated_pixmap = self.segment_figures_qt(self.original_figure_image)
         #self.annotated_pixmap = annotated_pixmap
         #scaled_pixmap = annotated_pixmap.scaled(self.lblFigure.width(), self.lblFigure.height(), Qt.KeepAspectRatio)
@@ -2025,7 +2031,8 @@ class AddFigureDialog(QDialog):
         self.check_update_caption_button()
 
     def update_subfigure_list(self, source_row, destination_row):
-        print(f"Updating subfigure_list: Moving from {source_row} to {destination_row}")
+        #print(f"Updating subfigure_list: Moving from {source_row} to {destination_row}")
+
         
         # Reorder the subfigure_list to match the new model order
         moved_item = self.subfigure_list.pop(source_row)
@@ -2057,6 +2064,10 @@ class AddFigureDialog(QDialog):
         self.processed_caption_edit.clear()
 
     def on_btn_save_clicked(self):
+
+        if len(self.subfigure_list) == 0:
+            return
+
         # wait cursor
         QApplication.setOverrideCursor(Qt.WaitCursor)
 
@@ -2080,7 +2091,8 @@ class AddFigureDialog(QDialog):
             separator = ""
         
 
-        if len(self.subfigure_list) > 0:
+        elif len(self.subfigure_list) > 1:
+
             parent_figure = FgFigure()
             parent_figure.file_name = f"{type}{number1}.png"
             parent_figure.figure_number = f"{type}{number1}"
@@ -2092,41 +2104,54 @@ class AddFigureDialog(QDialog):
             parent_figure.part2_number = ""
             parent_figure.part_separator = ""
             parent_figure.update_figure_number()
+            parent_figure.caption = self.raw_caption_edit.toPlainText()
 
             parent_figure.reference = self.reference
             parent_figure.file_path = ""
             parent_figure.save()
-            parent_figure.add_pixmap(self.original_figure_image)
-            #self.original_figure_image.save(f"{type}{number1}.png")
-       
-        for i, figure_info in enumerate(self.subfigure_list):
-            cropped_pixmap, rect = figure_info.pixmap, figure_info.rect
-            figure = FgFigure()
-            figure.reference = self.reference
-            figure.parent = parent_figure
-            sub_number = sub_number_list[i]
-            figure.file_name = f"{type}{number1}{separator}{sub_type}{sub_number}.png"
-            #figure.figure_number = f"{type}{number1}{separator}{sub_type}{sub_number}"
-            figure.file_path = ""
-            #print("figure number:", figure.figure_number)
-            figure.part1_prefix = type
-            figure.part1_number = number1
-            figure.part2_prefix = sub_type
-            figure.part2_number = sub_number
-            figure.part_separator = separator
-            figure.update_figure_number()
-            #figure.caption = 
-            taxon_name = self.tempModel.item(i, 1).text()
-            taxon = self.process_taxon_name(taxon_name)
+            # print time
+            #print("Time:", datetime.datetime.now())
 
-            figure.caption = self.tempModel.item(i, 2).text()
-            figure.comments = self.tempModel.item(i, 3).text()
-            figure.save()
-            figure.add_pixmap(cropped_pixmap)
+            if len(self.subfigure_list) == 1:
+                # just one subfigure == whole figure
+                parent_figure.add_pixmap(self.subfigure_list[0].pixmap)
+            
+            else:
+                # composite whole figure from subfigures
+                parent_rect = QRect()
+                for i, figure_info in enumerate(self.subfigure_list):
+                    #print("Time:", i, datetime.datetime.now())
+                    cropped_pixmap, rect = figure_info.pixmap, figure_info.rect
+                    parent_rect = parent_rect.united(rect)
+                    figure = FgFigure()
+                    figure.reference = self.reference
+                    figure.parent = parent_figure
+                    sub_number = sub_number_list[i]
+                    figure.file_name = f"{type}{number1}{separator}{sub_type}{sub_number}.png"
+                    #figure.figure_number = f"{type}{number1}{separator}{sub_type}{sub_number}"
+                    figure.file_path = ""
+                    #print("figure number:", figure.figure_number)
+                    figure.part1_prefix = type
+                    figure.part1_number = number1
+                    figure.part2_prefix = sub_type
+                    figure.part2_number = sub_number
+                    figure.part_separator = separator
+                    figure.update_figure_number()
+                    #figure.caption = 
+                    figure.caption = self.tempModel.item(i, 2).text()
+                    figure.comments = self.tempModel.item(i, 3).text()
+                    figure.save()
+                    #print("Time figure saved:", i, datetime.datetime.now())
+                    taxon_name = self.tempModel.item(i, 1).text()
+                    taxon = self.process_taxon_name(taxon_name)
+                    figure.add_pixmap(cropped_pixmap)
 
-            self.update_taxon_figure(taxon, figure)
-            self.update_taxon_reference(taxon, self.reference)
-            #print(f"Name: {name.text()}, Figure Number: {figure_number.text()}, Caption: {caption.text()}, Comments: {comments.text()}")
+                    self.update_taxon_figure(taxon, figure)
+                    self.update_taxon_reference(taxon, self.reference)
+                    #print("Time processing done:", i, datetime.datetime.now())
+                    #print(f"Name: {name.text()}, Figure Number: {figure_number.text()}, Caption: {caption.text()}, Comments: {comments.text()}")
+                parent_pixmap = self.figure_pixmap.copy(parent_rect)
+                parent_figure.add_pixmap(parent_pixmap)
 
         # restore cursor
         QApplication.restoreOverrideCursor()
@@ -2191,17 +2216,9 @@ class AddFigureDialog(QDialog):
         self.setWindowTitle(self.tr("Figurist - Figure Information for ") + ref.get_abbr())
         self.edtReference.setText(ref.get_abbr())
         self.load_main_figure_list()
-        pdf_dir = self.reference.get_attachment_path()
-        if os.path.exists(pdf_dir):
-            #print("pdf_dir:", pdf_dir)
-            # get file list from pdf_dif
-            pdf_files = [f for f in os.listdir(pdf_dir) if os.path.isfile(os.path.join(pdf_dir, f))]
-            if len(pdf_files) > 0:
-                #print("pdf_files:", pdf_files)
-                self.load_pdf_file(Path(pdf_dir) / pdf_files[0])
-                #_pdf(Path(pdf_dir) / pdf_files[0])
-            # set tab to pdf
-
+        if self.reference.attachments.count() > 0:
+            attachment_path = self.reference.attachments[0].get_file_path()
+            self.load_pdf_file(attachment_path)
 
     def load_main_figure_list(self):
 
@@ -2361,3 +2378,57 @@ class AddFigureDialog(QDialog):
 
         painter.end()
         return result, annotated_pixmap
+
+class ImportCollectionDialog(QDialog):
+    def __init__(self, parent=None):
+        super(ImportCollectionDialog, self).__init__(parent)
+        self.m_app = parent
+        self.setWindowTitle(self.tr("Import Collection"))
+        self.resize(400, 300)
+        self.read_settings()
+        self.init_ui()
+
+    def init_ui(self):
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.edtCollection = QLineEdit()
+        self.edtCollection.setPlaceholderText(self.tr("Enter collection name"))
+        self.layout.addWidget(self.edtCollection)
+
+        self.btnBrowse = QPushButton(self.tr("Browse"))
+        self.btnBrowse.clicked.connect(self.on_btn_browse_clicked)
+        self.layout.addWidget(self.btnBrowse)
+
+        self.btnImport = QPushButton(self.tr("Import"))
+        self.btnImport.clicked.connect(self.on_btn_import_clicked)
+        self.layout.addWidget(self.btnImport)
+
+        self.btnCancel = QPushButton(self.tr("Cancel"))
+        self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
+        self.layout.addWidget(self.btnCancel)
+
+    def read_settings(self):
+        pass
+
+    def on_btn_browse_clicked(self):
+        directory = QFileDialog.getExistingDirectory(self, self.tr("Select Collection Directory"))
+        if directory:
+            self.edtCollection.setText(directory)
+
+    def on_btn_import_clicked(self):
+        collection_path = self.edtCollection.text()
+        if not collection_path:
+            QMessageBox.critical(self, self.tr("Error"), self.tr("Please enter a collection name"))
+            return
+
+        if not os.path.exists(collection_path):
+            QMessageBox.critical(self, self.tr("Error"), self.tr("The specified directory does not exist"))
+            return
+
+        collection = FgCollection()
+        collection.import_collection(collection_path)
+        self.accept()
+        
+    def on_btn_cancel_clicked(self):
+        self.reject()

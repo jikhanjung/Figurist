@@ -29,7 +29,7 @@ logger = setup_logger(fg.PROGRAM_NAME)
 
 ICON = {'new_reference': 'icons/new_reference.png', 'about': 'icons/about.png', 'exit': 'icons/exit.png', 'preferences': 'icons/preferences.png',
         'new_collection': 'icons/new_collection.png', 'reference': 'icons/reference.png' , 'collection': 'icons/collection.png',
-        'reference_zotero': 'icons/reference_zotero.png', 'collection_zotero': 'icons/collection_zotero.png'} 
+        'reference_zotero': 'icons/reference_zotero.png', 'collection_zotero': 'icons/collection_zotero.png', 'import_collection': 'icons/import_collection.png',} 
 
 class FiguristMainWindow(QMainWindow):
     def __init__(self):
@@ -79,9 +79,9 @@ class FiguristMainWindow(QMainWindow):
         self.button_widget = QWidget()
         self.button_layout = QHBoxLayout()
         self.button_widget.setLayout(self.button_layout)
-        self.add_figure_button = QPushButton(self.tr("Add Figures"))
+        self.add_figures_button = QPushButton(self.tr("Add Figures"))
         self.toggle_view_button = QPushButton(self.tr("Toggle View"))
-        self.button_layout.addWidget(self.add_figure_button)
+        self.button_layout.addWidget(self.add_figures_button)
         self.button_layout.addWidget(self.toggle_view_button)
 
         self.right_widget = QWidget()
@@ -90,7 +90,7 @@ class FiguristMainWindow(QMainWindow):
         self.right_layout.addWidget(self.figure_tab)
         self.right_layout.addWidget(self.button_widget)
         self.toggle_view_button.clicked.connect(self.toggle_view)
-        self.add_figure_button.clicked.connect(self.add_figure)
+        self.add_figures_button.clicked.connect(self.add_figures)
 
         self.left_mode_widget = QWidget()
         self.left_mode_layout = QHBoxLayout()
@@ -154,6 +154,9 @@ class FiguristMainWindow(QMainWindow):
         self.actionNewCollection = QAction(QIcon(fg.resource_path(ICON['new_collection'])), self.tr("New Collection"), self)
         self.actionNewCollection.triggered.connect(self.on_action_new_collection_triggered)
         self.actionNewCollection.setShortcut(QKeySequence("Ctrl+M"))
+        self.actionImportCollection = QAction(QIcon(fg.resource_path(ICON['import_collection'])), self.tr("Import Collection"), self)
+        self.actionImportCollection.triggered.connect(self.on_action_import_collection_triggered)
+        self.actionImportCollection.setShortcut(QKeySequence("Ctrl+I"))
         self.actionExit = QAction(QIcon(fg.resource_path(ICON['exit'])), self.tr("Exit\tCtrl+W"), self)
         self.actionExit.triggered.connect(self.on_action_exit_triggered)
         self.actionExit.setShortcut(QKeySequence("Ctrl+W"))
@@ -175,6 +178,7 @@ class FiguristMainWindow(QMainWindow):
         self.file_menu = self.main_menu.addMenu(self.tr("File"))
         self.file_menu.addAction(self.actionNewCollection)
         self.file_menu.addAction(self.actionNewReference)
+        self.file_menu.addAction(self.actionImportCollection)
         self.file_menu.addAction(self.actionExit)
         self.help_menu = self.main_menu.addMenu(self.tr("Help"))
         self.help_menu.addAction(self.actionAbout)
@@ -340,10 +344,10 @@ class FiguristMainWindow(QMainWindow):
             )
             self.copy_collection_contents(subcollection, new_subcollection)
 
-    def add_figure(self):
+    def add_figures(self):
         if self.selected_reference is None:
             return
-        dialog = AddFigureDialog(self)
+        dialog = AddFiguresDialog(self)
         dialog.set_reference(self.selected_reference)
         dialog.exec_()
         self.load_figure()
@@ -634,16 +638,13 @@ class FiguristMainWindow(QMainWindow):
                 self.selected_taxa = []
                 self.load_taxa()
                 if self.selected_reference.zotero_key is not None and self.selected_reference.zotero_key != "":
-                    pdf_dir = self.selected_reference.get_attachment_path()
-                    if os.path.exists(pdf_dir):
-                        #print("pdf_dir:", pdf_dir)
-                        # get file list from pdf_dif
-                        pdf_files = [f for f in os.listdir(pdf_dir) if os.path.isfile(os.path.join(pdf_dir, f))]
-                        if len(pdf_files) > 0:
-                            #print("pdf_files:", pdf_files)
-                            self.pdfView.set_pdf(Path(pdf_dir) / pdf_files[0])
+                    if self.selected_reference.attachments.count() > 0:
+                        attachment_path = self.selected_reference.attachments[0].get_file_path()
+                        self.pdfView.set_pdf(attachment_path)
                         # set tab to pdf
                         self.figure_tab.setCurrentIndex(0)
+                if self.selected_reference.figures.count() > 0:
+                    self.figure_tab.setCurrentIndex(1)
             #print("on reference selection changed selected reference 2:", self.selected_reference,"selected_collection:", self.selected_collection)
             self.filter_figures()
             #print("on reference selection changed selected reference 3:", self.selected_reference,"selected_collection:", self.selected_collection)
@@ -881,6 +882,12 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
     def on_action_exit_triggered(self):
         self.close()
+
+    def on_action_import_collection_triggered(self):
+        dialog = ImportCollectionDialog(self)
+        dialog.exec_()
+        self.reset_referenceView()
+        self.load_references()
 
     def closeEvent(self, event):
         self.write_settings()

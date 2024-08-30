@@ -299,6 +299,30 @@ class FgReference(Model):
                     #new_attachment.export_attachment_file(os.path.join(reference_path, new_attachment.filename))
         return True
 
+    def delete_instance(self, recursive=False, delete_nullable=False):
+        #print('delete collection instance')
+        
+        with gDatabase.atomic():
+            # figure IDs are deleted by cascade so no need to worry about them.
+            # attachments same
+            # but reference-taxon relation needs to be addressed
+            # First, get all taxon IDs associated with this reference
+            #taxa_to_check = (FgTaxon
+            taxa_to_check = (FgTaxon
+                             .select(FgTaxon.id)
+                             .join(FgTaxonReference)
+                             .where(FgTaxonReference.reference == self))
+            taxa_ids = [taxon.id for taxon in taxa_to_check]
+
+            # Now delete the collection (this will also delete associated CollectionReferences due to CASCADE)
+            super().delete_instance(recursive, delete_nullable)
+
+            # Check each reference and delete if it's no longer associated with any collection
+            for taxon_id in taxa_ids:
+                taxon = FgTaxon.get_or_none(FgTaxon.id == taxon_id)
+                if taxon and not taxon.related_references.count():
+                    taxon.delete_instance()
+
 class FgAttachment(Model):
     reference = ForeignKeyField(FgReference, backref='attachments',on_delete="CASCADE")
     title = CharField(default='',null=True)
@@ -506,6 +530,30 @@ class FgFigure(Model):
     def export_figure_file(self, reference_path = fg.DEFAULT_STORAGE_DIRECTORY):
         shutil.copyfile(self.get_file_path(), os.path.join(reference_path, self.figure_number + ".png"))
         return True
+
+    def delete_instance(self, recursive=False, delete_nullable=False):
+        #print('delete collection instance')
+        
+        with gDatabase.atomic():
+            # figure IDs are deleted by cascade so no need to worry about them.
+            # attachments same
+            # but reference-taxon relation needs to be addressed
+            # First, get all taxon IDs associated with this reference
+            #taxa_to_check = (FgTaxon
+            taxa_to_check = (FgTaxon
+                             .select(FgTaxon.id)
+                             .join(FgTaxonFigure)
+                             .where(FgTaxonFigure.figure == self))
+            taxa_ids = [taxon.id for taxon in taxa_to_check]
+
+            # Now delete the collection (this will also delete associated CollectionReferences due to CASCADE)
+            super().delete_instance(recursive, delete_nullable)
+
+            # Check each reference and delete if it's no longer associated with any collection
+            for taxon_id in taxa_ids:
+                taxon = FgTaxon.get_or_none(FgTaxon.id == taxon_id)
+                if taxon and not taxon.related_figures.count():
+                    taxon.delete_instance()
 
 class FgTaxonReference(Model):
     taxon = ForeignKeyField(FgTaxon, backref='related_references',on_delete="CASCADE")

@@ -352,6 +352,8 @@ Figure\t4
 28\tAnuliconus sp.\tSMNH Mo185053, apical view (200 µm scale bar).
 ----END----
 
+Below is the figure caption that needs to be processed in the same way:
+
 '''
 
 class SubFigure:

@@ -498,6 +498,8 @@ class FiguristMainWindow(QMainWindow):
             item1_text = colref.reference.get_abbr() 
             if colref.reference.attachments.count() > 0:
                 item1_text += " 📄"
+            if colref.reference.figures.count() > 0:
+                item1_text += " (" + str(colref.reference.figures.count()) + ")"
             item1 = QStandardItem(item1_text)
             #item2 = QStandardItem(str(ref.id))
             item1.setData(colref.reference)

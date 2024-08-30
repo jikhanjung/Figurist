@@ -1008,9 +1008,9 @@ class FigureDialog(QDialog):
         self.figure_number_layout.addWidget(self.edtFigureNumber)
         
         self.lblCaption = QLabel(self.tr("Caption"))
-        self.edtCaption = QLineEdit()
+        self.edtCaption = QTextEdit()
         self.lblComments = QLabel(self.tr("Comments"))
-        self.edtComments = QLineEdit()
+        self.edtComments = QTextEdit()
         self.btnSave = QPushButton(self.tr("Save"))
         self.btnSave.clicked.connect(self.on_btn_save_clicked)
         self.btnCancel = QPushButton(self.tr("Cancel"))
@@ -1078,8 +1078,8 @@ class FigureDialog(QDialog):
         self.figure.part2_number = self.edt_part2_number.text()
         self.figure.part2_prefix = self.edt_part2_prefix.text()
         self.figure.update_figure_number()
-        self.figure.caption = self.edtCaption.text()
-        self.figure.comments = self.edtComments.text()
+        self.figure.caption = self.edtCaption.toPlainText()
+        self.figure.comments = self.edtComments.toPlainText()
         self.figure.modified_at = datetime.datetime.now()
         self.figure.save()
         self.accept()
@@ -2118,11 +2118,15 @@ class AddFiguresDialog(QDialog):
             
             else:
                 # composite whole figure from subfigures
-                parent_rect = QRect()
+                rect_page = {}
+                #parent_rect = QRect()
                 for i, figure_info in enumerate(self.subfigure_list):
                     #print("Time:", i, datetime.datetime.now())
                     cropped_pixmap, rect = figure_info.pixmap, figure_info.rect
-                    parent_rect = parent_rect.united(rect)
+                    if figure_info.page_number not in rect_page:
+                        rect_page[figure_info.page_number] = QRect()
+                    rect_page[figure_info.page_number] = rect_page[figure_info.page_number].united(rect)
+                    #parent_rect = parent_rect.united(rect)
                     figure = FgFigure()
                     figure.reference = self.reference
                     figure.parent = parent_figure
@@ -2150,7 +2154,27 @@ class AddFiguresDialog(QDialog):
                     self.update_taxon_reference(taxon, self.reference)
                     #print("Time processing done:", i, datetime.datetime.now())
                     #print(f"Name: {name.text()}, Figure Number: {figure_number.text()}, Caption: {caption.text()}, Comments: {comments.text()}")
-                parent_pixmap = self.figure_pixmap.copy(parent_rect)
+
+                # process parent pixmap
+                pixmap_list = []
+                for page_number, rect in rect_page.items():
+                    # get page pixmap from pdf
+                    pix = self.pdf_document[page_number-1].get_pixmap(dpi=600, alpha=False, annots=True, matrix=fitz.Matrix(2, 2))
+                    img = QImage(pix.samples, pix.width, pix.height, pix.stride, QImage.Format.Format_RGB888)  # QImage
+                    parent_pixmap = QPixmap.fromImage(img)  # QPixmap
+                    parent_pixmap = parent_pixmap.copy(rect)
+                    pixmap_list.append(parent_pixmap)
+                
+                # join pixmap
+                pixmap_width = max([pixmap.width() for pixmap in pixmap_list])
+                pixmap_height = sum([pixmap.height() for pixmap in pixmap_list])
+                parent_pixmap = QPixmap(pixmap_width, pixmap_height)
+                painter = QPainter(parent_pixmap)
+                y = 0
+                for pixmap in pixmap_list:
+                    painter.drawPixmap(0, y, pixmap)
+                    y += pixmap.height()
+                painter.end()
                 parent_figure.add_pixmap(parent_pixmap)
 
         # restore cursor

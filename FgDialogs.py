@@ -1408,6 +1408,8 @@ class AddFiguresDialog(QDialog):
         self.process_caption_target = QComboBox()
         self.process_caption_target.addItem("OpenAI")
         self.process_caption_target.addItem("Ollama")
+        # selection changed event
+        self.process_caption_target.currentIndexChanged.connect(self.on_process_caption_target_changed)
         self.process_caption_button = QPushButton(self.tr("Process Caption"))
         self.process_caption_button.clicked.connect(self.on_process_caption_button_clicked)
 
@@ -1582,14 +1584,14 @@ class AddFiguresDialog(QDialog):
         self.m_app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope, fg.COMPANY_NAME, fg.PROGRAM_NAME)
         self.remember_geometry = fg.value_to_bool(self.m_app.settings.value("WindowGeometry/RememberGeometry", True))
         if self.remember_geometry is True:
-            self.setGeometry(self.m_app.settings.value("WindowGeometry/AddFigureWindow", QRect(100, 100, 500, 250)))
-            is_maximized = fg.value_to_bool(self.m_app.settings.value("IsMaximized/AddFigureWindow", False))
+            self.setGeometry(self.m_app.settings.value("WindowGeometry/AddFiguresWindow", QRect(100, 100, 1200, 800)))
+            is_maximized = fg.value_to_bool(self.m_app.settings.value("IsMaximized/AddFiguresWindow", False))
             if is_maximized:
                 self.showMaximized()
             else:
                 self.showNormal()
         else:
-            self.setGeometry(QRect(100, 100, 1024,768))
+            self.setGeometry(QRect(100, 100, 1200,800))
         self.zotero_key = self.m_app.settings.value("zotero_key", "")
         self.language = self.m_app.settings.value("language", "en")
         self.prev_language = self.language
@@ -1599,17 +1601,60 @@ class AddFiguresDialog(QDialog):
         self.ollama_port = self.m_app.settings.value("ollama_port", "11434")
         self.process_caption_target.clear()
         if self.openapi_key != "":
-            #print("OpenAI key exists")
+            print("OpenAI key exists")
             self.process_caption_target.addItem("OpenAI")
         if self.ollama_ip != "":
-            #print("Ollama IP exists")
+            print("Ollama IP exists")
             self.process_caption_target.addItem("Ollama http://{}:{}".format(self.ollama_ip,self.ollama_port))
+        self.last_used_llm = self.m_app.settings.value("last_used_llm", "")
+        print("last used lllm from preferences:", self.last_used_llm)
+        if self.last_used_llm != "":
+            print("last used llm:", self.last_used_llm)
+            for i in range(self.process_caption_target.count()):
+                print("item text:", self.process_caption_target.itemText(i))
+                if self.process_caption_target.itemText(i).find(self.last_used_llm) >= 0:
+                    print("has item:", self.last_used_llm, "index:", i)
+                    self.process_caption_target.setCurrentIndex(i)
+                    break
+        else:
+            print("last used llm not found")
+
+    def write_settings(self):
+        """
+        Saves the current settings of the application.
+
+        This method saves the window geometry, maximized state, language selection,
+        zotero key to the application settings.
+
+        Returns:
+            None
+        """
+        self.m_app.remember_geometry = fg.value_to_bool(self.m_app.settings.value("WindowGeometry/RememberGeometry", True))
+        if self.m_app.remember_geometry is True:
+            #print("maximized:", self.isMaximized(), "geometry:", self.geometry())
+            if self.isMaximized():
+                self.m_app.settings.setValue("IsMaximized/AddFiguresWindow", True)
+            else:
+                self.m_app.settings.setValue("IsMaximized/AddFiguresWindow", False)
+                self.m_app.settings.setValue("WindowGeometry/AddFiguresWindow", self.geometry())
+                #print("save maximized false")
+        # store last_used_llm
+        self.m_app.settings.setValue("last_used_llm", self.last_used_llm)
 
     def on_update_caption_button_clicked(self):
         #print("Update caption")
         if len(self.processed_caption_list) > 0 and len(self.processed_caption_list) == len(self.subfigure_list):
             for i, caption_text in enumerate(self.processed_caption_list):
-                sub_index, taxon_name, caption = self.processed_caption_list[i].split("\t")
+                #sub_index, taxon_name, caption = self.processed_caption_list[i].split("\t")
+                sub_index, taxon_name, caption = "", "", ""
+                parts = self.processed_caption_list[i].split("\t")
+                if len(parts) > 0:
+                    sub_index = parts.pop(0)
+                    if len(parts) > 0:
+                        taxon_name = parts.pop(0)
+                        if len(parts) > 0:
+                            caption = "\t".join(parts)
+
                 subfigure = self.subfigure_list[i]
                 type = self.comboType.currentText()
                 main_idx = self.edtNumber1.text()
@@ -1668,6 +1713,11 @@ class AddFiguresDialog(QDialog):
             return text
         self.lblFigure.set_text_capture_callback(on_text_capture)
 
+    def on_process_caption_target_changed(self, index):
+        #print("Process caption target changed")
+        self.last_used_llm = self.process_caption_target.currentText()
+        print("selection changed. last used llm:", self.last_used_llm)
+
     def on_process_caption_button_clicked(self):
         caption = self.raw_caption_edit.toPlainText()
         QApplication.setOverrideCursor(Qt.WaitCursor)
@@ -1724,10 +1774,13 @@ class AddFiguresDialog(QDialog):
         if 'ollama' in backend:
             #print("ollama", self.ollama_ip, self.ollama_port)
             llm_chat = LLMChat(backend='ollama', server_ip=self.ollama_ip, server_port=self.ollama_port, model='llama3.1')
+            self.last_used_llm = "Ollama"
         elif backend == 'openai':
+
             #print("openai", self.openapi_key)
             api_key = self.openapi_key
             llm_chat = LLMChat(backend='openai', model='gpt-3.5-turbo', api_key=api_key)
+            self.last_used_llm = "OpenAI"
         processed_caption = llm_chat.process_caption(caption, prompt)
         return processed_caption
 
@@ -1888,7 +1941,7 @@ class AddFiguresDialog(QDialog):
             #print("row:", row)
             # get segment result
             #self.subfigure_list = segmentation_results
-            cropped_pixmap, rect = self.subfigure_list[row]
+            cropped_pixmap, rect = self.subfigure_list[row].pixmap, self.subfigure_list[row].rect
             # remove item from model
             self.tempModel.removeRow(row)
             # remove item from subfigure_list
@@ -2402,6 +2455,11 @@ class AddFiguresDialog(QDialog):
 
         painter.end()
         return result, annotated_pixmap
+
+    def closeEvent(self, event):
+        self.write_settings()
+        event.accept()
+
 
 class ImportCollectionDialog(QDialog):
     def __init__(self, parent=None):

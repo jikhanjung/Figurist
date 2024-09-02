@@ -350,6 +350,16 @@ class FiguristMainWindow(QMainWindow):
         dialog = AddFiguresDialog(self)
         dialog.set_reference(self.selected_reference)
         dialog.exec_()
+        # get selected item from referenceView and update its display
+        for index in self.referenceView.selectedIndexes():
+            item1 = self.reference_model.itemFromIndex(index)
+
+            item1_text = self.selected_reference.get_abbr() 
+            if self.selected_reference.attachments.count() > 0:
+                item1_text += " 📄"
+            if self.selected_reference.figures.count() > 0:
+                item1_text += " (" + str(self.selected_reference.figures.count()) + ")"
+            item1.setText(item1_text)
         self.load_figure()
 
     def update_icon_mode_columns(self):

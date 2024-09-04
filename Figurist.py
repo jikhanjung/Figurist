@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import QMainWindow, QHeaderView, QApplication, QAbstractIte
                             QPushButton, QRadioButton, QLabel
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem, QKeySequence, QCursor
 from PyQt5.QtCore import Qt, QRect, QSortFilterProxyModel, QSettings, QSize, QTranslator, QItemSelectionModel, QObject, QEvent, QMargins
-from PyQt5.QtWidgets import QHeaderView
 
 from PyQt5.QtCore import pyqtSlot
 import re,os,sys
@@ -61,13 +60,14 @@ class FiguristMainWindow(QMainWindow):
         self.figure_tab.addTab(self.pdfView, self.tr("PDF"))
         self.figure_tab.addTab(self.figureView, self.tr("Figures"))
         self.referenceView = DraggableTreeView()
+        #self.referenceView = QTreeView()
         self.taxonView = QTreeView()
         self.referenceView.setDragEnabled(True)
         self.referenceView.setAcceptDrops(True)
         self.referenceView.setDragDropMode(QAbstractItemView.DragDrop)        
         #self.referenceView.setAcceptDrops(True)
         self.referenceView.dropEvent = self.dropEvent
-        self.referenceView.emptyAreaClicked.connect(self.on_referenceView_emptyAreaClicked)
+        #self.referenceView.emptyAreaClicked.connect(self.on_referenceView_emptyAreaClicked)
 
         self.icon_mode = False
         self.mode = "Reference"
@@ -371,6 +371,7 @@ class FiguristMainWindow(QMainWindow):
     def set_reference_mode(self, checked):
         if checked:
             self.mode = "Reference"
+            self.reset_referenceView()
             self.load_references()
             self.load_taxa()
             self.left_layout.removeWidget(self.referenceView)
@@ -382,6 +383,7 @@ class FiguristMainWindow(QMainWindow):
         if checked:
             self.mode = "Taxon"
             self.load_taxa()
+            self.reset_referenceView()
             self.load_references()
             self.left_layout.removeWidget(self.taxonView)
             self.left_layout.insertWidget(1,self.taxonView)
@@ -477,14 +479,29 @@ class FiguristMainWindow(QMainWindow):
         else:
             self.on_action_edit_collection_triggered()
 
+
     def reset_referenceView(self):
         self.reference_model = QStandardItemModel()
         self.referenceView.setModel(self.reference_model)
-        self.referenceView.setHeaderHidden(True)
+        self.reference_model.clear()
         self.reference_selection_model = self.referenceView.selectionModel()
         self.reference_selection_model.selectionChanged.connect(self.on_reference_selection_changed)
-        header = self.referenceView.header()
+        # Set selection behavior to select entire rows
         self.referenceView.setSelectionBehavior(QTreeView.SelectRows)
+        
+        # Set column headers
+        # Show the header
+        self.referenceView.setHeaderHidden(True)
+        self.reference_model.setHorizontalHeaderLabels(['', '', ''])
+        #self.referenceView.setColumnWidth(0, 500)   # Attachment column
+        self.referenceView.setColumnWidth(1, 50)   # Attachment column
+        self.referenceView.setColumnWidth(2, 50)   # Figures column
+        header = self.referenceView.header()
+        header.setSectionResizeMode(0, QHeaderView.Stretch)  # Name column stretches
+        #header.setSectionResizeMode(1, QHeaderView.Fixed)    # Attachment column fixed
+        #header.setSectionResizeMode(2, QHeaderView.Fixed)    # Figures column fixed
+        header.setStretchLastSection(False)
+
 
     def load_subcollections(self, collection, parent_item):
         for subcoll in collection.children:
@@ -499,18 +516,23 @@ class FiguristMainWindow(QMainWindow):
             else:
                 item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
             item1.setData(subcoll)
-            parent_item.appendRow([item1])
+            parent_item.appendRow([item1, QStandardItem(""), QStandardItem("")])
             self.load_subcollections(subcoll, item1)
             self.load_references_in_collection(subcoll, item1)
 
     def load_references_in_collection(self, collection, parent_item):
         for colref in collection.references:
-            item1_text = colref.reference.get_abbr() 
+            item1_text = colref.reference.get_abbr()
+            item2 = QStandardItem("") 
             if colref.reference.attachments.count() > 0:
-                item1_text += " 📄"
-            if colref.reference.figures.count() > 0:
-                item1_text += " (" + str(colref.reference.figures.count()) + ")"
+                item2 = QStandardItem("📄")
+                #item1_text += " 📄"
+            item2.setTextAlignment(Qt.AlignCenter)
+            #if colref.reference.figures.count() > 0:
+            #    item1_text += " (" + str(colref.reference.figures.count()) + ")"
             item1 = QStandardItem(item1_text)
+            item3 = QStandardItem(str(colref.reference.figures.count()))
+            item3.setTextAlignment(Qt.AlignCenter)
             #item2 = QStandardItem(str(ref.id))
             item1.setData(colref.reference)
             if colref.reference.zotero_key is not None and colref.reference.zotero_key != "":
@@ -518,12 +540,12 @@ class FiguristMainWindow(QMainWindow):
             else:
                 item1.setIcon(QIcon(fg.resource_path(ICON['reference'])))
 
-            parent_item.appendRow([item1])
+            parent_item.appendRow([item1, item2, item3])
 
 
     def load_references(self):
         #print("load references", self.mode)
-        self.reference_model.clear()
+        #self.reference_model.clear()
         self.selected_reference = None
         #ref_list = FgReference.filter(parent=None)
 
@@ -540,7 +562,7 @@ class FiguristMainWindow(QMainWindow):
                     item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
                 #item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
                 item1.setData(coll)
-                self.reference_model.appendRow([item1])
+                self.reference_model.appendRow([item1,QStandardItem(""),QStandardItem("")])
                 self.load_subcollections(coll, item1)
                 self.load_references_in_collection(coll, item1)
 
@@ -570,11 +592,12 @@ class FiguristMainWindow(QMainWindow):
             for ref in ref_list:
                 item1 = QStandardItem(ref.get_abbr())
                 item1.setIcon(QIcon(fg.resource_path(ICON['reference'])))
-                item2 = QStandardItem(str(ref.id))
+                item2 = QStandardItem("")
+                item3 = QStandardItem("")
                 item1.setData(ref)
-                self.reference_model.appendRow([item1,item2])#,item2,item3] )
+                self.reference_model.appendRow([item1,item2,item3])#,item2,item3] )
         #self.referenceView.expandAll()
-        self.referenceView.hideColumn(1)
+        #self.referenceView.hideColumn(1)
 
     def on_figure_selection_changed(self, selected, deselected):
         pass
@@ -622,6 +645,7 @@ class FiguristMainWindow(QMainWindow):
         #print("selected taxa:", [t.name for t in self.selected_taxa])
 
         if self.mode == "Taxon":
+            self.reset_referenceView()
             self.load_references()
 
         #print("taxon selection changed 2", time.time())

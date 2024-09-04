@@ -791,8 +791,8 @@ class FigureLabel(QLabel):
         else:
             pass
 
-    def set_text_capture_callback(self, callback):
-        self.text_capture_callback = callback
+    #def set_text_capture_callback(self, callback):
+    #    self.text_capture_callback = callback
 
 
     def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
@@ -830,7 +830,10 @@ class FigureLabel(QLabel):
             self.temp_pan_x = 0
             self.temp_pan_y = 0
         elif self.edit_mode == "CAPTURE_TEXT_DRAG":
-            self.text_capture_callback(self.temp_rect)
+            if hasattr(self.parent, 'capture_text'):
+                self.parent.capture_text(self.temp_rect)
+
+            #self.text_capture_callback(self.temp_rect)
             self.temp_rect = None
             #text = self.get_text_from_rect(self.temp_rect)
             #print("captured text", text)
@@ -1103,12 +1106,6 @@ class DraggableTreeView(QTreeView):
         self.drag_start_position = None
         self.setMouseTracking(True)
 
-    def _mousePressEvent(self, event):
-        index = self.indexAt(event.pos())
-        if not index.isValid():
-            # Click is outside any item
-            self.emptyAreaClicked.emit()
-        super().mousePressEvent(event)
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.drag_start_position = event.pos()
@@ -1137,35 +1134,12 @@ class DraggableTreeView(QTreeView):
         else:
             drag.exec_(Qt.MoveAction)
 
-    def _mouseMoveEvent(self, event):
-        if not (event.buttons() & Qt.LeftButton):
-            return
-        if not self.drag_start_position:
-            return
-        if (event.pos() - self.drag_start_position).manhattanLength() < QApplication.startDragDistance():
-            return
-
-        drag = QDrag(self)
-        mime_data = QMimeData()
-        
-        selected_indexes = self.selectedIndexes()
-        items_data = []
-        for index in selected_indexes:
-            item = self.model().itemFromIndex(index)
-            if isinstance(item.data(), FgCollection):
-                items_data.append(('collection', item.data().id))
-            elif isinstance(item.data(), FgReference):
-                items_data.append(('reference', item.data().id))
-        
-        mime_data.setData("application/x-figurist-items", QByteArray(str(items_data).encode()))
-        #mime_data.setData("application/x-figurist-items", QByteArray(str(items_data).encode()))
-        drag.setMimeData(mime_data)
-        #print("mime_data", mime_data)
-        
-        if event.modifiers() & Qt.ShiftModifier:
-            drag.exec_(Qt.CopyAction)
-        else:
-            drag.exec_(Qt.MoveAction)            
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.resizeColumnToContents(0)
+        available_width = self.viewport().width()
+        other_columns_width = sum(self.columnWidth(i) for i in range(1, self.model().columnCount()))
+        self.setColumnWidth(0, max(0, available_width - other_columns_width))       
 
 
 class LLMBackend(ABC):

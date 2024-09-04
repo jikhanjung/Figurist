@@ -25,6 +25,7 @@ import os
 import sys
 import ollama
 from decouple import config
+import tempfile
 
 from PyQt5.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QTreeWidget, QTreeWidgetItem, QPushButton, QLabel, QMessageBox
 from PyQt5.QtCore import Qt, pyqtSignal
@@ -1711,8 +1712,35 @@ class AddFiguresDialog(QDialog):
             #self.caption_edit.setText(processed_text)
             #print("text:", text)
             return text
-        self.lblFigure.set_text_capture_callback(on_text_capture)
+        #self.lblFigure.set_text_capture_callback(on_text_capture)
 
+    def capture_text(self, rect):
+        dpi = 600
+        scale_factor = 72 / dpi
+        clip = fitz.Rect(
+            rect.left() * scale_factor,
+            rect.top() * scale_factor,
+            rect.right() * scale_factor,
+            rect.bottom() * scale_factor
+        )
+        #print("clip:", clip)
+        text = self.current_page.get_text("text", clip=clip)
+        if text is None or text == '':
+            
+            QMessageBox().information(self, "No text", "No text found in the selected area")
+        #print("text:", text)
+        # if shift is clicked:
+        if QApplication.keyboardModifiers() == Qt.ShiftModifier:
+            text = self.raw_caption_edit.toPlainText() + "\n" + text
+
+        self.raw_caption_edit.setText(text)
+        self.update()
+        # wait cursor
+
+        #self.caption_edit.setText(processed_text)
+        #print("text:", text)
+        return text
+    
     def on_process_caption_target_changed(self, index):
         #print("Process caption target changed")
         self.last_used_llm = self.process_caption_target.currentText()

@@ -1,4 +1,4 @@
-"""Peewee migrations -- 001_20240828.py.
+"""Peewee migrations -- 001_20240909.py.
 
 Some examples (model - class or model name)::
 
@@ -54,6 +54,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         zotero_version = pw.CharField(max_length=255, null=True)
         zotero_data = pw.TextField(null=True)
         abbreviation = pw.CharField(max_length=255, null=True)
+        capture_complete = pw.BooleanField(default=False)
         created_at = pw.DateTimeField()
         modified_at = pw.DateTimeField()
 
@@ -64,7 +65,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     class FgAttachment(pw.Model):
         id = pw.AutoField()
         reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], on_delete='CASCADE')
-        title = pw.CharField(max_length=255, null=True)
+        title = pw.CharField(default='', max_length=255, null=True)
         filetype = pw.CharField(max_length=255, null=True)
         filename = pw.CharField(max_length=255, null=True)
         zotero_library_id = pw.CharField(max_length=255, null=True)
@@ -87,6 +88,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         zotero_key = pw.CharField(max_length=255, null=True)
         zotero_version = pw.CharField(max_length=255, null=True)
         zotero_data = pw.TextField(null=True)
+        is_expanded = pw.BooleanField(default=False)
         created_at = pw.DateTimeField()
         modified_at = pw.DateTimeField()
 
@@ -116,6 +118,7 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
         part2_number = pw.CharField(max_length=255, null=True)
         part_separator = pw.CharField(default='-', max_length=255, null=True)
         caption = pw.TextField(null=True)
+        taxon_name = pw.CharField(max_length=255, null=True)
         comments = pw.TextField(null=True)
         reference = pw.ForeignKeyField(column_name='reference_id', field='id', model=migrator.orm['fgreference'], null=True, on_delete='CASCADE')
         parent = pw.ForeignKeyField(column_name='parent_id', field='id', model='self', null=True, on_delete='CASCADE')

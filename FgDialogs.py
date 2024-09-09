@@ -1425,7 +1425,14 @@ class AddFiguresDialog(QDialog):
         self.raw_caption_layout.addWidget(self.process_caption_widget)
 
         self.prompt_edit = QTextEdit()
-        self.prompt_edit.setText(CAPTION_PROCESSING_PROMPT_1 + "\n" + CAPTION_PROCESSING_PROMPT_2 )
+        # set prompt text. read from file prompt.txt in unicode
+        prompt_file = "prompt.txt"
+        if os.path.exists(prompt_file):
+            with open(prompt_file, "r", encoding="utf-8") as f:
+                prompt_text = f.read()
+                self.prompt_edit.setText(prompt_text)
+        else:
+            self.prompt_edit.setText(CAPTION_PROCESSING_PROMPT_1 + "\n" + CAPTION_PROCESSING_PROMPT_2 )
 
         self.processed_caption_widget = QWidget()
         self.processed_caption_layout = QVBoxLayout()
@@ -2223,6 +2230,7 @@ class AddFiguresDialog(QDialog):
                     figure.part_separator = separator
                     figure.update_figure_number()
                     #figure.caption = 
+                    figure.taxon_name = self.tempModel.item(i, 1).text()
                     figure.caption = self.tempModel.item(i, 2).text()
                     figure.comments = self.tempModel.item(i, 3).text()
                     figure.save()
@@ -2537,7 +2545,11 @@ class ImportCollectionDialog(QDialog):
             return
 
         collection = FgCollection()
+        # wait cursor
+        QApplication.setOverrideCursor(Qt.WaitCursor)
         collection.import_collection(collection_path)
+        # restore cursor
+        QApplication.restoreOverrideCursor()
         self.accept()
         
     def on_btn_cancel_clicked(self):

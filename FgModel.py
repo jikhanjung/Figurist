@@ -14,6 +14,46 @@ DATABASE_FILENAME = fg.PROGRAM_NAME + ".db"
 database_path = os.path.join(fg.DEFAULT_DB_DIRECTORY, DATABASE_FILENAME)
 gDatabase = SqliteDatabase(database_path,pragmas={'foreign_keys': 1})
 
+def update_taxon_figure( taxon, figure):
+    taxfig = FgTaxonFigure.select().where(FgTaxonFigure.figure == figure, FgTaxonFigure.taxon == taxon)
+    if taxfig.count() == 0:
+        taxfig = FgTaxonFigure()
+        taxfig.taxon = taxon
+        taxfig.figure = figure
+        taxfig.save()
+
+def update_taxon_reference( taxon, reference):
+    # find if taxon-reference relationship already exists
+    taxref = FgTaxonReference.select().where(FgTaxonReference.taxon == taxon, FgTaxonReference.reference == reference)
+    if taxref.count() == 0:
+        taxref = FgTaxonReference()
+        taxref.taxon = taxon
+        taxref.reference = reference
+        taxref.save()
+
+def process_taxon_name(taxon_name, taxon_rank = "Species"):
+    taxon = FgTaxon.select().where(FgTaxon.name == taxon_name)
+    if taxon.count() > 0:
+        taxon = taxon[0]
+    else:
+        taxon = FgTaxon()
+        taxon.name = taxon_name
+        name_list = taxon.name.split(" ")
+        taxon.parent = None
+        #taxon.rank = self.edtTaxonRank.text()
+        if len(name_list) > 1:
+            ''' this is a species '''
+            genus, created = FgTaxon.get_or_create(name=name_list[0])
+            #print("genus:",genus)
+            genus.rank = "Genus"
+            genus.save()
+            taxon.parent = genus
+            taxon.rank = "Species"
+        else:
+            taxon.rank = taxon_rank
+        taxon.save()
+    return taxon        
+
 class FgCollection(Model):
     name = CharField(default='',null=True)
     description = TextField(null=True)
@@ -22,6 +62,7 @@ class FgCollection(Model):
     zotero_key = CharField(null=True)
     zotero_version = CharField(null=True)
     zotero_data = TextField(null=True)
+    is_expanded = BooleanField(default=False)
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
 
@@ -135,6 +176,7 @@ class FgReference(Model):
     zotero_version = CharField(null=True)
     zotero_data = TextField(null=True)
     abbreviation = CharField(null=True)
+    capture_complete = BooleanField(default=False)
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
 
@@ -175,8 +217,8 @@ class FgReference(Model):
             os.makedirs(export_path)
 
         # export figure
-        figure_info_file_path = os.path.join(export_path, "figure_info.json")
-        figure_data = []
+        figure_info_file_path = os.path.join(export_path, "figure_info.json")        
+        figure_data = []        
         for fig in self.figures:
             fig.export_figure_file(export_path)
             figure_data.append({
@@ -190,7 +232,7 @@ class FgReference(Model):
                 "part2_number": fig.part2_number,
                 "part_separator": fig.part_separator,                
                 "caption": fig.caption,
-                "taxon_name": fig.get_taxon_name(),
+                "taxon_name": fig.taxon_name,
             })
         with open(figure_info_file_path, 'w', encoding='utf-8') as figure_info_file:
             json.dump(figure_data, figure_info_file, ensure_ascii=False, indent=2)
@@ -234,6 +276,9 @@ class FgReference(Model):
 
         return True
 
+    class Meta:
+        database = gDatabase
+
     def import_reference(self, reference_path, parent_collection=None):
         #print('import reference', reference_path)
         reference_info_file_path = os.path.join(reference_path, "reference_info.json")
@@ -275,8 +320,12 @@ class FgReference(Model):
                     new_figure.part_separator = fig["part_separator"]
                     new_figure.update_figure_number()
                     new_figure.caption = fig["caption"]
+                    new_figure.taxon_name = fig["taxon_name"]
                     new_figure.save()
                     new_figure.add_file(os.path.join(reference_path, new_figure.file_name))
+                    taxon = process_taxon_name(fig["taxon_name"])
+                    update_taxon_figure(taxon, new_figure)
+                    update_taxon_reference(taxon, self)
 
         # get the list of attachments that are directories in the reference path and begins with "[Att_{id}]"
         attachment_info_file = os.path.join(reference_path, "attachment_info.json")
@@ -387,6 +436,7 @@ class FgFigure(Model):
     part2_number = CharField(null=True)
     part_separator = CharField(null=True,default='-')
     caption = TextField(null=True)
+    taxon_name = CharField(null=True)
     comments = TextField(null=True)
     reference = ForeignKeyField(FgReference, backref='figures', null=True,on_delete="CASCADE")
     #taxon = ForeignKeyField(FgTaxon, backref='figures', null=True)

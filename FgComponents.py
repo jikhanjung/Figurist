@@ -1443,3 +1443,4 @@ class PDFViewWidget(QWidget):
         self.page_spinner.setSuffix("")
 
         self.update()
+

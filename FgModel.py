@@ -232,6 +232,7 @@ class FgReference(Model):
                 "part2_number": fig.part2_number,
                 "part_separator": fig.part_separator,                
                 "caption": fig.caption,
+                "comments": fig.comments,
                 "taxon_name": fig.taxon_name,
             })
         with open(figure_info_file_path, 'w', encoding='utf-8') as figure_info_file:
@@ -320,6 +321,10 @@ class FgReference(Model):
                     new_figure.part_separator = fig["part_separator"]
                     new_figure.update_figure_number()
                     new_figure.caption = fig["caption"]
+                    if 'comments' in fig:
+                        new_figure.comments = fig["comments"]
+                    else:
+                        new_figure.comments = ''
                     new_figure.taxon_name = fig["taxon_name"]
                     new_figure.save()
                     new_figure.add_file(os.path.join(reference_path, new_figure.file_name))

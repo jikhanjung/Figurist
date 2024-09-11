@@ -33,6 +33,7 @@ ICON = {'new_reference': 'icons/new_reference.png', 'about': 'icons/about.png', 
 class FiguristMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        #print("init")
         self.setWindowIcon(QIcon(fg.resource_path('icons/Figurist.png')))
         self.setWindowTitle("{} v{}".format(self.tr("Figurist"), fg.PROGRAM_VERSION))
         self.setGeometry(100, 100, 800, 600)
@@ -41,6 +42,7 @@ class FiguristMainWindow(QMainWindow):
         self.prepare_database()
         self.reset_referenceView()
         self.load_references()
+        self.icon_mode = True
         #self.toggle_view()
 
     def on_referenceView_emptyAreaClicked(self):
@@ -54,7 +56,9 @@ class FiguristMainWindow(QMainWindow):
 
     def initUI(self):
         ''' initialize UI '''
+        #print("init ui")
         self.figure_tab = QTabWidget()
+        #print("figureview")
         self.figureView = FgFigureView()
         self.pdfView = PDFViewWidget()
         self.figure_tab.addTab(self.pdfView, self.tr("PDF"))
@@ -81,8 +85,11 @@ class FiguristMainWindow(QMainWindow):
         self.button_widget.setLayout(self.button_layout)
         self.add_figures_button = QPushButton(self.tr("Add Figures"))
         self.toggle_view_button = QPushButton(self.tr("Toggle View"))
+        # add edit button
+        self.edit_button = QPushButton(self.tr("Edit"))
         self.button_layout.addWidget(self.add_figures_button)
         self.button_layout.addWidget(self.toggle_view_button)
+        self.button_layout.addWidget(self.edit_button)
 
         self.right_widget = QWidget()
         self.right_layout = QVBoxLayout()
@@ -91,6 +98,7 @@ class FiguristMainWindow(QMainWindow):
         self.right_layout.addWidget(self.button_widget)
         self.toggle_view_button.clicked.connect(self.toggle_view)
         self.add_figures_button.clicked.connect(self.add_figures)
+        self.edit_button.clicked.connect(self.edit_figure_table)
 
         self.left_mode_widget = QWidget()
         self.left_mode_layout = QHBoxLayout()
@@ -202,8 +210,10 @@ class FiguristMainWindow(QMainWindow):
         self.figureView.horizontalHeader().hide()
         self.figureView.verticalHeader().hide()
         '''
-        self.toggle_view(True)
+        self.toggle_view()
 
+    def edit_figure_table(self):
+        self.figureView.set_mode('edit')
 
     def dropEvent(self, event):
         #print("reference view drop event")
@@ -390,13 +400,12 @@ class FiguristMainWindow(QMainWindow):
             self.update()
             self.filter_figures()
 
-    def toggle_view(self, icon_mode):
-        if icon_mode:
-            self.icon_mode = icon_mode #not self.icon_mode
+    def toggle_view(self):
+        self.icon_mode = not self.icon_mode #not self.icon_mode
+        if self.icon_mode:
+            self.figureView.set_mode('icon')
         else:
-            self.icon_mode = not self.icon_mode
-        self.figureView.set_icon_mode(self.icon_mode)
-        return
+            self.figureView.set_mode('table')
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -698,6 +707,7 @@ class FiguristMainWindow(QMainWindow):
         self.taxonView.setHeaderHidden(True)
         self.taxon_model = QStandardItemModel()
         self.taxonView.setModel(self.taxon_model)
+        self.taxon_model.clear()
         self.taxon_selection_model = self.taxonView.selectionModel()
         self.taxon_selection_model.selectionChanged.connect(self.on_taxon_selection_changed)
         #self.figure_model = CustomTableModel()
@@ -1217,6 +1227,7 @@ if __name__ == "__main__":
     #    # current directory
     #    f.write("current directory 1:" + os.getcwd() + "\n")
     #    f.write("current directory 2:" + os.path.abspath(".") + "\n") 
+    #print("main")
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(fg.resource_path('icons/Figurist.png')))
     app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope,fg.COMPANY_NAME, fg.PROGRAM_NAME)
@@ -1231,7 +1242,9 @@ if __name__ == "__main__":
     #app.preferences = QSettings("Modan", "Modan2")
 
     #WindowClass의 인스턴스 생성
+    #print("main window")
     myWindow = FiguristMainWindow()
+    #print("main window done")
 
     #프로그램 화면을 보여주는 코드
     myWindow.show()

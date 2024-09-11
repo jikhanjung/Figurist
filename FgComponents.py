@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QTreeView, QSizePolicy, QHeaderView, QLabel, QInputDialog, QSpinBox
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QRect, QSize, QMargins, QObject, QEvent, QMimeData, pyqtSignal
-from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen, QFont, QMouseEvent, QWheelEvent, QPainter, QDrag, QImage
+from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen, QFont, QMouseEvent, QWheelEvent, QPainter, QDrag, QImage, QColor
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QStyleOptionViewItem, QListView, QStackedWidget, QAbstractItemView
 import time, math
 from PyQt5.QtCore import QByteArray
@@ -370,9 +370,10 @@ class FigureTableModel(QAbstractTableModel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.figures = []
-        self.headers = ['Figure', 'Taxon', 'File']
+        self.headers = ['Prefix 1', 'No.1', '-', 'Prefix 2', 'No.2', 'Figure Number', 'Taxon', 'Caption', 'Comments']
         self.icon_cache = {}
-        self.view_mode = 'table'  # Add this line
+        self.mode = 'table'
+        self.edited_cells = set()  # To keep track of edited cells
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.figures)
@@ -387,63 +388,84 @@ class FigureTableModel(QAbstractTableModel):
         figure = self.figures[index.row()]
         column = index.column()
 
-        if role == Qt.DisplayRole:
-            if column == 0:
-                return figure.get_figure_name()
-            elif column == 1:
-                return figure.related_taxa[0].taxon.name if figure.related_taxa else ''
-            elif column == 2:
-                return figure.file_name
-        elif role == Qt.DecorationRole and column == 0:
-            if figure in self.icon_cache:
-                return self.icon_cache[figure]
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            if self.mode in ['table', 'edit']:
+                if column == 0:
+                    return figure.part1_prefix
+                elif column == 1:
+                    return figure.part1_number
+                elif column == 2:
+                    return figure.part_separator
+                elif column == 3:
+                    return figure.part2_prefix
+                elif column == 4:
+                    return figure.part2_number
+                elif column == 5:
+                    return figure.figure_number
+                elif column == 6:
+                    return figure.related_taxa[0].taxon.name if figure.related_taxa else ''
+                elif column == 7:
+                    return figure.caption
+                elif column == 8:
+                    return figure.comments
+            else:  # icon mode
+                return f"{figure.figure_number} {figure.related_taxa[0].taxon.name if figure.related_taxa else ''}"
+        elif role == Qt.BackgroundRole:
+            if (index.row(), index.column()) in self.edited_cells:
+                return QColor(255, 255, 0)  # Yellow color for edited cells
+        elif role == Qt.DecorationRole and column == 0 and self.mode == 'icon':
+            if figure in self.icon_cache and figure.modified_at == self.icon_cache[figure][0]:
+                return self.icon_cache[figure][1]
             else:
                 QApplication.setOverrideCursor(Qt.WaitCursor)
-                icon = QIcon(figure.get_file_path())
+                thumbnail_path = figure.get_or_create_thumbnail()
+                if thumbnail_path:
+                    icon = QIcon(thumbnail_path)
+                else:
+                    icon = QIcon()  # Empty icon if thumbnail creation failed
                 QApplication.restoreOverrideCursor()
-                self.icon_cache[figure] = icon
+                self.icon_cache[figure] = [figure.modified_at, icon]
                 return icon
-            path = figure.get_file_path()
-            print("load file to icon 1", time.time(), path)
-            icon = QIcon(path)
-            print("load file to icon 2", time.time())
-            return icon #QIcon(figure.get_file_path())
         elif role == Qt.UserRole:
             return figure
 
         return None
 
-    def data(self, index, role):
-        if not index.isValid() or not (0 <= index.row() < len(self.figures)):
-            return None
+    def setData(self, index, value, role=Qt.EditRole):
+        if role == Qt.EditRole:
+            row = index.row()
+            col = index.column()
+            figure = self.figures[row]
+            
+            if col == 0:
+                figure.part1_prefix = value
+            elif col == 1:
+                figure.part1_number = value
+            elif col == 2:
+                figure.part_separator = value
+            elif col == 3:
+                figure.part2_prefix = value
+            elif col == 4:
+                figure.part2_number = value
+            elif col == 5:
+                figure.figure_number = value
+            elif col == 6:
+                # Handling taxon name change might require more complex logic
+                pass
+            elif col == 7:
+                figure.caption = value
+            elif col == 8:
+                figure.comments = value
 
-        figure = self.figures[index.row()]
-        column = index.column()
+            self.edited_cells.add((row, col))
+            self.dataChanged.emit(index, index, [Qt.DisplayRole, Qt.BackgroundRole])
+            return True
+        return False
 
-        if role == Qt.DisplayRole:
-            if self.view_mode == 'table':
-                if column == 0:
-                    return figure.figure_number
-                elif column == 1:
-                    return figure.related_taxa[0].taxon.name if figure.related_taxa else ''
-                elif column == 2:
-                    return figure.file_name
-            else:  # icon mode
-                return f"{figure.figure_number} {figure.related_taxa[0].taxon.name if figure.related_taxa else ''}"
-        elif role == Qt.DecorationRole and column == 0:
-            if figure in self.icon_cache and figure.modified_at == self.icon_cache[figure][0]:
-                #print("use cached icon", figure.modified_at, self.icon_cache[figure][0])
-                return self.icon_cache[figure][1]
-            else:
-                QApplication.setOverrideCursor(Qt.WaitCursor)
-                icon = QIcon(figure.get_file_path())
-                QApplication.restoreOverrideCursor()
-                ## get current time
-                #print("new icon", figure.modified_at)
-                self.icon_cache[figure] = [figure.modified_at, icon]
-                return icon
-        elif role == Qt.UserRole:
-            return figure
+    def flags(self, index):
+        if self.mode == 'edit':
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -455,8 +477,8 @@ class FigureTableModel(QAbstractTableModel):
         self.figures = figures
         self.endResetModel()
 
-    def setViewMode(self, mode):
-        self.view_mode = mode
+    def setMode(self, mode):
+        self.mode = mode
         self.layoutChanged.emit()
 
 class FgFigureView(QStackedWidget):
@@ -467,9 +489,6 @@ class FgFigureView(QStackedWidget):
         self.tableView = QTableView(self)
         self.tableView.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.tableView.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        #self.tableView.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        #self.tableView.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)        
         
         # List View for icon mode
         self.listView = QListView(self)
@@ -488,50 +507,37 @@ class FgFigureView(QStackedWidget):
         
         self.tableView.setModel(self.model)
         self.listView.setModel(self.model)
-        self.tableView.resizeColumnsToContents()
 
-    def set_icon_mode(self, icon_mode=True):
-        if icon_mode:
+    def adjust_column_widths(self):
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        for i in range(5):  # First 5 columns
+            self.tableView.horizontalHeader().resizeSection(i, 50)  # Adjust this value as needed
+        self.tableView.horizontalHeader().setSectionResizeMode(5, QHeaderView.Stretch)  # Figure Number
+        self.tableView.horizontalHeader().setSectionResizeMode(6, QHeaderView.Stretch)  # Taxon
+        self.tableView.horizontalHeader().setSectionResizeMode(7, QHeaderView.Stretch)  # Caption
+        self.tableView.horizontalHeader().setSectionResizeMode(8, QHeaderView.Stretch)  # Comments
+
+    def set_mode(self, mode):
+        if mode == 'icon':
             self.setCurrentWidget(self.listView)
             self.listView.setGridSize(QSize(150, 150))
-        else:
+            self.model.setMode('icon')
+        elif mode == 'table':
             self.setCurrentWidget(self.tableView)
-
-    def set_icon_mode(self, icon_mode=True):
-        if icon_mode:
-            self.setCurrentWidget(self.listView)
-            self.listView.setGridSize(QSize(150, 150))
-            self.model.setViewMode('icon')
-        else:
+            self.model.setMode('table')
+        elif mode == 'edit':
             self.setCurrentWidget(self.tableView)
-            self.model.setViewMode('table')
+            self.model.setMode('edit')
         self.model.layoutChanged.emit()
-        
+        self.adjust_column_widths()
+
     def load_figures(self, figures):
         if not isinstance(self.model, FigureTableModel):
             self.model = FigureTableModel(self)
             self.tableView.setModel(self.model)
             self.listView.setModel(self.model)
         self.model.setFigures(figures)
-        return
-        self.model.clear()
-        self.model.setHorizontalHeaderLabels(['Figure', 'Taxon', 'File'])
-        
-        for figure in figures:
-            items = [
-                QStandardItem(QIcon(figure.get_file_path()), figure.get_figure_name()),
-                QStandardItem(figure.related_taxa[0].taxon.name if figure.related_taxa else ''),
-                QStandardItem(figure.file_name)
-            ]
-            for item in items:
-                item.setData(figure, Qt.UserRole)
-            self.model.appendRow(items)
-
-        # Adjust table columns
-        self.tableView.resizeColumnsToContents()
-        
-        # Set list view to only show the first column
-        self.listView.setModelColumn(0)
+        self.adjust_column_widths()
 
     def selectedIndexes(self):
         return self.currentWidget().selectedIndexes()

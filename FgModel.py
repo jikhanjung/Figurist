@@ -513,24 +513,56 @@ class FgFigure(Model):
         
 
     def add_file(self, file_name):
-        #print("add file:", file_name)
         self.load_file_info(file_name)
         new_filepath = self.get_file_path()
-        #print("new file:", new_filepath)
         if not os.path.exists(os.path.dirname(new_filepath)):
             os.makedirs(os.path.dirname(new_filepath))
-        #print("new file:", new_filepath)
-        ret = shutil.copyfile(file_name, new_filepath)
-        #print("ret:", ret)
+        shutil.copyfile(file_name, new_filepath)
+        self.create_thumbnail()
         return self
     
     def add_pixmap(self, pixmap):
         new_filepath = self.get_file_path()
-        #print("new file:", new_filepath)
         if not os.path.exists(os.path.dirname(new_filepath)):
             os.makedirs(os.path.dirname(new_filepath))
         pixmap.save(new_filepath)
+        self.create_thumbnail()
         return self
+
+    def get_thumbnail_path(self, base_path=fg.DEFAULT_STORAGE_DIRECTORY):
+        return os.path.join(base_path, str(self.reference.id), f"{self.id}_thumbnail.png")
+
+    def create_thumbnail(self):
+        original_path = self.get_file_path()
+        if not os.path.exists(original_path):
+            print(f"Error: Original file does not exist at {original_path}")
+            return None
+
+        thumbnail_path = self.get_thumbnail_path()
+        
+        if os.path.exists(thumbnail_path):
+            return thumbnail_path
+
+        thumbnail_size = (200, 200)  # You can adjust this size as needed
+
+        try:
+            with Image.open(original_path) as img:
+                img.thumbnail(thumbnail_size)
+                
+                # Ensure the directory exists
+                os.makedirs(os.path.dirname(thumbnail_path), exist_ok=True)
+                
+                img.save(thumbnail_path, "PNG")
+            return thumbnail_path
+        except Exception as e:
+            print(f"Error creating thumbnail: {e}")
+            return None
+
+    def get_or_create_thumbnail(self):
+        thumbnail_path = self.get_thumbnail_path()
+        if not os.path.exists(thumbnail_path):
+            return self.create_thumbnail()
+        return thumbnail_path
 
     def load_file_info(self, fullpath):
 

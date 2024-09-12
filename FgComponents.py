@@ -43,9 +43,14 @@ class FigureTableModel(QAbstractTableModel):
         super().__init__(parent)
         self.figures = []
         self.headers = ['Prefix 1', 'No.1', '-', 'Prefix 2', 'No.2', 'Figure Number', 'Taxon', 'Caption', 'Comments']
+        self.column_list = ['part1_prefix', 'part1_number', 'part_separator', 'part2_prefix', 'part2_number', 'figure_number', 'taxon_name', 'caption', 'comments']
         self.icon_cache = {}
         self.mode = 'table'
         self.edited_cells = set()  # To keep track of edited cells
+        self._uneditable_columns = [5]
+
+    def set_columns_uneditable(self, columns):
+        self._uneditable_columns = columns
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.figures)
@@ -62,28 +67,14 @@ class FigureTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole or role == Qt.EditRole:
             if self.mode in ['table', 'edit']:
-                if column == 0:
-                    return figure.part1_prefix
-                elif column == 1:
-                    return figure.part1_number
-                elif column == 2:
-                    return figure.part_separator
-                elif column == 3:
-                    return figure.part2_prefix
-                elif column == 4:
-                    return figure.part2_number
-                elif column == 5:
-                    return figure.figure_number
-                elif column == 6:
-                    return figure.related_taxa[0].taxon.name if figure.related_taxa else ''
-                elif column == 7:
-                    return figure.caption
-                elif column == 8:
-                    return figure.comments
+                if hasattr(figure, self.column_list[column]):
+                    return getattr(figure, self.column_list[column])
             else:  # icon mode
-                return f"{figure.figure_number} {figure.related_taxa[0].taxon.name if figure.related_taxa else ''}"
+                return f"{figure.figure_number} {figure.taxon_name}"
         elif role == Qt.BackgroundRole:
-            if (index.row(), index.column()) in self.edited_cells:
+            if index.column() in self._uneditable_columns:
+                return QColor(192, 192, 192)
+            elif (index.row(), index.column()) in self.edited_cells:
                 return QColor(255, 255, 0)  # Yellow color for edited cells
         elif role == Qt.DecorationRole and column == 0 and self.mode == 'icon':
             if figure in self.icon_cache and figure.modified_at == self.icon_cache[figure][0]:
@@ -108,34 +99,19 @@ class FigureTableModel(QAbstractTableModel):
             row = index.row()
             col = index.column()
             figure = self.figures[row]
-            
-            if col == 0:
-                figure.part1_prefix = value
-            elif col == 1:
-                figure.part1_number = value
-            elif col == 2:
-                figure.part_separator = value
-            elif col == 3:
-                figure.part2_prefix = value
-            elif col == 4:
-                figure.part2_number = value
-            elif col == 5:
-                figure.figure_number = value
-            elif col == 6:
-                # Handling taxon name change might require more complex logic
-                pass
-            elif col == 7:
-                figure.caption = value
-            elif col == 8:
-                figure.comments = value
 
-            self.edited_cells.add((row, col))
-            self.dataChanged.emit(index, index, [Qt.DisplayRole, Qt.BackgroundRole])
-            return True
+            if hasattr(figure, self.column_list[col]):
+                if value != getattr(figure, self.column_list[col]):
+                    setattr(figure, self.column_list[col], value)
+                    #if col < 5:
+                    #    figure.update_figure_number()
+                    self.edited_cells.add((row, col))
+                    self.dataChanged.emit(index, index, [Qt.DisplayRole, Qt.BackgroundRole])
+                    return True
         return False
 
     def flags(self, index):
-        if self.mode == 'edit':
+        if self.mode == 'edit' and index.column() not in self._uneditable_columns:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
@@ -157,25 +133,10 @@ class FigureTableModel(QAbstractTableModel):
     def save_changes(self):
         for row, col in self.edited_cells:
             figure = self.figures[row]
-            if col == 0:
-                figure.part1_prefix = self.data(self.index(row, col), Qt.EditRole)
-            elif col == 1:
-                figure.part1_number = self.data(self.index(row, col), Qt.EditRole)
-            elif col == 2:
-                figure.part_separator = self.data(self.index(row, col), Qt.EditRole)
-            elif col == 3:
-                figure.part2_prefix = self.data(self.index(row, col), Qt.EditRole)
-            elif col == 4:
-                figure.part2_number = self.data(self.index(row, col), Qt.EditRole)
-            elif col == 5:
-                figure.figure_number = self.data(self.index(row, col), Qt.EditRole)
-            elif col == 6:
-                figure.taxon_name = self.data(self.index(row, col), Qt.EditRole)
-            elif col == 7:
-                figure.caption = self.data(self.index(row, col), Qt.EditRole)
-            elif col == 8:
-                figure.comments = self.data(self.index(row, col), Qt.EditRole)
-            figure.update_figure_number()
+            if hasattr(figure, self.column_list[col]):
+                setattr(figure, self.column_list[col], self.data(self.index(row, col), Qt.EditRole))
+            if col < 5:
+                figure.update_figure_number()
             figure.save()
         self.edited_cells.clear()
 

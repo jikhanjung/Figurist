@@ -87,9 +87,11 @@ class FiguristMainWindow(QMainWindow):
         self.toggle_view_button = QPushButton(self.tr("Toggle View"))
         # add edit button
         self.edit_button = QPushButton(self.tr("Edit"))
+        self.save_button = QPushButton(self.tr("Save Changes"))
         self.button_layout.addWidget(self.add_figures_button)
         self.button_layout.addWidget(self.toggle_view_button)
         self.button_layout.addWidget(self.edit_button)
+        self.button_layout.addWidget(self.save_button)
 
         self.right_widget = QWidget()
         self.right_layout = QVBoxLayout()
@@ -99,6 +101,7 @@ class FiguristMainWindow(QMainWindow):
         self.toggle_view_button.clicked.connect(self.toggle_view)
         self.add_figures_button.clicked.connect(self.add_figures)
         self.edit_button.clicked.connect(self.edit_figure_table)
+        self.save_button.clicked.connect(self.save_figure_table)
 
         self.left_mode_widget = QWidget()
         self.left_mode_layout = QHBoxLayout()
@@ -214,6 +217,13 @@ class FiguristMainWindow(QMainWindow):
 
     def edit_figure_table(self):
         self.figureView.set_mode('edit')
+
+    def save_figure_table(self):
+        # wait cursor
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        self.figureView.save_changes()
+        QApplication.restoreOverrideCursor()
+        self.figureView.set_mode('table')
 
     def dropEvent(self, event):
         #print("reference view drop event")
@@ -362,14 +372,11 @@ class FiguristMainWindow(QMainWindow):
         dialog.exec_()
         # get selected item from referenceView and update its display
         for index in self.referenceView.selectedIndexes():
-            item1 = self.reference_model.itemFromIndex(index)
+            row, column = index.row(), index.column()
 
-            item1_text = self.selected_reference.get_abbr() 
-            if self.selected_reference.attachments.count() > 0:
-                item1_text += " 📄"
-            if self.selected_reference.figures.count() > 0:
-                item1_text += " (" + str(self.selected_reference.figures.count()) + ")"
-            item1.setText(item1_text)
+            item = self.reference_model.itemFromIndex(index)
+            if column == 2:
+                item.setText(str(self.selected_reference.figures.count()))
         self.load_figure()
 
     def update_icon_mode_columns(self):
@@ -1055,11 +1062,15 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         action_add_reference.triggered.connect(self.on_action_add_reference_triggered)
         action_edit_reference = QAction(self.tr("Edit reference"))
         action_edit_reference.triggered.connect(self.on_action_edit_reference_triggered)
+        action_open_pdf_file = QAction(self.tr("Open PDF file"))
+        action_open_pdf_file.triggered.connect(self.on_action_open_pdf_file_triggered)
         action_delete_reference = QAction(self.tr("Delete reference"))
         action_delete_reference.triggered.connect(self.on_action_delete_reference_triggered)
 
         menu = QMenu()
         if self.selected_reference is not None:
+            if self.selected_reference.attachments.count() > 0:
+                menu.addAction(action_open_pdf_file)
             menu.addAction(action_edit_reference)
             menu.addAction(action_delete_reference)
         elif self.selected_collection is not None:
@@ -1069,6 +1080,18 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             menu.addAction(action_add_subcollection)
             menu.addAction(action_add_reference)
         menu.exec_(self.referenceView.viewport().mapToGlobal(position))
+
+    def on_action_open_pdf_file_triggered(self):
+        if self.selected_reference is None:
+            return
+        attachment = self.selected_reference.attachments[0]
+        attachment_path = attachment.get_file_path()
+        print("attachment path:", attachment_path)
+        if attachment_path:
+            #print("attachment path:", attachment_path)
+            # open pdf file using system default application
+            os.startfile(attachment_path)
+            
 
     def on_action_edit_collection_triggered(self):
         col = self.selected_collection
@@ -1178,15 +1201,88 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         if not figure_list:
             return
 
+        menu = QMenu()
         action_set_taxon = QAction(self.tr("Set taxon"))
         action_set_taxon.triggered.connect(self.on_action_set_taxon_triggered)
         action_delete_figure = QAction(self.tr("Delete figure(s)"))
         action_delete_figure.triggered.connect(self.on_action_delete_figure_triggered)
+        action_fill_value = QAction(self.tr("Fill value"))
+        action_fill_value.triggered.connect(self.on_action_fill_value_triggered)
+        action_fill_sequence = QAction(self.tr("Fill sequence"))
+        action_fill_sequence.triggered.connect(self.on_action_fill_sequence_triggered)
 
-        menu = QMenu()
-        menu.addAction(action_set_taxon)
-        menu.addAction(action_delete_figure)
-        menu.exec_(self.figureView.currentWidget().viewport().mapToGlobal(position))
+
+        if self.figureView.mode in ['icon','table']:
+            menu.addAction(action_set_taxon)
+            menu.addAction(action_delete_figure)
+        elif self.figureView.mode == 'edit':
+            menu.addAction(action_fill_value)
+            menu.addAction(action_fill_sequence)
+
+        source_widget = self.figureView.currentWidget()
+        
+        # Map the position to the figureView
+        position_in_figure_view = source_widget.mapTo(self.figureView, position)
+        
+        # Then map it to the global coordinate system
+        global_position = self.figureView.mapToGlobal(position_in_figure_view)
+
+        menu.exec_(global_position)
+        #menu.exec_(self.figureView.currentWidget().viewport().mapToGlobal(position))
+
+    def on_action_fill_sequence_triggered(self):
+        selected_cells = self.figureView.selectedIndexes()
+        if len(selected_cells) == 0:
+            return
+        selected_cells.sort(key=lambda x: (x.row(), x.column()))
+        # make sure all the cells are in the column 1
+        # get column number of all the cells
+        column_numbers = [cell.column() for cell in selected_cells]
+        if len(set(column_numbers)) > 1:# or column_numbers[0] != 1:
+            return
+        
+        # get the first cell
+        first_cell = selected_cells[0]
+        first_row = first_cell.row()
+        column_0_index = self.figureView.model.index(first_row, 0)
+        object_id = self.figureView.model.data(column_0_index, Qt.DisplayRole)
+        sequence = self.figureView.model.data(first_cell, Qt.DisplayRole)
+        try:
+            sequence = int(sequence)
+        except:
+            sequence = 1
+        # get user input
+
+        sequence, ok = QInputDialog.getInt(self, "Fill Sequence", "Enter starting sequence number", sequence)
+        if not ok:
+            return
+        # get increment
+        increment, ok = QInputDialog.getInt(self, "Fill Sequence", "Enter increment", 1)
+        if not ok:
+            return
+        # fill the sequence
+        for cell in selected_cells:
+            row = cell.row()
+            col = cell.column()
+            index = self.figureView.model.index(row, col)
+            self.figureView.model.setData(index, sequence, Qt.EditRole)
+            sequence += increment
+
+
+    def on_action_fill_value_triggered(self):
+        selected_indices = self.figureView.selectedIndexes()
+        if len(selected_indices) == 0:
+            return
+
+        first_index = selected_indices[0]
+        value = str(self.figureView.model.data(first_index, Qt.DisplayRole))
+        value, ok = QInputDialog.getText(self, "Fill Values", "Enter value", text=value)
+        if not ok:
+            return
+        # fill the values
+        for index in self.figureView.selectedIndexes():
+            row, col = index.row(), index.column()
+            self.figureView.model.setData(index, value, Qt.EditRole)
 
     def on_action_set_taxon_triggered(self):
         if self.selected_figures is None:

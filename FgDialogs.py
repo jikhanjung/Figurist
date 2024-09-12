@@ -1426,13 +1426,13 @@ class AddFiguresDialog(QDialog):
 
         self.prompt_edit = QTextEdit()
         # set prompt text. read from file prompt.txt in unicode
-        prompt_file = "prompt.txt"
+        prompt_file = "json_prompt.txt"
         if os.path.exists(prompt_file):
             with open(prompt_file, "r", encoding="utf-8") as f:
                 prompt_text = f.read()
                 self.prompt_edit.setText(prompt_text)
         else:
-            self.prompt_edit.setText(CAPTION_PROCESSING_PROMPT_1 + "\n" + CAPTION_PROCESSING_PROMPT_2 )
+            self.prompt_edit.setText("")
 
         self.processed_caption_widget = QWidget()
         self.processed_caption_layout = QVBoxLayout()
@@ -1778,12 +1778,12 @@ class AddFiguresDialog(QDialog):
         processed_text = processed_text.split("----BEGIN----",1)[1]
         processed_text = processed_text.split("----END----",1)[0]
         # trim white spaces
-        processed_text = processed_text.strip()
-        title, figure_captions = processed_text.split("\n\n",1)
-        figure_caption_list = figure_captions.split("\n")
+        caption_dict = json.loads(processed_text)
+        title = caption_dict['title']
+        figure_caption_list = caption_dict['subfigure_list']
         # find figure or plate number
         #title = re.(r"(\w+)\t(\d+)", title)
-        figure_type, figure_number = title.split("\t")
+        figure_type, figure_number = title.split(" ")
         #print("figure type:", figure_type)
         #print("figure number:", figure_number)
         # if comboType has figure type, set it
@@ -1793,7 +1793,7 @@ class AddFiguresDialog(QDialog):
             self.comboType.setCurrentText("Figure")
         #self.comboType.setCurrentText(figure_type)
         self.edtNumber1.setText(figure_number)
-        self.processed_caption_list = figure_captions.split("\n")
+        self.processed_caption_list = figure_caption_list
             #self.load_subfigure_list(self.processed_caption_list)
         self.check_update_caption_button()
         return processed_text
@@ -2150,17 +2150,23 @@ class AddFiguresDialog(QDialog):
         # clear caption
         self.raw_caption_edit.clear()
         self.processed_caption_edit.clear()
+        self.edtNumber1.clear()
 
     def on_btn_save_clicked(self):
 
         if len(self.subfigure_list) == 0:
             return
+        number1 = self.edtNumber1.text()
+        if number1 == "":
+            QMessageBox().information(self, "Figure Number", "Please enter figure number")
+            self.edtNumber1.setFocus()
+            return
+
 
         # wait cursor
         QApplication.setOverrideCursor(Qt.WaitCursor)
 
         type = self.comboType.currentText()
-        number1 = self.edtNumber1.text()
         sub_type = self.comboSubType.currentText()
         if sub_type == "--None--":
             sub_type = ""
@@ -2175,8 +2181,26 @@ class AddFiguresDialog(QDialog):
         else:
             sub_number_list = ["" for i in range(len(self.subfigure_list))]
         
-        if sub_type == "--None--" and len(self.subfigure_list) == 1:
+        if len(self.subfigure_list) == 1:
+            print("Single figure")
             separator = ""
+            parent_figure = FgFigure()
+            parent_figure.file_name = f"{type}{number1}.png"
+            parent_figure.figure_number = f"{type}{number1}"
+            #figure.caption = self.model.item(0, 3).text()
+            #figure.comments = self.model.item(0, 4).text()
+            parent_figure.part1_prefix = type
+            parent_figure.part1_number = number1
+            parent_figure.part2_prefix = ""
+            parent_figure.part2_number = ""
+            parent_figure.part_separator = ""
+            parent_figure.update_figure_number()
+            parent_figure.caption = self.raw_caption_edit.toPlainText()
+
+            parent_figure.reference = self.reference
+            parent_figure.file_path = ""
+            parent_figure.save()
+            parent_figure.add_pixmap(self.subfigure_list[0].pixmap)
         
 
         elif len(self.subfigure_list) > 1:

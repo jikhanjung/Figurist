@@ -460,10 +460,10 @@ class FgFigure(Model):
 
     def update_figure_number(self):
         if self.part1_number is not None:
-            self.figure_number = self.part1_prefix + self.part1_number 
+            self.figure_number = str(self.part1_prefix) + str(self.part1_number)
             if self.part2_number is not None:
                 separator = self.part_separator or ""
-                self.figure_number += separator + self.part2_prefix + self.part2_number
+                self.figure_number += separator + str(self.part2_prefix) + str(self.part2_number)
             return self.figure_number
         else:
             return self.figure_number

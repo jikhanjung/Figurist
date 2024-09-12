@@ -28,334 +28,6 @@ logger = logging.getLogger(__name__)
 
 CLOSE_TO = { 'left': 1, 'right': 2, 'top': 4, 'bottom': 8 }
 
-CAPTION_PROCESSING_PROMPT_1 = '''
-Please process following caption so that:
-1. The figure number is extracted and stored in "figure", "plate", "table", or "text-figure" key depending on the type of the figure, 
-usually specified at the beginning of the caption.
-2. Each subfigure information is stored in a list under "subfigures" key.
-3. Each subfigure information should contain "id", "taxon_name", and "caption".
-4. "id" should be the subfigure number, usually starting from 1 and incrementing by 1 for each subfigure, but also can be a, b, c, or in other formats.
-5. "taxon_name" should be the scientific name of the taxon.
-6. "caption" should contain the rest of the subfigure information.
-
-For example:
-Figure 3
-Pojetaia runnegari Jell, 1980 from the Shackleton Limestone. (1–4)
-Specimen SMNH Mo185039 in (1) lateral view, (2) dorsal view, (3) magniﬁca-
-tion of the central margin, showing laminar crystalline imprints, (4) magniﬁca-
-tion of the cardinal teeth shown in (2). (5, 6) Specimen SMNH Mo185040,
-(5) lateral view, (6) magniﬁcation of lateral surface, showing laminar crystalline
-imprints. (7) Specimen SMNH Mo185041 in lateral view. (8) Specimen SMNH
-Mo185042 in lateral view. (9) Specimen SMNH Mo185043. (5, 6, 8) imaged
-under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bars
-= 100 µm.
-
-Paragraph above should be converted to:
-{
-  "figure": 3,
-  "subfigures": [
-    {
-      "id": 1,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185039, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 2,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185039, dorsal view (200 µm scale bar)."
-    },
-    {
-      "id": 3,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar)."
-    },
-    {
-      "id": 4,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185039, magnification of cardinal teeth (100 µm scale bar)."
-    },
-    {
-      "id": 5,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185040, lateral view (100 µm scale bar)."
-    },
-    {
-      "id": 6,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar)."
-    },
-    {
-      "id": 7,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185041, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 8,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185042, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 9,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185043 (200 µm scale bar)."
-    }
-  ]
-}
-
-'''
-        
-CAPTION_PROCESSING_PROMPT_2 = '''
-Another example:
-Figure 4. Helcionellids fromthe Shackleton Limestone. (1–5) Davidonia cf. D. corrugata Runnegar in Bengtson et al., 1990. (1–3) SpecimenSMNHMo185044 in
-(1) oblique lateral view, (2) apical view, (3) magnification of apical region in lateral view, showing protoconch and transition to teleoconch; (4) specimen SMNH
-Mo185045, oblique view of supra-apical field; (5) specimen SMNH Mo185046 lateral view. (6–14) Davidonia rostrata (Zhou and Xiao, 1984), (6, 7) specimen
-SMNH Mo185047, (6) lateral view, (7) dorsal view of supra-apical field; (8–11) specimen SMNH Mo185048, (8) magnification of lateral view of parietal train,
-showing polygonal crystalline imprints on the side surface, (9) dorsal view of supra-apical field, (10) lateral view, (11) magnification of oblique lateral view of
-supra-apical field, showing polygonal crystalline imprints; (12) specimen SMNH Mo182501 in lateral view; (13) specimen SMNH Mo182502 in lateral view;
-(14) specimen SMNH Mo182503 in lateral view. (15–18) Xianfengella cf. X. yatesi Parkhaev in Gravestock et al., 2001, specimen SMNH Mo185049, (15) dorsal
-view, (16) oblique apical view, (17) magnified view of supra-apical field showing crystalline imprints, (18) oblique lateral view. (19–21) Protowenella? sp. Runnegar
-and Jell, 1976 specimen SMNH Mo185050, (19) lateral view, (20) dorsal view, (21) apical view. (22–28) Anuliconus sp. Parkhaev in Gravestock et al. (2001), (22–24)
-specimen SMNHMo185051, (23) lateral view, (22) magnification of apex in lateral view, (24) apertural view; (25, 26) specimen SMNHMo185052, (25) lateral view, (26)
-apical view; (27, 28) specimen SMNH Mo185053, (27) lateral view, (28) apical view. (3, 10, 11, 17, 22, 24) Scale bars = 100 μm; all others, scale bars = 200 μm.
-
-This paragraph should be converted to JSON format like this:
-{
-  "figure": 4,
-  "subfigures": [
-    {
-      "id": 1,
-      "taxon_name": "Helcionellids",
-      "caption": "SMNH Mo185044, oblique lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 2,
-      "taxon_name": "Helcionellids",
-      "caption": "SMNH Mo185044, apical view (200 µm scale bar)."
-    },
-    {
-      "id": 3,
-      "taxon_name": "Helcionellids",
-      "caption": "SMNH Mo185044, magnification of apical region in lateral view, showing protoconch and transition to teleoconch 100 µm scale bar)."
-    },
-    {
-      "id": 4,
-      "taxon_name": "Helcionellids",
-      "caption": "SMNH Mo185045, oblique view of supra-apical field (200 µm scale bar)."
-    },
-    {
-      "id": 5,
-      "taxon_name": "Helcionellids",
-      "caption": "SMNH Mo185046, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 6,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185047, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 7,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185047, dorsal view of supra-apical field (200 µm scale bar)."
-    },
-    {
-      "id": 8,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185048, magnification of lateral view of parietal train, showing polygonal crystalline imprints on the side surface (200 µm scale bar)."
-    },
-    {
-      "id": 9,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185048, dorsal view of supra-apical field (200 µm scale bar)."
-    },
-    {
-      "id": 10,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185048, lateral view (100 µm scale bar)."
-    },
-    {
-      "id": 11,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185048, magnification of oblique lateral view of supra-apical field, showing polygonal crystalline imprints (100 µm scale bar)."
-    },
-    {
-      "id": 12,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo182501, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 13,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo182502, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 14,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo182503, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 15,
-      "taxon_name": "Xianfengella cf. X. yatesi",
-      "caption": "SMNH Mo185049, dorsal view (200 µm scale bar)."
-    },
-    {
-      "id": 16,
-      "taxon_name": "Xianfengella cf. X. yatesi",
-      "caption": "SMNH Mo185049, oblique apical view (200 µm scale bar)."
-    },
-    {
-      "id": 17,
-      "taxon_name": "Xianfengella cf. X. yatesi",
-      "caption": "SMNH Mo185049, magnified view of supra-apical field showing crystalline imprints 100 µm scale bar)."
-    },
-    {
-      "id": 18,
-      "taxon_name": "Xianfengella cf. X. yatesi",
-      "caption": "SMNH Mo185049, oblique lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 19,
-      "taxon_name": "Protowenella? sp.",
-      "caption": "SMNH Mo185050, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 20,
-      "taxon_name": "Protowenella? sp.",
-      "caption": "SMNH Mo185050, dorsal view (200 µm scale bar)."
-    },
-    {
-      "id": 21,
-      "taxon_name": "Protowenella? sp.",
-      "caption": "SMNH Mo185050, apical view (200 µm scale bar)."
-    },
-    {
-      "id": 22,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185051, lateral view (100 µm scale bar)."
-    },
-    {
-      "id": 23,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185051, magnification of apex in lateral view 200 µm scale bar)."
-    },
-    {
-      "id": 24,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185051, apertural view (100 µm scale bar)."
-    },
-    {
-      "id": 25,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185052, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 26,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185052, apical view (200 µm scale bar)."
-    },
-    {
-      "id": 27,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185053, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 28,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185053, apical view (200 µm scale bar)."
-    }
-  ]
-}
-
-'''
-
-CAPTION_PROCESSING_PROMPT_1 = '''
-Please process following caption so that:
-each subfigure caption is in one line and separated by a newline character;
-each caption should contain three items separated by a tab character;
-the first item is the figure number;
-the second item is the scientific name;
-the third item is the rest of the figure information such as specimen number, magnification, scale bar, etc.
-processed caption should be enclosed by "----BEGIN----" and "----END----" lines.
-
-For example:
-Figure 3
-Pojetaia runnegari Jell, 1980 from the Shackleton Limestone. (1–4)
-Specimen SMNH Mo185039 in (1) lateral view, (2) dorsal view, (3) magniﬁca-
-tion of the central margin, showing laminar crystalline imprints, (4) magniﬁca-
-tion of the cardinal teeth shown in (2). (5, 6) Specimen SMNH Mo185040,
-(5) lateral view, (6) magniﬁcation of lateral surface, showing laminar crystalline
-imprints. (7) Specimen SMNH Mo185041 in lateral view. (8) Specimen SMNH
-Mo185042 in lateral view. (9) Specimen SMNH Mo185043. (5, 6, 8) imaged
-under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bars
-= 100 µm.
-Paragraph above should be converted to:
-----BEGIN----
-Figure\t3
-
-1\tPojetaia runnegari\tSMNH Mo185039, lateral view (200 µm scale bar).
-2\tPojetaia runnegari\tSMNH Mo185039, dorsal view (200 µm scale bar).
-3\tPojetaia runnegari\tSMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar).
-4\tPojetaia runnegari\tSMNH Mo185039, magnification of cardinal teeth (100 µm scale bar).
-5\tPojetaia runnegari\tSMNH Mo185040, lateral view (100 µm scale bar).
-6\tPojetaia runnegari\tSMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar).
-7\tPojetaia runnegari\tSMNH Mo185041, lateral view (200 µm scale bar).
-8\tPojetaia runnegari\tSMNH Mo185042, lateral view (200 µm scale bar).
-9\tPojetaia runnegari\tSMNH Mo185043 (200 µm scale bar).
-----END----
-
-'''
-
-CAPTION_PROCESSING_PROMPT_2 = '''
-Here is another example:
-Figure 4. Helcionellids fromthe Shackleton Limestone. (1–5) Davidonia cf. D. corrugata Runnegar in Bengtson et al., 1990. (1–3) SpecimenSMNHMo185044 in
-(1) oblique lateral view, (2) apical view, (3) magnification of apical region in lateral view, showing protoconch and transition to teleoconch; (4) specimen SMNH
-Mo185045, oblique view of supra-apical field; (5) specimen SMNH Mo185046 lateral view. (6–14) Davidonia rostrata (Zhou and Xiao, 1984), (6, 7) specimen
-SMNH Mo185047, (6) lateral view, (7) dorsal view of supra-apical field; (8–11) specimen SMNH Mo185048, (8) magnification of lateral view of parietal train,
-showing polygonal crystalline imprints on the side surface, (9) dorsal view of supra-apical field, (10) lateral view, (11) magnification of oblique lateral view of
-supra-apical field, showing polygonal crystalline imprints; (12) specimen SMNH Mo182501 in lateral view; (13) specimen SMNH Mo182502 in lateral view;
-(14) specimen SMNH Mo182503 in lateral view. (15–18) Xianfengella cf. X. yatesi Parkhaev in Gravestock et al., 2001, specimen SMNH Mo185049, (15) dorsal
-view, (16) oblique apical view, (17) magnified view of supra-apical field showing crystalline imprints, (18) oblique lateral view. (19–21) Protowenella? sp. Runnegar
-and Jell, 1976 specimen SMNH Mo185050, (19) lateral view, (20) dorsal view, (21) apical view. (22–28) Anuliconus sp. Parkhaev in Gravestock et al. (2001), (22–24)
-specimen SMNHMo185051, (23) lateral view, (22) magnification of apex in lateral view, (24) apertural view; (25, 26) specimen SMNHMo185052, (25) lateral view, (26)
-apical view; (27, 28) specimen SMNH Mo185053, (27) lateral view, (28) apical view. (3, 10, 11, 17, 22, 24) Scale bars = 100 μm; all others, scale bars = 200 μm.
-
-This paragraph should be converted to:
-----BEGIN----
-Figure\t4
-
-1\tHelcionellids\tSMNH Mo185044, oblique lateral view (200 µm scale bar).
-2\tHelcionellids\tSMNH Mo185044, apical view (200 µm scale bar).
-3\tHelcionellids\tSMNH Mo185044, magnification of apical region in lateral view, showing protoconch and transition to teleoconch 100 µm scale bar).
-4\tHelcionellids\tSMNH Mo185045, oblique view of supra-apical field (200 µm scale bar).
-5\tHelcionellids\tSMNH Mo185046, lateral view (200 µm scale bar).
-6\tDavidonia rostrata\tSMNH Mo185047, lateral view (200 µm scale bar).
-7\tDavidonia rostrata\tSMNH Mo185047, dorsal view of supra-apical field (200 µm scale bar).
-8\tDavidonia rostrata\tSMNH Mo185048, magnification of lateral view of parietal train, showing polygonal crystalline imprints on the side surface (200 µm scale bar).
-9\tDavidonia rostrata\tSMNH Mo185048, dorsal view of supra-apical field (200 µm scale bar).
-10\tDavidonia rostrata\tSMNH Mo185048, lateral view (100 µm scale bar).
-11\tDavidonia rostrata\tSMNH Mo185048, magnification of oblique lateral view of supra-apical field, showing polygonal crystalline imprints (100 µm scale bar).
-12\tDavidonia rostrata\tSMNH Mo182501, lateral view (200 µm scale bar).
-13\tDavidonia rostrata\tSMNH Mo182502, lateral view (200 µm scale bar).
-14\tDavidonia rostrata\tSMNH Mo182503, lateral view (200 µm scale bar).
-15\tXianfengella cf. X. yatesi\tSMNH Mo185049, dorsal view (200 µm scale bar).
-16\tXianfengella cf. X. yatesi\tSMNH Mo185049, oblique apical view (200 µm scale bar).
-17\tXianfengella cf. X. yatesi\tSMNH Mo185049, magnified view of supra-apical field showing crystalline imprints 100 µm scale bar).
-18\tXianfengella cf. X. yatesi\tSMNH Mo185049, oblique lateral view (200 µm scale bar).
-19\tProtowenella? sp.\tSMNH Mo185050, lateral view (200 µm scale bar).
-20\tProtowenella? sp.\tSMNH Mo185050, dorsal view (200 µm scale bar).
-21\tProtowenella? sp.\tSMNH Mo185050, apical view (200 µm scale bar).
-22\tAnuliconus sp.\tSMNH Mo185051, lateral view (100 µm scale bar).
-23\tAnuliconus sp.\tSMNH Mo185051, magnification of apex in lateral view 200 µm scale bar).
-24\tAnuliconus sp.\tSMNH Mo185051, apertural view (100 µm scale bar).
-25\tAnuliconus sp.\tSMNH Mo185052, lateral view (200 µm scale bar).
-26\tAnuliconus sp.\tSMNH Mo185052, apical view (200 µm scale bar).
-27\tAnuliconus sp.\tSMNH Mo185053, lateral view (200 µm scale bar).
-28\tAnuliconus sp.\tSMNH Mo185053, apical view (200 µm scale bar).
-----END----
-
-Below is the figure caption that needs to be processed in the same way:
-
-'''
-
 class SubFigure:
     def __init__(self, pixmap = None, rect = None, index = "", taxon_name = "", caption = "", comments = "", page_number = -1):
         self.pixmap = pixmap
@@ -475,11 +147,37 @@ class FigureTableModel(QAbstractTableModel):
     def setFigures(self, figures):
         self.beginResetModel()
         self.figures = figures
+        self.edited_cells = set()  # To keep track of edited cells
         self.endResetModel()
 
     def setMode(self, mode):
         self.mode = mode
         self.layoutChanged.emit()
+
+    def save_changes(self):
+        for row, col in self.edited_cells:
+            figure = self.figures[row]
+            if col == 0:
+                figure.part1_prefix = self.data(self.index(row, col), Qt.EditRole)
+            elif col == 1:
+                figure.part1_number = self.data(self.index(row, col), Qt.EditRole)
+            elif col == 2:
+                figure.part_separator = self.data(self.index(row, col), Qt.EditRole)
+            elif col == 3:
+                figure.part2_prefix = self.data(self.index(row, col), Qt.EditRole)
+            elif col == 4:
+                figure.part2_number = self.data(self.index(row, col), Qt.EditRole)
+            elif col == 5:
+                figure.figure_number = self.data(self.index(row, col), Qt.EditRole)
+            elif col == 6:
+                figure.taxon_name = self.data(self.index(row, col), Qt.EditRole)
+            elif col == 7:
+                figure.caption = self.data(self.index(row, col), Qt.EditRole)
+            elif col == 8:
+                figure.comments = self.data(self.index(row, col), Qt.EditRole)
+            figure.update_figure_number()
+            figure.save()
+        self.edited_cells.clear()
 
 class FgFigureView(QStackedWidget):
     def __init__(self, parent=None):
@@ -518,18 +216,26 @@ class FgFigureView(QStackedWidget):
         self.tableView.horizontalHeader().setSectionResizeMode(8, QHeaderView.Stretch)  # Comments
 
     def set_mode(self, mode):
+        self.mode = mode
         if mode == 'icon':
             self.setCurrentWidget(self.listView)
             self.listView.setGridSize(QSize(150, 150))
             self.model.setMode('icon')
         elif mode == 'table':
+            self.tableView.setSelectionBehavior(QAbstractItemView.SelectRows)
             self.setCurrentWidget(self.tableView)
             self.model.setMode('table')
         elif mode == 'edit':
+            # make it editable, and selection is cell-based
+            self.tableView.setSelectionBehavior(QAbstractItemView.SelectItems)
             self.setCurrentWidget(self.tableView)
             self.model.setMode('edit')
         self.model.layoutChanged.emit()
         self.adjust_column_widths()
+
+    def save_changes(self):
+        self.model.save_changes()
+        self.tableView.viewport().update()
 
     def load_figures(self, figures):
         if not isinstance(self.model, FigureTableModel):

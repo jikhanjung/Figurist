@@ -122,7 +122,8 @@ class FigureTableModel(QAbstractTableModel):
 
     def setFigures(self, figures):
         self.beginResetModel()
-        self.figures = figures
+        sorted_figures = sorted(figures, key=lambda fig: fig.get_sort_key())
+        self.figures = sorted_figures
         self.edited_cells = set()  # To keep track of edited cells
         self.endResetModel()
 
@@ -171,7 +172,8 @@ class FgFigureView(QStackedWidget):
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         for i in range(5):  # First 5 columns
             self.tableView.horizontalHeader().resizeSection(i, 50)  # Adjust this value as needed
-        self.tableView.horizontalHeader().setSectionResizeMode(5, QHeaderView.Stretch)  # Figure Number
+        self.tableView.horizontalHeader().resizeSection(5, 100)  # Adjust this value as needed
+        #self.tableView.horizontalHeader().setSectionResizeMode(5, QHeaderView.Stretch)  # Figure Number
         self.tableView.horizontalHeader().setSectionResizeMode(6, QHeaderView.Stretch)  # Taxon
         self.tableView.horizontalHeader().setSectionResizeMode(7, QHeaderView.Stretch)  # Caption
         self.tableView.horizontalHeader().setSectionResizeMode(8, QHeaderView.Stretch)  # Comments
@@ -774,10 +776,16 @@ class FigureLabel(QLabel):
 
 class DraggableTreeView(QTreeView):
     emptyAreaClicked = pyqtSignal()
+    itemExpanded = pyqtSignal(object)  # New signal
+    itemCollapsed = pyqtSignal(object)  # New signal
+    
     def __init__(self, parent=None):
         super().__init__(parent)
         self.drag_start_position = None
         self.setMouseTracking(True)
+
+        self.expanded.connect(self._onItemExpanded)
+        self.collapsed.connect(self._onItemCollapsed)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -814,6 +822,21 @@ class DraggableTreeView(QTreeView):
         other_columns_width = sum(self.columnWidth(i) for i in range(1, self.model().columnCount()))
         self.setColumnWidth(0, max(0, available_width - other_columns_width))       
 
+    def _onItemExpanded(self, index):
+        item = self.model().itemFromIndex(index)
+        self.itemExpanded.emit(item)
+
+    def _onItemCollapsed(self, index):
+        item = self.model().itemFromIndex(index)
+        self.itemCollapsed.emit(item)
+
+    def expandItem(self, item):
+        index = self.model().indexFromItem(item)
+        self.expand(index)
+
+    def collapseItem(self, item):
+        index = self.model().indexFromItem(item)
+        self.collapse(index)
 
 class LLMBackend(ABC):
     @abstractmethod

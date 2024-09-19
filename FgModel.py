@@ -452,6 +452,17 @@ class FgFigure(Model):
     class Meta:
         database = gDatabase
 
+    def get_sort_key(self):
+        def parse_part(part):
+            if part is None or part == '':
+                return (0, '')
+            try:
+                return (1, int(part))
+            except ValueError:
+                return (2, part.lower())
+
+        return (parse_part(self.part1_number), parse_part(self.part2_number))
+
     def get_taxon_name(self):
         if self.related_taxa.count() > 0:
             return self.related_taxa[0].taxon.name

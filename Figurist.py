@@ -71,6 +71,8 @@ class FiguristMainWindow(QMainWindow):
         self.referenceView.setDragDropMode(QAbstractItemView.DragDrop)        
         #self.referenceView.setAcceptDrops(True)
         self.referenceView.dropEvent = self.dropEvent
+        self.referenceView.itemExpanded.connect(self.handleItemExpanded)
+        self.referenceView.itemCollapsed.connect(self.handleItemCollapsed)        
         #self.referenceView.emptyAreaClicked.connect(self.on_referenceView_emptyAreaClicked)
 
         self.icon_mode = False
@@ -214,6 +216,25 @@ class FiguristMainWindow(QMainWindow):
         self.figureView.verticalHeader().hide()
         '''
         self.toggle_view()
+
+    def handleItemExpanded(self, item):
+        print(f"Item expanded: {item.text()}")
+        # get data from item
+        data = item.data()
+        if isinstance(data, FgCollection):
+            print("collection expanded:", data.name)
+            data.is_expanded = True
+            data.save()
+            # get references
+            
+
+    def handleItemCollapsed(self, item):
+        print(f"Item collapsed: {item.text()}")
+        data = item.data()
+        if isinstance(data, FgCollection):
+            print("collection collapsed:", data.name)
+            data.is_expanded = False
+            data.save()
 
     def edit_figure_table(self):
         self.figureView.set_mode('edit')
@@ -533,6 +554,9 @@ class FiguristMainWindow(QMainWindow):
                 item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
             item1.setData(subcoll)
             parent_item.appendRow([item1, QStandardItem(""), QStandardItem("")])
+            if subcoll.is_expanded:
+                # expand item1
+                self.referenceView.expandItem(item1)
             self.load_subcollections(subcoll, item1)
             self.load_references_in_collection(subcoll, item1)
 
@@ -579,6 +603,9 @@ class FiguristMainWindow(QMainWindow):
                 #item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
                 item1.setData(coll)
                 self.reference_model.appendRow([item1,QStandardItem(""),QStandardItem("")])
+                if coll.is_expanded:
+                    # expand item1
+                    self.referenceView.expandItem(item1)
                 self.load_subcollections(coll, item1)
                 self.load_references_in_collection(coll, item1)
 

@@ -1026,7 +1026,7 @@ class FigureDialog(QDialog):
         if self.figure_changed:
             self.figure.add_pixmap(self.lblFigure.orig_pixmap)
         
-        self.figure.file_name = self.edtFile.text()
+        #self.figure.file_name = self.edtFile.text()
         #self.figure.figure_number = self.edtFigureNumber.text()
         self.figure.part1_number = self.edt_part1_number.text()
         self.figure.part1_prefix = self.edt_part1_prefix.text()
@@ -1057,7 +1057,7 @@ class FigureDialog(QDialog):
         # scale image to fit label
         #self.figure_image = self.figure_image.scaled(600,400,Qt.KeepAspectRatio)
 
-        self.edtFile.setText(figure.file_name)
+        #self.edtFile.setText(figure.file_name)
         self.edtFigureNumber.setText(figure.figure_number)
         self.edt_part1_number.setText(figure.part1_number)
         self.edt_part1_prefix.setText(figure.part1_prefix)
@@ -1565,7 +1565,8 @@ class AddFigureDialog(QDialog):
         #print("Update caption")
         if len(self.processed_caption_list) > 0 and len(self.processed_caption_list) == len(self.subfigure_list):
             for i, caption_text in enumerate(self.processed_caption_list):
-                sub_index, taxon_name, caption = self.processed_caption_list[i].split("\t")
+                print("caption_text:", caption_text)
+                sub_index, taxon_name, caption = caption_text.split("\t", 3)
                 subfigure = self.subfigure_list[i]
                 type = self.comboType.currentText()
                 main_idx = self.edtNumber1.text()

@@ -481,7 +481,13 @@ class FiguristMainWindow(QMainWindow):
             self.load_references_in_collection(subcoll, item1)
 
     def load_references_in_collection(self, collection, parent_item):
-        for colref in collection.references:
+
+        ordered_references = (FgCollectionReference
+                            .select(FgCollectionReference, FgReference)
+                            .join(FgReference)
+                            .where(FgCollectionReference.collection == collection)
+                            .order_by(FgReference.author, FgReference.year))
+        for colref in ordered_references:
             item1 = QStandardItem(colref.reference.get_abbr())
             #item2 = QStandardItem(str(ref.id))
             item1.setData(colref.reference)

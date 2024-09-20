@@ -243,7 +243,7 @@ class FgReference(Model):
             figure_data.append({
                 "id": fig.id,
                 "figure_number": fig.figure_number,
-                "file_name": self.figure_number + ".png",
+                "file_name": fig.figure_number + ".png",
                 "file_path": fig.file_path,
                 "part1_prefix": fig.part1_prefix,
                 "part1_number": fig.part1_number,

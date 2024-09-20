@@ -1,4 +1,4 @@
-"""Peewee migrations -- 004_20240823.py.
+"""Peewee migrations -- 002_20240920.py.
 
 Some examples (model - class or model name)::
 
@@ -38,19 +38,12 @@ def migrate(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your migrations here."""
     
     migrator.add_fields(
-        'fgcollection',
+        'fgtaxon',
 
-        zotero_library_id=pw.CharField(max_length=255, null=True))
-
-    migrator.add_fields(
-        'fgreference',
-
-        zotero_library_id=pw.CharField(max_length=255, null=True))
+        comments=pw.TextField(null=True))
 
 
 def rollback(migrator: Migrator, database: pw.Database, *, fake=False):
     """Write your rollback migrations here."""
     
-    migrator.remove_fields('fgreference', 'zotero_library_id')
-
-    migrator.remove_fields('fgcollection', 'zotero_library_id')
+    migrator.remove_fields('fgtaxon', 'comments')

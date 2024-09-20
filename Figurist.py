@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import QMainWindow, QHeaderView, QApplication, QAbstractIte
                             QPushButton, QRadioButton, QLabel
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem, QKeySequence, QCursor
 from PyQt5.QtCore import Qt, QRect, QSortFilterProxyModel, QSettings, QSize, QTranslator, QItemSelectionModel, QObject, QEvent, QMargins
-from PyQt5.QtWidgets import QHeaderView
 
 from PyQt5.QtCore import pyqtSlot
 import re,os,sys
@@ -28,11 +27,13 @@ import time
 logger = setup_logger(fg.PROGRAM_NAME)
 
 ICON = {'new_reference': 'icons/new_reference.png', 'about': 'icons/about.png', 'exit': 'icons/exit.png', 'preferences': 'icons/preferences.png',
-        'new_collection': 'icons/new_collection.png', 'reference': 'icons/reference.png' , 'collection': 'icons/collection.png'} 
+        'new_collection': 'icons/new_collection.png', 'reference': 'icons/reference.png' , 'collection': 'icons/collection.png',
+        'reference_zotero': 'icons/reference_zotero.png', 'collection_zotero': 'icons/collection_zotero.png', 'import_collection': 'icons/import_collection.png',} 
 
 class FiguristMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        #print("init")
         self.setWindowIcon(QIcon(fg.resource_path('icons/Figurist.png')))
         self.setWindowTitle("{} v{}".format(self.tr("Figurist"), fg.PROGRAM_VERSION))
         self.setGeometry(100, 100, 800, 600)
@@ -41,6 +42,7 @@ class FiguristMainWindow(QMainWindow):
         self.prepare_database()
         self.reset_referenceView()
         self.load_references()
+        self.icon_mode = True
         #self.toggle_view()
 
     def on_referenceView_emptyAreaClicked(self):
@@ -54,19 +56,24 @@ class FiguristMainWindow(QMainWindow):
 
     def initUI(self):
         ''' initialize UI '''
+        #print("init ui")
         self.figure_tab = QTabWidget()
+        #print("figureview")
         self.figureView = FgFigureView()
         self.pdfView = PDFViewWidget()
         self.figure_tab.addTab(self.pdfView, self.tr("PDF"))
         self.figure_tab.addTab(self.figureView, self.tr("Figures"))
         self.referenceView = DraggableTreeView()
+        #self.referenceView = QTreeView()
         self.taxonView = QTreeView()
         self.referenceView.setDragEnabled(True)
         self.referenceView.setAcceptDrops(True)
         self.referenceView.setDragDropMode(QAbstractItemView.DragDrop)        
         #self.referenceView.setAcceptDrops(True)
         self.referenceView.dropEvent = self.dropEvent
-        self.referenceView.emptyAreaClicked.connect(self.on_referenceView_emptyAreaClicked)
+        self.referenceView.itemExpanded.connect(self.handleItemExpanded)
+        self.referenceView.itemCollapsed.connect(self.handleItemCollapsed)        
+        #self.referenceView.emptyAreaClicked.connect(self.on_referenceView_emptyAreaClicked)
 
         self.icon_mode = False
         self.mode = "Reference"
@@ -78,10 +85,15 @@ class FiguristMainWindow(QMainWindow):
         self.button_widget = QWidget()
         self.button_layout = QHBoxLayout()
         self.button_widget.setLayout(self.button_layout)
-        self.add_figure_button = QPushButton(self.tr("Add Figure"))
+        self.add_figures_button = QPushButton(self.tr("Add Figures"))
         self.toggle_view_button = QPushButton(self.tr("Toggle View"))
-        self.button_layout.addWidget(self.add_figure_button)
+        # add edit button
+        self.edit_button = QPushButton(self.tr("Edit"))
+        self.save_button = QPushButton(self.tr("Save Changes"))
+        self.button_layout.addWidget(self.add_figures_button)
         self.button_layout.addWidget(self.toggle_view_button)
+        self.button_layout.addWidget(self.edit_button)
+        self.button_layout.addWidget(self.save_button)
 
         self.right_widget = QWidget()
         self.right_layout = QVBoxLayout()
@@ -89,7 +101,9 @@ class FiguristMainWindow(QMainWindow):
         self.right_layout.addWidget(self.figure_tab)
         self.right_layout.addWidget(self.button_widget)
         self.toggle_view_button.clicked.connect(self.toggle_view)
-        self.add_figure_button.clicked.connect(self.add_figure)
+        self.add_figures_button.clicked.connect(self.add_figures)
+        self.edit_button.clicked.connect(self.edit_figure_table)
+        self.save_button.clicked.connect(self.save_figure_table)
 
         self.left_mode_widget = QWidget()
         self.left_mode_layout = QHBoxLayout()
@@ -153,6 +167,9 @@ class FiguristMainWindow(QMainWindow):
         self.actionNewCollection = QAction(QIcon(fg.resource_path(ICON['new_collection'])), self.tr("New Collection"), self)
         self.actionNewCollection.triggered.connect(self.on_action_new_collection_triggered)
         self.actionNewCollection.setShortcut(QKeySequence("Ctrl+M"))
+        self.actionImportCollection = QAction(QIcon(fg.resource_path(ICON['import_collection'])), self.tr("Import Collection"), self)
+        self.actionImportCollection.triggered.connect(self.on_action_import_collection_triggered)
+        self.actionImportCollection.setShortcut(QKeySequence("Ctrl+I"))
         self.actionExit = QAction(QIcon(fg.resource_path(ICON['exit'])), self.tr("Exit\tCtrl+W"), self)
         self.actionExit.triggered.connect(self.on_action_exit_triggered)
         self.actionExit.setShortcut(QKeySequence("Ctrl+W"))
@@ -174,6 +191,7 @@ class FiguristMainWindow(QMainWindow):
         self.file_menu = self.main_menu.addMenu(self.tr("File"))
         self.file_menu.addAction(self.actionNewCollection)
         self.file_menu.addAction(self.actionNewReference)
+        self.file_menu.addAction(self.actionImportCollection)
         self.file_menu.addAction(self.actionExit)
         self.help_menu = self.main_menu.addMenu(self.tr("Help"))
         self.help_menu.addAction(self.actionAbout)
@@ -197,8 +215,36 @@ class FiguristMainWindow(QMainWindow):
         self.figureView.horizontalHeader().hide()
         self.figureView.verticalHeader().hide()
         '''
-        self.toggle_view(True)
+        self.toggle_view()
 
+    def handleItemExpanded(self, item):
+        #print(f"Item expanded: {item.text()}")
+        # get data from item
+        data = item.data()
+        if isinstance(data, FgCollection):
+            #print("collection expanded:", data.name)
+            data.is_expanded = True
+            data.save()
+            # get references
+            
+
+    def handleItemCollapsed(self, item):
+        #print(f"Item collapsed: {item.text()}")
+        data = item.data()
+        if isinstance(data, FgCollection):
+            #print("collection collapsed:", data.name)
+            data.is_expanded = False
+            data.save()
+
+    def edit_figure_table(self):
+        self.figureView.set_mode('edit')
+
+    def save_figure_table(self):
+        # wait cursor
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        self.figureView.save_changes()
+        QApplication.restoreOverrideCursor()
+        self.figureView.set_mode('table')
 
     def dropEvent(self, event):
         #print("reference view drop event")
@@ -339,12 +385,19 @@ class FiguristMainWindow(QMainWindow):
             )
             self.copy_collection_contents(subcollection, new_subcollection)
 
-    def add_figure(self):
+    def add_figures(self):
         if self.selected_reference is None:
             return
-        dialog = AddFigureDialog(self)
+        dialog = AddFiguresDialog(self)
         dialog.set_reference(self.selected_reference)
         dialog.exec_()
+        # get selected item from referenceView and update its display
+        for index in self.referenceView.selectedIndexes():
+            row, column = index.row(), index.column()
+
+            item = self.reference_model.itemFromIndex(index)
+            if column == 2:
+                item.setText(str(self.selected_reference.figures.count()))
         self.load_figure()
 
     def update_icon_mode_columns(self):
@@ -356,6 +409,7 @@ class FiguristMainWindow(QMainWindow):
     def set_reference_mode(self, checked):
         if checked:
             self.mode = "Reference"
+            self.reset_referenceView()
             self.load_references()
             self.load_taxa()
             self.left_layout.removeWidget(self.referenceView)
@@ -367,19 +421,19 @@ class FiguristMainWindow(QMainWindow):
         if checked:
             self.mode = "Taxon"
             self.load_taxa()
+            self.reset_referenceView()
             self.load_references()
             self.left_layout.removeWidget(self.taxonView)
             self.left_layout.insertWidget(1,self.taxonView)
             self.update()
             self.filter_figures()
 
-    def toggle_view(self, icon_mode):
-        if icon_mode:
-            self.icon_mode = icon_mode #not self.icon_mode
+    def toggle_view(self):
+        self.icon_mode = not self.icon_mode #not self.icon_mode
+        if self.icon_mode:
+            self.figureView.set_mode('icon')
         else:
-            self.icon_mode = not self.icon_mode
-        self.figureView.set_icon_mode(self.icon_mode)
-        return
+            self.figureView.set_mode('table')
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -462,21 +516,47 @@ class FiguristMainWindow(QMainWindow):
         else:
             self.on_action_edit_collection_triggered()
 
+
     def reset_referenceView(self):
         self.reference_model = QStandardItemModel()
         self.referenceView.setModel(self.reference_model)
-        self.referenceView.setHeaderHidden(True)
+        self.reference_model.clear()
         self.reference_selection_model = self.referenceView.selectionModel()
         self.reference_selection_model.selectionChanged.connect(self.on_reference_selection_changed)
-        header = self.referenceView.header()
+        # Set selection behavior to select entire rows
         self.referenceView.setSelectionBehavior(QTreeView.SelectRows)
+        
+        # Set column headers
+        # Show the header
+        self.referenceView.setHeaderHidden(True)
+        self.reference_model.setHorizontalHeaderLabels(['', '', ''])
+        #self.referenceView.setColumnWidth(0, 500)   # Attachment column
+        self.referenceView.setColumnWidth(1, 50)   # Attachment column
+        self.referenceView.setColumnWidth(2, 50)   # Figures column
+        header = self.referenceView.header()
+        header.setSectionResizeMode(0, QHeaderView.Stretch)  # Name column stretches
+        #header.setSectionResizeMode(1, QHeaderView.Fixed)    # Attachment column fixed
+        #header.setSectionResizeMode(2, QHeaderView.Fixed)    # Figures column fixed
+        header.setStretchLastSection(False)
+
 
     def load_subcollections(self, collection, parent_item):
         for subcoll in collection.children:
-            item1 = QStandardItem(subcoll.name)
-            item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
+            #item1 = QStandardItem(subcoll.name)
+            item1_text = subcoll.name
+            if subcoll.references.count() > 0:
+                item1_text += " (" + str(subcoll.references.count()) + ")"
+            item1 = QStandardItem( item1_text )
+
+            if subcoll.zotero_key is not None and subcoll.zotero_key != "":
+                item1.setIcon(QIcon(fg.resource_path(ICON['collection_zotero'])))
+            else:
+                item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
             item1.setData(subcoll)
-            parent_item.appendRow([item1])
+            parent_item.appendRow([item1, QStandardItem(""), QStandardItem("")])
+            if subcoll.is_expanded:
+                # expand item1
+                self.referenceView.expandItem(item1)
             self.load_subcollections(subcoll, item1)
             self.load_references_in_collection(subcoll, item1)
 
@@ -488,27 +568,50 @@ class FiguristMainWindow(QMainWindow):
                             .where(FgCollectionReference.collection == collection)
                             .order_by(FgReference.author, FgReference.year))
         for colref in ordered_references:
-            item1 = QStandardItem(colref.reference.get_abbr())
+            item1_text = colref.reference.get_abbr()
+            item2 = QStandardItem("") 
+            if colref.reference.attachments.count() > 0:
+                item2 = QStandardItem("📄")
+                #item1_text += " 📄"
+            item2.setTextAlignment(Qt.AlignCenter)
+            #if colref.reference.figures.count() > 0:
+            #    item1_text += " (" + str(colref.reference.figures.count()) + ")"
+            item1 = QStandardItem(item1_text)
+            item3 = QStandardItem(str(colref.reference.figures.count()))
+            item3.setTextAlignment(Qt.AlignCenter)
             #item2 = QStandardItem(str(ref.id))
             item1.setData(colref.reference)
-            item1.setIcon(QIcon(fg.resource_path(ICON['reference'])))
+            if colref.reference.zotero_key is not None and colref.reference.zotero_key != "":
+                item1.setIcon(QIcon(fg.resource_path(ICON['reference_zotero'])))
+            else:
+                item1.setIcon(QIcon(fg.resource_path(ICON['reference'])))
 
-            parent_item.appendRow([item1])
+            parent_item.appendRow([item1, item2, item3])
 
 
     def load_references(self):
         #print("load references", self.mode)
-        self.reference_model.clear()
+        #self.reference_model.clear()
         self.selected_reference = None
         #ref_list = FgReference.filter(parent=None)
 
         if self.mode == "Reference":
             coll_list = FgCollection.select().where(FgCollection.parent==None).order_by(FgCollection.name)
             for coll in coll_list:
-                item1 = QStandardItem(coll.name)
-                item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
+                item1_text = coll.name
+                if coll.references.count() > 0:
+                    item1_text += " (" + str(coll.references.count()) + ")"
+                item1 = QStandardItem( item1_text )
+                if coll.zotero_key is not None and coll.zotero_key != "":
+                    item1.setIcon(QIcon(fg.resource_path(ICON['collection_zotero'])))
+                else:
+                    item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
+                #item1.setIcon(QIcon(fg.resource_path(ICON['collection'])))
                 item1.setData(coll)
-                self.reference_model.appendRow([item1])
+                self.reference_model.appendRow([item1,QStandardItem(""),QStandardItem("")])
+                if coll.is_expanded:
+                    # expand item1
+                    self.referenceView.expandItem(item1)
                 self.load_subcollections(coll, item1)
                 self.load_references_in_collection(coll, item1)
 
@@ -538,11 +641,12 @@ class FiguristMainWindow(QMainWindow):
             for ref in ref_list:
                 item1 = QStandardItem(ref.get_abbr())
                 item1.setIcon(QIcon(fg.resource_path(ICON['reference'])))
-                item2 = QStandardItem(str(ref.id))
+                item2 = QStandardItem("")
+                item3 = QStandardItem("")
                 item1.setData(ref)
-                self.reference_model.appendRow([item1,item2])#,item2,item3] )
-        self.referenceView.expandAll()
-        self.referenceView.hideColumn(1)
+                self.reference_model.appendRow([item1,item2,item3])#,item2,item3] )
+        #self.referenceView.expandAll()
+        #self.referenceView.hideColumn(1)
 
     def on_figure_selection_changed(self, selected, deselected):
         pass
@@ -590,6 +694,7 @@ class FiguristMainWindow(QMainWindow):
         #print("selected taxa:", [t.name for t in self.selected_taxa])
 
         if self.mode == "Taxon":
+            self.reset_referenceView()
             self.load_references()
 
         #print("taxon selection changed 2", time.time())
@@ -599,9 +704,12 @@ class FiguristMainWindow(QMainWindow):
     def on_reference_selection_changed(self, selected, deselected):
         indexes = selected.indexes()
         if len(indexes) == 0:
+            self.pdfView.clear()
             return
         index = indexes[0]
         obj = self.reference_model.itemFromIndex(index).data()
+        self.pdfView.clear()
+        self.figure_tab.setCurrentIndex(1)
         if isinstance(obj, FgReference):
             self.selected_reference = obj
             # get parent item of the selected item
@@ -615,25 +723,20 @@ class FiguristMainWindow(QMainWindow):
                 self.selected_taxa = []
                 self.load_taxa()
                 if self.selected_reference.zotero_key is not None and self.selected_reference.zotero_key != "":
-                    pdf_dir = self.selected_reference.get_attachment_path()
-                    if os.path.exists(pdf_dir):
-                        #print("pdf_dir:", pdf_dir)
-                        # get file list from pdf_dif
-                        pdf_files = [f for f in os.listdir(pdf_dir) if os.path.isfile(os.path.join(pdf_dir, f))]
-                        if len(pdf_files) > 0:
-                            #print("pdf_files:", pdf_files)
-                            self.pdfView.set_pdf(Path(pdf_dir) / pdf_files[0])
+                    if self.selected_reference.attachments.count() > 0:
+                        attachment_path = self.selected_reference.attachments[0].get_file_path()
+                        self.pdfView.set_pdf(attachment_path)
                         # set tab to pdf
                         self.figure_tab.setCurrentIndex(0)
-                    else:
-                        #self.pdfView.clear()
-                        self.figure_tab.setCurrentIndex(1)
+                if self.selected_reference.figures.count() > 0:
+                    self.figure_tab.setCurrentIndex(1)
             #print("on reference selection changed selected reference 2:", self.selected_reference,"selected_collection:", self.selected_collection)
             self.filter_figures()
             #print("on reference selection changed selected reference 3:", self.selected_reference,"selected_collection:", self.selected_collection)
         elif isinstance(obj, FgCollection):
             self.selected_collection = obj
             self.selected_reference = None
+
         #print("selected reference:", self.selected_reference)
         return
         #else:
@@ -644,6 +747,7 @@ class FiguristMainWindow(QMainWindow):
         self.taxonView.setHeaderHidden(True)
         self.taxon_model = QStandardItemModel()
         self.taxonView.setModel(self.taxon_model)
+        self.taxon_model.clear()
         self.taxon_selection_model = self.taxonView.selectionModel()
         self.taxon_selection_model.selectionChanged.connect(self.on_taxon_selection_changed)
         #self.figure_model = CustomTableModel()
@@ -651,7 +755,7 @@ class FiguristMainWindow(QMainWindow):
         pass
 
     def load_children(self, taxon, parent_item):
-        for child in taxon.children:
+        for child in taxon.children.order_by(FgTaxon.name):
             item1 = QStandardItem(child.name)
             item1.setData(child)
             parent_item.appendRow([item1])
@@ -865,6 +969,12 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     def on_action_exit_triggered(self):
         self.close()
 
+    def on_action_import_collection_triggered(self):
+        dialog = ImportCollectionDialog(self)
+        dialog.exec_()
+        self.reset_referenceView()
+        self.load_references()
+
     def closeEvent(self, event):
         self.write_settings()
         event.accept()
@@ -985,11 +1095,15 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         action_add_reference.triggered.connect(self.on_action_add_reference_triggered)
         action_edit_reference = QAction(self.tr("Edit reference"))
         action_edit_reference.triggered.connect(self.on_action_edit_reference_triggered)
+        action_open_pdf_file = QAction(self.tr("Open PDF file"))
+        action_open_pdf_file.triggered.connect(self.on_action_open_pdf_file_triggered)
         action_delete_reference = QAction(self.tr("Delete reference"))
         action_delete_reference.triggered.connect(self.on_action_delete_reference_triggered)
 
         menu = QMenu()
         if self.selected_reference is not None:
+            if self.selected_reference.attachments.count() > 0:
+                menu.addAction(action_open_pdf_file)
             menu.addAction(action_edit_reference)
             menu.addAction(action_delete_reference)
         elif self.selected_collection is not None:
@@ -999,6 +1113,18 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             menu.addAction(action_add_subcollection)
             menu.addAction(action_add_reference)
         menu.exec_(self.referenceView.viewport().mapToGlobal(position))
+
+    def on_action_open_pdf_file_triggered(self):
+        if self.selected_reference is None:
+            return
+        attachment = self.selected_reference.attachments[0]
+        attachment_path = attachment.get_file_path()
+        print("attachment path:", attachment_path)
+        if attachment_path:
+            #print("attachment path:", attachment_path)
+            # open pdf file using system default application
+            os.startfile(attachment_path)
+            
 
     def on_action_edit_collection_triggered(self):
         col = self.selected_collection
@@ -1027,18 +1153,15 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     def on_action_export_collection_triggered(self):
         if self.selected_collection is None:
             return
-
-        dialog = QFileDialog()
-        dialog.setFileMode(QFileDialog.Directory)
-        dialog.setOption(QFileDialog.ShowDirsOnly)
-        dialog.setAcceptMode(QFileDialog.AcceptSave)
-        dialog.setModal(True)
-        dialog.setDirectory(os.path.expanduser("~"))
-        dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-        directory = dialog.exec_()
+        directory = QFileDialog.getExistingDirectory(self, 'Select Directory', os.path.expanduser("~"))
+        #print("directory:", directory)
+        #directory = dialog.exec_()
         if directory:
-            directory = dialog.selectedFiles()[0]
-            self.selected_collection.export(directory)
+            #directory = dialog.selectedFiles()[0]
+            # wait cursor
+            QApplication.setOverrideCursor(Qt.WaitCursor)
+            self.selected_collection.export_collection(directory)
+            QApplication.restoreOverrideCursor()
             self.statusBar.showMessage(self.tr("Exported collection to {}").format(directory), 2000)
 
     def on_action_delete_collection_triggered(self):
@@ -1114,15 +1237,88 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         if not figure_list:
             return
 
+        menu = QMenu()
         action_set_taxon = QAction(self.tr("Set taxon"))
         action_set_taxon.triggered.connect(self.on_action_set_taxon_triggered)
         action_delete_figure = QAction(self.tr("Delete figure(s)"))
         action_delete_figure.triggered.connect(self.on_action_delete_figure_triggered)
+        action_fill_value = QAction(self.tr("Fill value"))
+        action_fill_value.triggered.connect(self.on_action_fill_value_triggered)
+        action_fill_sequence = QAction(self.tr("Fill sequence"))
+        action_fill_sequence.triggered.connect(self.on_action_fill_sequence_triggered)
 
-        menu = QMenu()
-        menu.addAction(action_set_taxon)
-        menu.addAction(action_delete_figure)
-        menu.exec_(self.figureView.currentWidget().viewport().mapToGlobal(position))
+
+        if self.figureView.mode in ['icon','table']:
+            menu.addAction(action_set_taxon)
+            menu.addAction(action_delete_figure)
+        elif self.figureView.mode == 'edit':
+            menu.addAction(action_fill_value)
+            menu.addAction(action_fill_sequence)
+
+        source_widget = self.figureView.currentWidget()
+        
+        # Map the position to the figureView
+        position_in_figure_view = source_widget.mapTo(self.figureView, position)
+        
+        # Then map it to the global coordinate system
+        global_position = self.figureView.mapToGlobal(position_in_figure_view)
+
+        menu.exec_(global_position)
+        #menu.exec_(self.figureView.currentWidget().viewport().mapToGlobal(position))
+
+    def on_action_fill_sequence_triggered(self):
+        selected_cells = self.figureView.selectedIndexes()
+        if len(selected_cells) == 0:
+            return
+        selected_cells.sort(key=lambda x: (x.row(), x.column()))
+        # make sure all the cells are in the column 1
+        # get column number of all the cells
+        column_numbers = [cell.column() for cell in selected_cells]
+        if len(set(column_numbers)) > 1:# or column_numbers[0] != 1:
+            return
+        
+        # get the first cell
+        first_cell = selected_cells[0]
+        first_row = first_cell.row()
+        column_0_index = self.figureView.model.index(first_row, 0)
+        object_id = self.figureView.model.data(column_0_index, Qt.DisplayRole)
+        sequence = self.figureView.model.data(first_cell, Qt.DisplayRole)
+        try:
+            sequence = int(sequence)
+        except:
+            sequence = 1
+        # get user input
+
+        sequence, ok = QInputDialog.getInt(self, "Fill Sequence", "Enter starting sequence number", sequence)
+        if not ok:
+            return
+        # get increment
+        increment, ok = QInputDialog.getInt(self, "Fill Sequence", "Enter increment", 1)
+        if not ok:
+            return
+        # fill the sequence
+        for cell in selected_cells:
+            row = cell.row()
+            col = cell.column()
+            index = self.figureView.model.index(row, col)
+            self.figureView.model.setData(index, sequence, Qt.EditRole)
+            sequence += increment
+
+
+    def on_action_fill_value_triggered(self):
+        selected_indices = self.figureView.selectedIndexes()
+        if len(selected_indices) == 0:
+            return
+
+        first_index = selected_indices[0]
+        value = str(self.figureView.model.data(first_index, Qt.DisplayRole))
+        value, ok = QInputDialog.getText(self, "Fill Values", "Enter value", text=value)
+        if not ok:
+            return
+        # fill the values
+        for index in self.figureView.selectedIndexes():
+            row, col = index.row(), index.column()
+            self.figureView.model.setData(index, value, Qt.EditRole)
 
     def on_action_set_taxon_triggered(self):
         if self.selected_figures is None:
@@ -1163,6 +1359,7 @@ if __name__ == "__main__":
     #    # current directory
     #    f.write("current directory 1:" + os.getcwd() + "\n")
     #    f.write("current directory 2:" + os.path.abspath(".") + "\n") 
+    #print("main")
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon(fg.resource_path('icons/Figurist.png')))
     app.settings = QSettings(QSettings.IniFormat, QSettings.UserScope,fg.COMPANY_NAME, fg.PROGRAM_NAME)
@@ -1177,7 +1374,9 @@ if __name__ == "__main__":
     #app.preferences = QSettings("Modan", "Modan2")
 
     #WindowClass의 인스턴스 생성
+    #print("main window")
     myWindow = FiguristMainWindow()
+    #print("main window done")
 
     #프로그램 화면을 보여주는 코드
     myWindow.show()

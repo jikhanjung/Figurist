@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QTreeView, QSizePolicy, QHeaderView, QLabel, QInputDialog, QSpinBox
 from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QRect, QSize, QMargins, QObject, QEvent, QMimeData, pyqtSignal
-from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen, QFont, QMouseEvent, QWheelEvent, QPainter, QDrag, QImage
+from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen, QFont, QMouseEvent, QWheelEvent, QPainter, QDrag, QImage, QColor
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QStyleOptionViewItem, QListView, QStackedWidget, QAbstractItemView
 import time, math
 from PyQt5.QtCore import QByteArray
@@ -28,332 +28,6 @@ logger = logging.getLogger(__name__)
 
 CLOSE_TO = { 'left': 1, 'right': 2, 'top': 4, 'bottom': 8 }
 
-CAPTION_PROCESSING_PROMPT_1 = '''
-Please process following caption so that:
-1. The figure number is extracted and stored in "figure", "plate", "table", or "text-figure" key depending on the type of the figure, 
-usually specified at the beginning of the caption.
-2. Each subfigure information is stored in a list under "subfigures" key.
-3. Each subfigure information should contain "id", "taxon_name", and "caption".
-4. "id" should be the subfigure number, usually starting from 1 and incrementing by 1 for each subfigure, but also can be a, b, c, or in other formats.
-5. "taxon_name" should be the scientific name of the taxon.
-6. "caption" should contain the rest of the subfigure information.
-
-For example:
-Figure 3
-Pojetaia runnegari Jell, 1980 from the Shackleton Limestone. (1–4)
-Specimen SMNH Mo185039 in (1) lateral view, (2) dorsal view, (3) magniﬁca-
-tion of the central margin, showing laminar crystalline imprints, (4) magniﬁca-
-tion of the cardinal teeth shown in (2). (5, 6) Specimen SMNH Mo185040,
-(5) lateral view, (6) magniﬁcation of lateral surface, showing laminar crystalline
-imprints. (7) Specimen SMNH Mo185041 in lateral view. (8) Specimen SMNH
-Mo185042 in lateral view. (9) Specimen SMNH Mo185043. (5, 6, 8) imaged
-under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bars
-= 100 µm.
-
-Paragraph above should be converted to:
-{
-  "figure": 3,
-  "subfigures": [
-    {
-      "id": 1,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185039, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 2,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185039, dorsal view (200 µm scale bar)."
-    },
-    {
-      "id": 3,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar)."
-    },
-    {
-      "id": 4,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185039, magnification of cardinal teeth (100 µm scale bar)."
-    },
-    {
-      "id": 5,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185040, lateral view (100 µm scale bar)."
-    },
-    {
-      "id": 6,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar)."
-    },
-    {
-      "id": 7,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185041, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 8,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185042, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 9,
-      "taxon_name": "Pojetaia runnegari",
-      "caption": "SMNH Mo185043 (200 µm scale bar)."
-    }
-  ]
-}
-
-'''
-        
-CAPTION_PROCESSING_PROMPT_2 = '''
-Another example:
-Figure 4. Helcionellids fromthe Shackleton Limestone. (1–5) Davidonia cf. D. corrugata Runnegar in Bengtson et al., 1990. (1–3) SpecimenSMNHMo185044 in
-(1) oblique lateral view, (2) apical view, (3) magnification of apical region in lateral view, showing protoconch and transition to teleoconch; (4) specimen SMNH
-Mo185045, oblique view of supra-apical field; (5) specimen SMNH Mo185046 lateral view. (6–14) Davidonia rostrata (Zhou and Xiao, 1984), (6, 7) specimen
-SMNH Mo185047, (6) lateral view, (7) dorsal view of supra-apical field; (8–11) specimen SMNH Mo185048, (8) magnification of lateral view of parietal train,
-showing polygonal crystalline imprints on the side surface, (9) dorsal view of supra-apical field, (10) lateral view, (11) magnification of oblique lateral view of
-supra-apical field, showing polygonal crystalline imprints; (12) specimen SMNH Mo182501 in lateral view; (13) specimen SMNH Mo182502 in lateral view;
-(14) specimen SMNH Mo182503 in lateral view. (15–18) Xianfengella cf. X. yatesi Parkhaev in Gravestock et al., 2001, specimen SMNH Mo185049, (15) dorsal
-view, (16) oblique apical view, (17) magnified view of supra-apical field showing crystalline imprints, (18) oblique lateral view. (19–21) Protowenella? sp. Runnegar
-and Jell, 1976 specimen SMNH Mo185050, (19) lateral view, (20) dorsal view, (21) apical view. (22–28) Anuliconus sp. Parkhaev in Gravestock et al. (2001), (22–24)
-specimen SMNHMo185051, (23) lateral view, (22) magnification of apex in lateral view, (24) apertural view; (25, 26) specimen SMNHMo185052, (25) lateral view, (26)
-apical view; (27, 28) specimen SMNH Mo185053, (27) lateral view, (28) apical view. (3, 10, 11, 17, 22, 24) Scale bars = 100 μm; all others, scale bars = 200 μm.
-
-This paragraph should be converted to JSON format like this:
-{
-  "figure": 4,
-  "subfigures": [
-    {
-      "id": 1,
-      "taxon_name": "Helcionellids",
-      "caption": "SMNH Mo185044, oblique lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 2,
-      "taxon_name": "Helcionellids",
-      "caption": "SMNH Mo185044, apical view (200 µm scale bar)."
-    },
-    {
-      "id": 3,
-      "taxon_name": "Helcionellids",
-      "caption": "SMNH Mo185044, magnification of apical region in lateral view, showing protoconch and transition to teleoconch 100 µm scale bar)."
-    },
-    {
-      "id": 4,
-      "taxon_name": "Helcionellids",
-      "caption": "SMNH Mo185045, oblique view of supra-apical field (200 µm scale bar)."
-    },
-    {
-      "id": 5,
-      "taxon_name": "Helcionellids",
-      "caption": "SMNH Mo185046, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 6,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185047, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 7,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185047, dorsal view of supra-apical field (200 µm scale bar)."
-    },
-    {
-      "id": 8,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185048, magnification of lateral view of parietal train, showing polygonal crystalline imprints on the side surface (200 µm scale bar)."
-    },
-    {
-      "id": 9,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185048, dorsal view of supra-apical field (200 µm scale bar)."
-    },
-    {
-      "id": 10,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185048, lateral view (100 µm scale bar)."
-    },
-    {
-      "id": 11,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo185048, magnification of oblique lateral view of supra-apical field, showing polygonal crystalline imprints (100 µm scale bar)."
-    },
-    {
-      "id": 12,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo182501, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 13,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo182502, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 14,
-      "taxon_name": "Davidonia rostrata",
-      "caption": "SMNH Mo182503, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 15,
-      "taxon_name": "Xianfengella cf. X. yatesi",
-      "caption": "SMNH Mo185049, dorsal view (200 µm scale bar)."
-    },
-    {
-      "id": 16,
-      "taxon_name": "Xianfengella cf. X. yatesi",
-      "caption": "SMNH Mo185049, oblique apical view (200 µm scale bar)."
-    },
-    {
-      "id": 17,
-      "taxon_name": "Xianfengella cf. X. yatesi",
-      "caption": "SMNH Mo185049, magnified view of supra-apical field showing crystalline imprints 100 µm scale bar)."
-    },
-    {
-      "id": 18,
-      "taxon_name": "Xianfengella cf. X. yatesi",
-      "caption": "SMNH Mo185049, oblique lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 19,
-      "taxon_name": "Protowenella? sp.",
-      "caption": "SMNH Mo185050, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 20,
-      "taxon_name": "Protowenella? sp.",
-      "caption": "SMNH Mo185050, dorsal view (200 µm scale bar)."
-    },
-    {
-      "id": 21,
-      "taxon_name": "Protowenella? sp.",
-      "caption": "SMNH Mo185050, apical view (200 µm scale bar)."
-    },
-    {
-      "id": 22,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185051, lateral view (100 µm scale bar)."
-    },
-    {
-      "id": 23,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185051, magnification of apex in lateral view 200 µm scale bar)."
-    },
-    {
-      "id": 24,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185051, apertural view (100 µm scale bar)."
-    },
-    {
-      "id": 25,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185052, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 26,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185052, apical view (200 µm scale bar)."
-    },
-    {
-      "id": 27,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185053, lateral view (200 µm scale bar)."
-    },
-    {
-      "id": 28,
-      "taxon_name": "Anuliconus sp.",
-      "caption": "SMNH Mo185053, apical view (200 µm scale bar)."
-    }
-  ]
-}
-
-'''
-
-CAPTION_PROCESSING_PROMPT_1 = '''
-Please process following caption so that:
-each subfigure caption is in one line and separated by a newline character;
-each caption should contain three items separated by a tab character;
-the first item is the figure number;
-the second item is the scientific name;
-the third item is the rest of the figure information such as specimen number, magnification, scale bar, etc.
-processed caption should be enclosed by "----BEGIN----" and "----END----" lines.
-
-For example:
-Figure 3
-Pojetaia runnegari Jell, 1980 from the Shackleton Limestone. (1–4)
-Specimen SMNH Mo185039 in (1) lateral view, (2) dorsal view, (3) magniﬁca-
-tion of the central margin, showing laminar crystalline imprints, (4) magniﬁca-
-tion of the cardinal teeth shown in (2). (5, 6) Specimen SMNH Mo185040,
-(5) lateral view, (6) magniﬁcation of lateral surface, showing laminar crystalline
-imprints. (7) Specimen SMNH Mo185041 in lateral view. (8) Specimen SMNH
-Mo185042 in lateral view. (9) Specimen SMNH Mo185043. (5, 6, 8) imaged
-under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bars
-= 100 µm.
-Paragraph above should be converted to:
-----BEGIN----
-Figure\t3
-
-1\tPojetaia runnegari\tSMNH Mo185039, lateral view (200 µm scale bar).
-2\tPojetaia runnegari\tSMNH Mo185039, dorsal view (200 µm scale bar).
-3\tPojetaia runnegari\tSMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar).
-4\tPojetaia runnegari\tSMNH Mo185039, magnification of cardinal teeth (100 µm scale bar).
-5\tPojetaia runnegari\tSMNH Mo185040, lateral view (100 µm scale bar).
-6\tPojetaia runnegari\tSMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar).
-7\tPojetaia runnegari\tSMNH Mo185041, lateral view (200 µm scale bar).
-8\tPojetaia runnegari\tSMNH Mo185042, lateral view (200 µm scale bar).
-9\tPojetaia runnegari\tSMNH Mo185043 (200 µm scale bar).
-----END----
-
-'''
-
-CAPTION_PROCESSING_PROMPT_2 = '''
-Here is another example:
-Figure 4. Helcionellids fromthe Shackleton Limestone. (1–5) Davidonia cf. D. corrugata Runnegar in Bengtson et al., 1990. (1–3) SpecimenSMNHMo185044 in
-(1) oblique lateral view, (2) apical view, (3) magnification of apical region in lateral view, showing protoconch and transition to teleoconch; (4) specimen SMNH
-Mo185045, oblique view of supra-apical field; (5) specimen SMNH Mo185046 lateral view. (6–14) Davidonia rostrata (Zhou and Xiao, 1984), (6, 7) specimen
-SMNH Mo185047, (6) lateral view, (7) dorsal view of supra-apical field; (8–11) specimen SMNH Mo185048, (8) magnification of lateral view of parietal train,
-showing polygonal crystalline imprints on the side surface, (9) dorsal view of supra-apical field, (10) lateral view, (11) magnification of oblique lateral view of
-supra-apical field, showing polygonal crystalline imprints; (12) specimen SMNH Mo182501 in lateral view; (13) specimen SMNH Mo182502 in lateral view;
-(14) specimen SMNH Mo182503 in lateral view. (15–18) Xianfengella cf. X. yatesi Parkhaev in Gravestock et al., 2001, specimen SMNH Mo185049, (15) dorsal
-view, (16) oblique apical view, (17) magnified view of supra-apical field showing crystalline imprints, (18) oblique lateral view. (19–21) Protowenella? sp. Runnegar
-and Jell, 1976 specimen SMNH Mo185050, (19) lateral view, (20) dorsal view, (21) apical view. (22–28) Anuliconus sp. Parkhaev in Gravestock et al. (2001), (22–24)
-specimen SMNHMo185051, (23) lateral view, (22) magnification of apex in lateral view, (24) apertural view; (25, 26) specimen SMNHMo185052, (25) lateral view, (26)
-apical view; (27, 28) specimen SMNH Mo185053, (27) lateral view, (28) apical view. (3, 10, 11, 17, 22, 24) Scale bars = 100 μm; all others, scale bars = 200 μm.
-
-This paragraph should be converted to:
-----BEGIN----
-Figure\t4
-
-1\tHelcionellids\tSMNH Mo185044, oblique lateral view (200 µm scale bar).
-2\tHelcionellids\tSMNH Mo185044, apical view (200 µm scale bar).
-3\tHelcionellids\tSMNH Mo185044, magnification of apical region in lateral view, showing protoconch and transition to teleoconch 100 µm scale bar).
-4\tHelcionellids\tSMNH Mo185045, oblique view of supra-apical field (200 µm scale bar).
-5\tHelcionellids\tSMNH Mo185046, lateral view (200 µm scale bar).
-6\tDavidonia rostrata\tSMNH Mo185047, lateral view (200 µm scale bar).
-7\tDavidonia rostrata\tSMNH Mo185047, dorsal view of supra-apical field (200 µm scale bar).
-8\tDavidonia rostrata\tSMNH Mo185048, magnification of lateral view of parietal train, showing polygonal crystalline imprints on the side surface (200 µm scale bar).
-9\tDavidonia rostrata\tSMNH Mo185048, dorsal view of supra-apical field (200 µm scale bar).
-10\tDavidonia rostrata\tSMNH Mo185048, lateral view (100 µm scale bar).
-11\tDavidonia rostrata\tSMNH Mo185048, magnification of oblique lateral view of supra-apical field, showing polygonal crystalline imprints (100 µm scale bar).
-12\tDavidonia rostrata\tSMNH Mo182501, lateral view (200 µm scale bar).
-13\tDavidonia rostrata\tSMNH Mo182502, lateral view (200 µm scale bar).
-14\tDavidonia rostrata\tSMNH Mo182503, lateral view (200 µm scale bar).
-15\tXianfengella cf. X. yatesi\tSMNH Mo185049, dorsal view (200 µm scale bar).
-16\tXianfengella cf. X. yatesi\tSMNH Mo185049, oblique apical view (200 µm scale bar).
-17\tXianfengella cf. X. yatesi\tSMNH Mo185049, magnified view of supra-apical field showing crystalline imprints 100 µm scale bar).
-18\tXianfengella cf. X. yatesi\tSMNH Mo185049, oblique lateral view (200 µm scale bar).
-19\tProtowenella? sp.\tSMNH Mo185050, lateral view (200 µm scale bar).
-20\tProtowenella? sp.\tSMNH Mo185050, dorsal view (200 µm scale bar).
-21\tProtowenella? sp.\tSMNH Mo185050, apical view (200 µm scale bar).
-22\tAnuliconus sp.\tSMNH Mo185051, lateral view (100 µm scale bar).
-23\tAnuliconus sp.\tSMNH Mo185051, magnification of apex in lateral view 200 µm scale bar).
-24\tAnuliconus sp.\tSMNH Mo185051, apertural view (100 µm scale bar).
-25\tAnuliconus sp.\tSMNH Mo185052, lateral view (200 µm scale bar).
-26\tAnuliconus sp.\tSMNH Mo185052, apical view (200 µm scale bar).
-27\tAnuliconus sp.\tSMNH Mo185053, lateral view (200 µm scale bar).
-28\tAnuliconus sp.\tSMNH Mo185053, apical view (200 µm scale bar).
-----END----
-
-'''
-
 class SubFigure:
     def __init__(self, pixmap = None, rect = None, index = "", taxon_name = "", caption = "", comments = "", page_number = -1):
         self.pixmap = pixmap
@@ -368,9 +42,15 @@ class FigureTableModel(QAbstractTableModel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.figures = []
-        self.headers = ['Figure', 'Taxon', 'File']
+        self.headers = ['Prefix 1', 'No.1', '-', 'Prefix 2', 'No.2', 'Figure Number', 'Taxon', 'Caption', 'Comments']
+        self.column_list = ['part1_prefix', 'part1_number', 'part_separator', 'part2_prefix', 'part2_number', 'figure_number', 'taxon_name', 'caption', 'comments']
         self.icon_cache = {}
-        self.view_mode = 'table'  # Add this line
+        self.mode = 'table'
+        self.edited_cells = set()  # To keep track of edited cells
+        self._uneditable_columns = [5]
+
+    def set_columns_uneditable(self, columns):
+        self._uneditable_columns = columns
 
     def rowCount(self, parent=QModelIndex()):
         return len(self.figures)
@@ -385,63 +65,55 @@ class FigureTableModel(QAbstractTableModel):
         figure = self.figures[index.row()]
         column = index.column()
 
-        if role == Qt.DisplayRole:
-            if column == 0:
-                return figure.get_figure_name()
-            elif column == 1:
-                return figure.related_taxa[0].taxon.name if figure.related_taxa else ''
-            elif column == 2:
-                return figure.file_name
-        elif role == Qt.DecorationRole and column == 0:
-            if figure in self.icon_cache:
-                return self.icon_cache[figure]
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            if self.mode in ['table', 'edit']:
+                if hasattr(figure, self.column_list[column]):
+                    return getattr(figure, self.column_list[column])
+            else:  # icon mode
+                return f"{figure.figure_number} {figure.taxon_name or ''}"
+        elif role == Qt.BackgroundRole:
+            if index.column() in self._uneditable_columns:
+                return QColor(192, 192, 192)
+            elif (index.row(), index.column()) in self.edited_cells:
+                return QColor(255, 255, 0)  # Yellow color for edited cells
+        elif role == Qt.DecorationRole and column == 0 and self.mode == 'icon':
+            if figure in self.icon_cache and figure.modified_at == self.icon_cache[figure][0]:
+                return self.icon_cache[figure][1]
             else:
                 QApplication.setOverrideCursor(Qt.WaitCursor)
-                icon = QIcon(figure.get_file_path())
+                thumbnail_path = figure.get_or_create_thumbnail()
+                if thumbnail_path:
+                    icon = QIcon(thumbnail_path)
+                else:
+                    icon = QIcon()  # Empty icon if thumbnail creation failed
                 QApplication.restoreOverrideCursor()
-                self.icon_cache[figure] = icon
+                self.icon_cache[figure] = [figure.modified_at, icon]
                 return icon
-            path = figure.get_file_path()
-            print("load file to icon 1", time.time(), path)
-            icon = QIcon(path)
-            print("load file to icon 2", time.time())
-            return icon #QIcon(figure.get_file_path())
         elif role == Qt.UserRole:
             return figure
 
         return None
 
-    def data(self, index, role):
-        if not index.isValid() or not (0 <= index.row() < len(self.figures)):
-            return None
+    def setData(self, index, value, role=Qt.EditRole):
+        if role == Qt.EditRole:
+            row = index.row()
+            col = index.column()
+            figure = self.figures[row]
 
-        figure = self.figures[index.row()]
-        column = index.column()
+            if hasattr(figure, self.column_list[col]):
+                if value != getattr(figure, self.column_list[col]):
+                    setattr(figure, self.column_list[col], value)
+                    #if col < 5:
+                    #    figure.update_figure_number()
+                    self.edited_cells.add((row, col))
+                    self.dataChanged.emit(index, index, [Qt.DisplayRole, Qt.BackgroundRole])
+                    return True
+        return False
 
-        if role == Qt.DisplayRole:
-            if self.view_mode == 'table':
-                if column == 0:
-                    return figure.figure_number
-                elif column == 1:
-                    return figure.related_taxa[0].taxon.name if figure.related_taxa else ''
-                elif column == 2:
-                    return figure.file_name
-            else:  # icon mode
-                return f"{figure.figure_number} {figure.related_taxa[0].taxon.name if figure.related_taxa else ''}"
-        elif role == Qt.DecorationRole and column == 0:
-            if figure in self.icon_cache and figure.modified_at == self.icon_cache[figure][0]:
-                #print("use cached icon", figure.modified_at, self.icon_cache[figure][0])
-                return self.icon_cache[figure][1]
-            else:
-                QApplication.setOverrideCursor(Qt.WaitCursor)
-                icon = QIcon(figure.get_file_path())
-                QApplication.restoreOverrideCursor()
-                ## get current time
-                #print("new icon", figure.modified_at)
-                self.icon_cache[figure] = [figure.modified_at, icon]
-                return icon
-        elif role == Qt.UserRole:
-            return figure
+    def flags(self, index):
+        if self.mode == 'edit' and index.column() not in self._uneditable_columns:
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
     def headerData(self, section, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
@@ -450,12 +122,24 @@ class FigureTableModel(QAbstractTableModel):
 
     def setFigures(self, figures):
         self.beginResetModel()
-        self.figures = figures
+        sorted_figures = sorted(figures, key=lambda fig: fig.get_sort_key())
+        self.figures = sorted_figures
+        self.edited_cells = set()  # To keep track of edited cells
         self.endResetModel()
 
-    def setViewMode(self, mode):
-        self.view_mode = mode
+    def setMode(self, mode):
+        self.mode = mode
         self.layoutChanged.emit()
+
+    def save_changes(self):
+        for row, col in self.edited_cells:
+            figure = self.figures[row]
+            if hasattr(figure, self.column_list[col]):
+                setattr(figure, self.column_list[col], self.data(self.index(row, col), Qt.EditRole))
+            if col < 5:
+                figure.update_figure_number()
+            figure.save()
+        self.edited_cells.clear()
 
 class FgFigureView(QStackedWidget):
     def __init__(self, parent=None):
@@ -465,9 +149,6 @@ class FgFigureView(QStackedWidget):
         self.tableView = QTableView(self)
         self.tableView.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.tableView.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        #self.tableView.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        #self.tableView.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)        
         
         # List View for icon mode
         self.listView = QListView(self)
@@ -486,50 +167,46 @@ class FgFigureView(QStackedWidget):
         
         self.tableView.setModel(self.model)
         self.listView.setModel(self.model)
-        self.tableView.resizeColumnsToContents()
 
-    def set_icon_mode(self, icon_mode=True):
-        if icon_mode:
+    def adjust_column_widths(self):
+        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        for i in range(5):  # First 5 columns
+            self.tableView.horizontalHeader().resizeSection(i, 50)  # Adjust this value as needed
+        self.tableView.horizontalHeader().resizeSection(5, 100)  # Adjust this value as needed
+        #self.tableView.horizontalHeader().setSectionResizeMode(5, QHeaderView.Stretch)  # Figure Number
+        self.tableView.horizontalHeader().setSectionResizeMode(6, QHeaderView.Stretch)  # Taxon
+        self.tableView.horizontalHeader().setSectionResizeMode(7, QHeaderView.Stretch)  # Caption
+        self.tableView.horizontalHeader().setSectionResizeMode(8, QHeaderView.Stretch)  # Comments
+
+    def set_mode(self, mode):
+        self.mode = mode
+        if mode == 'icon':
             self.setCurrentWidget(self.listView)
             self.listView.setGridSize(QSize(150, 150))
-        else:
+            self.model.setMode('icon')
+        elif mode == 'table':
+            self.tableView.setSelectionBehavior(QAbstractItemView.SelectRows)
             self.setCurrentWidget(self.tableView)
-
-    def set_icon_mode(self, icon_mode=True):
-        if icon_mode:
-            self.setCurrentWidget(self.listView)
-            self.listView.setGridSize(QSize(150, 150))
-            self.model.setViewMode('icon')
-        else:
+            self.model.setMode('table')
+        elif mode == 'edit':
+            # make it editable, and selection is cell-based
+            self.tableView.setSelectionBehavior(QAbstractItemView.SelectItems)
             self.setCurrentWidget(self.tableView)
-            self.model.setViewMode('table')
+            self.model.setMode('edit')
         self.model.layoutChanged.emit()
-        
+        self.adjust_column_widths()
+
+    def save_changes(self):
+        self.model.save_changes()
+        self.tableView.viewport().update()
+
     def load_figures(self, figures):
         if not isinstance(self.model, FigureTableModel):
             self.model = FigureTableModel(self)
             self.tableView.setModel(self.model)
             self.listView.setModel(self.model)
         self.model.setFigures(figures)
-        return
-        self.model.clear()
-        self.model.setHorizontalHeaderLabels(['Figure', 'Taxon', 'File'])
-        
-        for figure in figures:
-            items = [
-                QStandardItem(QIcon(figure.get_file_path()), figure.get_figure_name()),
-                QStandardItem(figure.related_taxa[0].taxon.name if figure.related_taxa else ''),
-                QStandardItem(figure.file_name)
-            ]
-            for item in items:
-                item.setData(figure, Qt.UserRole)
-            self.model.appendRow(items)
-
-        # Adjust table columns
-        self.tableView.resizeColumnsToContents()
-        
-        # Set list view to only show the first column
-        self.listView.setModelColumn(0)
+        self.adjust_column_widths()
 
     def selectedIndexes(self):
         return self.currentWidget().selectedIndexes()
@@ -592,6 +269,7 @@ class FigureLabel(QLabel):
         self.rect = QRect()
         self.setMouseTracking(True)
         self.page_number = -1
+        self.image_canvas_ratio = 1.0
 
     def setReadOnly(self, read_only):
         self.read_only = read_only
@@ -788,8 +466,8 @@ class FigureLabel(QLabel):
         else:
             pass
 
-    def set_text_capture_callback(self, callback):
-        self.text_capture_callback = callback
+    #def set_text_capture_callback(self, callback):
+    #    self.text_capture_callback = callback
 
 
     def mouseReleaseEvent(self, ev: QMouseEvent) -> None:
@@ -827,7 +505,10 @@ class FigureLabel(QLabel):
             self.temp_pan_x = 0
             self.temp_pan_y = 0
         elif self.edit_mode == "CAPTURE_TEXT_DRAG":
-            self.text_capture_callback(self.temp_rect)
+            if hasattr(self.parent, 'capture_text'):
+                self.parent.capture_text(self.temp_rect)
+
+            #self.text_capture_callback(self.temp_rect)
             self.temp_rect = None
             #text = self.get_text_from_rect(self.temp_rect)
             #print("captured text", text)
@@ -856,6 +537,8 @@ class FigureLabel(QLabel):
             else:
                 self.subfigure_list.append(SubFigure(pixmap=self.orig_pixmap.copy(self.temp_rect), rect=self.temp_rect, page_number = self.page_number))
                 self.temp_rect = None
+            if hasattr(self.parent, 'set_figure_pixmap'):
+                self.parent.set_figure_pixmap(self.orig_pixmap)
         self.set_edit_mode("NONE")
         idx, close_to = self.check_subfigure(curr_pos)
         self.adjusting_side = close_to
@@ -1086,19 +769,24 @@ class FigureLabel(QLabel):
             # refresh parent's subfigure list
             self.parent.load_subfigure_list(self.subfigure_list)
 
+    def clear(self):
+        self.orig_pixmap = None
+        self.curr_pixmap = None
+        self.repaint()
+
 class DraggableTreeView(QTreeView):
     emptyAreaClicked = pyqtSignal()
+    itemExpanded = pyqtSignal(object)  # New signal
+    itemCollapsed = pyqtSignal(object)  # New signal
+    
     def __init__(self, parent=None):
         super().__init__(parent)
         self.drag_start_position = None
         self.setMouseTracking(True)
 
-    def _mousePressEvent(self, event):
-        index = self.indexAt(event.pos())
-        if not index.isValid():
-            # Click is outside any item
-            self.emptyAreaClicked.emit()
-        super().mousePressEvent(event)
+        self.expanded.connect(self._onItemExpanded)
+        self.collapsed.connect(self._onItemCollapsed)
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.drag_start_position = event.pos()
@@ -1127,36 +815,28 @@ class DraggableTreeView(QTreeView):
         else:
             drag.exec_(Qt.MoveAction)
 
-    def _mouseMoveEvent(self, event):
-        if not (event.buttons() & Qt.LeftButton):
-            return
-        if not self.drag_start_position:
-            return
-        if (event.pos() - self.drag_start_position).manhattanLength() < QApplication.startDragDistance():
-            return
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.resizeColumnToContents(0)
+        available_width = self.viewport().width()
+        other_columns_width = sum(self.columnWidth(i) for i in range(1, self.model().columnCount()))
+        self.setColumnWidth(0, max(0, available_width - other_columns_width))       
 
-        drag = QDrag(self)
-        mime_data = QMimeData()
-        
-        selected_indexes = self.selectedIndexes()
-        items_data = []
-        for index in selected_indexes:
-            item = self.model().itemFromIndex(index)
-            if isinstance(item.data(), FgCollection):
-                items_data.append(('collection', item.data().id))
-            elif isinstance(item.data(), FgReference):
-                items_data.append(('reference', item.data().id))
-        
-        mime_data.setData("application/x-figurist-items", QByteArray(str(items_data).encode()))
-        #mime_data.setData("application/x-figurist-items", QByteArray(str(items_data).encode()))
-        drag.setMimeData(mime_data)
-        #print("mime_data", mime_data)
-        
-        if event.modifiers() & Qt.ShiftModifier:
-            drag.exec_(Qt.CopyAction)
-        else:
-            drag.exec_(Qt.MoveAction)            
+    def _onItemExpanded(self, index):
+        item = self.model().itemFromIndex(index)
+        self.itemExpanded.emit(item)
 
+    def _onItemCollapsed(self, index):
+        item = self.model().itemFromIndex(index)
+        self.itemCollapsed.emit(item)
+
+    def expandItem(self, item):
+        index = self.model().indexFromItem(item)
+        self.expand(index)
+
+    def collapseItem(self, item):
+        index = self.model().indexFromItem(item)
+        self.collapse(index)
 
 class LLMBackend(ABC):
     @abstractmethod
@@ -1396,6 +1076,7 @@ class PDFViewWidget(QWidget):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.pdf_label = FigureLabel()
+        self.pdf_label.setReadOnly(True)
         self.layout.addWidget(self.pdfcontrol_widget,0)
         self.layout.addWidget(self.pdf_label,1)
 
@@ -1411,6 +1092,8 @@ class PDFViewWidget(QWidget):
 
     def on_page_changed(self, page_number):
         #print("Page changed:", page_number)
+        if self.pdf_document is None:
+            return
         self.page_number = page_number
         self.current_page = self.pdf_document[page_number-1]
         pix = self.current_page.get_pixmap(dpi=600, alpha=False, annots=True, matrix=fitz.Matrix(2, 2))
@@ -1444,3 +1127,16 @@ class PDFViewWidget(QWidget):
     def on_pdf_end_clicked(self):
         #print("PDF end clicked")
         self.page_spinner.setValue(self.pdf_document.page_count)
+    
+    def clear(self):
+        #print("clear pdf")
+        self.pdf_label.clear()
+        self.page_number = -1
+        self.pdf_document = None
+        self.page_spinner.setRange(1, 1)
+        self.page_spinner.setValue(1)
+        self.page_spinner.setSingleStep(1)
+        self.page_spinner.setSuffix("")
+
+        self.update()
+

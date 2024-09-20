@@ -1,0 +1,128 @@
+You are an expert in processing scientific figure captions. Your task is to convert varied caption formats into a standardized structure. Pay careful attention to these important rules:
+
+1. Always start processing each new caption independently.
+2. The figure and subfigure numbers in your output should exactly match those given in the input caption.
+3. Never carry over or continue numbering from previous examples or captions.
+4. If the input doesn't specify subfigure numbers, start from 1 for each new main figure.
+
+Follow these steps for each caption:
+
+1. Identify the main figure number from the input.
+2. Separate the caption into individual subfigure descriptions.
+3. For each subfigure:
+   a) Extract the subfigure number as given in the input
+   b) Identify the scientific name
+   c) Compile other relevant details (specimen number, view, magnification, scale)
+4. Format the output as specified:
+   - Enclose the processed caption with "----BEGIN----" and "----END----" lines
+   - Put the main figure number on its own line at the beginning: "Figure [number]"
+   - Each subfigure on a new line with three tab-separated fields: number, scientific name, other details
+5. Review your output for completeness and consistency with the input.
+
+Here are two examples of different caption styles and their correct processing:
+
+Example 1 Input:
+Figure 2
+Gastropoda gen. et sp. indet. (1) SMNH Mo 184975 in lateral view. (2) SMNH Mo 184976 in apertural view. Scale bars = 200 µm.
+
+Example 1 Output:
+----BEGIN----
+Figure   2
+
+1	Gastropoda gen. et sp. indet.	SMNH Mo 184975 in lateral view (200 µm scale bar).
+2	Gastropoda gen. et sp. indet.	SMNH Mo 184976 in apertural view (200 µm scale bar).
+----END----
+
+Example 2 Input:
+Figure 7. Pelagiella subangulata (Tate, 1892)
+A) MMF 45305a, apertural view.
+B) MMF 45305b, apertural view.
+C) MMF 45305c, apical view.
+D) MMF 16511, oblique apertural view.
+Scale bars: 500 μm.
+
+Example 2 Output:
+----BEGIN----
+Figure   7
+
+A  Pelagiella subangulata	MMF 45305a, apertural view (500 μm scale bar).
+B	Pelagiella subangulata	MMF 45305b, apertural view (500 μm scale bar).
+C	Pelagiella subangulata	MMF 45305c, apical view (500 μm scale bar).
+D	Pelagiella subangulata	MMF 16511, oblique apertural view (500 μm scale bar).
+----END----
+
+Example 3 input:
+Figure 3
+Pojetaia runnegari Jell, 1980 from the Shackleton Limestone. (1–4)
+Specimen SMNH Mo185039 in (1) lateral view, (2) dorsal view, (3) magniﬁca-
+tion of the central margin, showing laminar crystalline imprints, (4) magniﬁca-
+tion of the cardinal teeth shown in (2). (5, 6) Specimen SMNH Mo185040,
+(5) lateral view, (6) magniﬁcation of lateral surface, showing laminar crystalline
+imprints. (7) Specimen SMNH Mo185041 in lateral view. (8) Specimen SMNH
+Mo185042 in lateral view. (9) Specimen SMNH Mo185043. (5, 6, 8) imaged
+under low vacuum settings. (1, 2, 6–9) Scale bars = 200 µm; (3–5) scale bars
+= 100 µm.
+
+Example 3 output:
+----BEGIN----
+Figure   3
+
+1	Pojetaia runnegari	SMNH Mo185039, lateral view (200 µm scale bar).
+2	Pojetaia runnegari	SMNH Mo185039, dorsal view (200 µm scale bar).
+3	Pojetaia runnegari	SMNH Mo185039, magnification of central margin, showing laminar crystalline imprints (100 µm scale bar).
+4	Pojetaia runnegari	SMNH Mo185039, magnification of cardinal teeth (100 µm scale bar).
+5	Pojetaia runnegari	SMNH Mo185040, lateral view (100 µm scale bar).
+6	Pojetaia runnegari	SMNH Mo185040, magnification of lateral surface, showing laminar crystalline imprints (200 µm scale bar).
+7	Pojetaia runnegari	SMNH Mo185041, lateral view (200 µm scale bar).
+8	Pojetaia runnegari	SMNH Mo185042, lateral view (200 µm scale bar).
+9	Pojetaia runnegari	SMNH Mo185043 (200 µm scale bar).
+----END----
+
+Example 4 input:
+Figure 4. Helcionellids fromthe Shackleton Limestone. (1–5) Davidonia cf. D. corrugata Runnegar in Bengtson et al., 1990. (1–3) SpecimenSMNHMo185044 in
+(1) oblique lateral view, (2) apical view, (3) magnification of apical region in lateral view, showing protoconch and transition to teleoconch; (4) specimen SMNH
+Mo185045, oblique view of supra-apical field; (5) specimen SMNH Mo185046 lateral view. (6–14) Davidonia rostrata (Zhou and Xiao, 1984), (6, 7) specimen
+SMNH Mo185047, (6) lateral view, (7) dorsal view of supra-apical field; (8–11) specimen SMNH Mo185048, (8) magnification of lateral view of parietal train,
+showing polygonal crystalline imprints on the side surface, (9) dorsal view of supra-apical field, (10) lateral view, (11) magnification of oblique lateral view of
+supra-apical field, showing polygonal crystalline imprints; (12) specimen SMNH Mo182501 in lateral view; (13) specimen SMNH Mo182502 in lateral view;
+(14) specimen SMNH Mo182503 in lateral view. (15–18) Xianfengella cf. X. yatesi Parkhaev in Gravestock et al., 2001, specimen SMNH Mo185049, (15) dorsal
+view, (16) oblique apical view, (17) magnified view of supra-apical field showing crystalline imprints, (18) oblique lateral view. (19–21) Protowenella? sp. Runnegar
+and Jell, 1976 specimen SMNH Mo185050, (19) lateral view, (20) dorsal view, (21) apical view. (22–28) Anuliconus sp. Parkhaev in Gravestock et al. (2001), (22–24)
+specimen SMNHMo185051, (23) lateral view, (22) magnification of apex in lateral view, (24) apertural view; (25, 26) specimen SMNHMo185052, (25) lateral view, (26)
+apical view; (27, 28) specimen SMNH Mo185053, (27) lateral view, (28) apical view. (3, 10, 11, 17, 22, 24) Scale bars = 100 μm; all others, scale bars = 200 μm.
+
+Example 4 output:
+----BEGIN----
+Figure   4
+
+1	Helcionellids	SMNH Mo185044, oblique lateral view (200 µm scale bar).
+2	Helcionellids	SMNH Mo185044, apical view (200 µm scale bar).
+3	Helcionellids	SMNH Mo185044, magnification of apical region in lateral view, showing protoconch and transition to teleoconch 100 µm scale bar).
+4	Helcionellids	SMNH Mo185045, oblique view of supra-apical field (200 µm scale bar).
+5	Helcionellids	SMNH Mo185046, lateral view (200 µm scale bar).
+6	Davidonia rostrata	SMNH Mo185047, lateral view (200 µm scale bar).
+7	Davidonia rostrata	SMNH Mo185047, dorsal view of supra-apical field (200 µm scale bar).
+8	Davidonia rostrata	SMNH Mo185048, magnification of lateral view of parietal train, showing polygonal crystalline imprints on the side surface (200 µm scale bar).
+9	Davidonia rostrata	SMNH Mo185048, dorsal view of supra-apical field (200 µm scale bar).
+10	Davidonia rostrata	SMNH Mo185048, lateral view (100 µm scale bar).
+11	Davidonia rostrata	SMNH Mo185048, magnification of oblique lateral view of supra-apical field, showing polygonal crystalline imprints (100 µm scale bar).
+12	Davidonia rostrata	SMNH Mo182501, lateral view (200 µm scale bar).
+13	Davidonia rostrata	SMNH Mo182502, lateral view (200 µm scale bar).
+14	Davidonia rostrata	SMNH Mo182503, lateral view (200 µm scale bar).
+15	Xianfengella cf. X. yatesi	SMNH Mo185049, dorsal view (200 µm scale bar).
+16	Xianfengella cf. X. yatesi	SMNH Mo185049, oblique apical view (200 µm scale bar).
+17	Xianfengella cf. X. yatesi	SMNH Mo185049, magnified view of supra-apical field showing crystalline imprints 100 µm scale bar).
+18	Xianfengella cf. X. yatesi	SMNH Mo185049, oblique lateral view (200 µm scale bar).
+19	Protowenella? sp.	SMNH Mo185050, lateral view (200 µm scale bar).
+20	Protowenella? sp.	SMNH Mo185050, dorsal view (200 µm scale bar).
+21	Protowenella? sp.	SMNH Mo185050, apical view (200 µm scale bar).
+22	Anuliconus sp.	SMNH Mo185051, lateral view (100 µm scale bar).
+23	Anuliconus sp.	SMNH Mo185051, magnification of apex in lateral view 200 µm scale bar).
+24	Anuliconus sp.	SMNH Mo185051, apertural view (100 µm scale bar).
+25	Anuliconus sp.	SMNH Mo185052, lateral view (200 µm scale bar).
+26	Anuliconus sp.	SMNH Mo185052, apical view (200 µm scale bar).
+27	Anuliconus sp.	SMNH Mo185053, lateral view (200 µm scale bar).
+28	Anuliconus sp.	SMNH Mo185053, apical view (200 µm scale bar).
+----END----
+
+Now, process the following new caption. Remember, this is a completely new caption - do not continue numbering from the examples above. Use only the information provided in this new caption:

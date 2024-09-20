@@ -218,21 +218,21 @@ class FiguristMainWindow(QMainWindow):
         self.toggle_view()
 
     def handleItemExpanded(self, item):
-        print(f"Item expanded: {item.text()}")
+        #print(f"Item expanded: {item.text()}")
         # get data from item
         data = item.data()
         if isinstance(data, FgCollection):
-            print("collection expanded:", data.name)
+            #print("collection expanded:", data.name)
             data.is_expanded = True
             data.save()
             # get references
             
 
     def handleItemCollapsed(self, item):
-        print(f"Item collapsed: {item.text()}")
+        #print(f"Item collapsed: {item.text()}")
         data = item.data()
         if isinstance(data, FgCollection):
-            print("collection collapsed:", data.name)
+            #print("collection collapsed:", data.name)
             data.is_expanded = False
             data.save()
 
@@ -749,7 +749,7 @@ class FiguristMainWindow(QMainWindow):
         pass
 
     def load_children(self, taxon, parent_item):
-        for child in taxon.children:
+        for child in taxon.children.order_by(FgTaxon.name):
             item1 = QStandardItem(child.name)
             item1.setData(child)
             parent_item.appendRow([item1])
@@ -1152,7 +1152,10 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         #directory = dialog.exec_()
         if directory:
             #directory = dialog.selectedFiles()[0]
+            # wait cursor
+            QApplication.setOverrideCursor(Qt.WaitCursor)
             self.selected_collection.export_collection(directory)
+            QApplication.restoreOverrideCursor()
             self.statusBar.showMessage(self.tr("Exported collection to {}").format(directory), 2000)
 
     def on_action_delete_collection_triggered(self):

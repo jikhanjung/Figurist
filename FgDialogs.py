@@ -2260,11 +2260,11 @@ class AddFiguresDialog(QDialog):
                     figure.save()
                     #print("Time figure saved:", i, datetime.datetime.now())
                     taxon_name = self.tempModel.item(i, 1).text()
-                    taxon = self.process_taxon_name(taxon_name)
+                    taxon = self.process_taxon_name(taxon_name, taxon_rank = "Species", reference_abbr = self.reference.get_abbr())
                     figure.add_pixmap(cropped_pixmap)
-
-                    self.update_taxon_figure(taxon, figure)
-                    self.update_taxon_reference(taxon, self.reference)
+                    if taxon is not None:
+                        self.update_taxon_figure(taxon, figure)
+                        self.update_taxon_reference(taxon, self.reference)
                     #print("Time processing done:", i, datetime.datetime.now())
                     #print(f"Name: {name.text()}, Figure Number: {figure_number.text()}, Caption: {caption.text()}, Comments: {comments.text()}")
 

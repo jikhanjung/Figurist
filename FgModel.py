@@ -31,7 +31,23 @@ def update_taxon_reference( taxon, reference):
         taxref.reference = reference
         taxref.save()
 
-def process_taxon_name(taxon_name, taxon_rank = "Species"):
+def process_taxon_name(taxon_name, taxon_rank = "Species", reference_abbr = None):
+    if taxon_name is None:
+        return None
+    taxon_name = taxon_name.strip()
+    comments = ""
+    # finding "sp. nov." or "n. sp." in the taxon name
+    new_species_string = [ "sp. nov.", "n. sp.", "nov. sp.", "sp.nov.", "n.sp."]
+    for new_species in new_species_string:
+        if new_species in taxon_name:
+            comments += taxon_name
+            if reference_abbr is not None:
+                comments += " in " + reference_abbr 
+            comments += "\n"
+            taxon_name = taxon_name.replace(new_species, "")
+            taxon_name = taxon_name.strip()
+            taxon_rank = "Species"
+
     taxon = FgTaxon.select().where(FgTaxon.name == taxon_name)
     if taxon.count() > 0:
         taxon = taxon[0]
@@ -40,10 +56,12 @@ def process_taxon_name(taxon_name, taxon_rank = "Species"):
         taxon.name = taxon_name
         name_list = taxon.name.split(" ")
         taxon.parent = None
+        taxon.comments = comments
         #taxon.rank = self.edtTaxonRank.text()
         if len(name_list) > 1:
             ''' this is a species '''
-            genus, created = FgTaxon.get_or_create(name=name_list[0])
+            genus_name = name_list[0].replace("?","")
+            genus, created = FgTaxon.get_or_create(name=genus_name)
             #print("genus:",genus)
             genus.rank = "Genus"
             genus.save()
@@ -52,7 +70,7 @@ def process_taxon_name(taxon_name, taxon_rank = "Species"):
         else:
             taxon.rank = taxon_rank
         taxon.save()
-    return taxon        
+    return taxon
 
 class FgCollection(Model):
     name = CharField(default='',null=True)
@@ -221,10 +239,11 @@ class FgReference(Model):
         figure_data = []        
         for fig in self.figures:
             fig.export_figure_file(export_path)
+            #shutil.copyfile(self.get_file_path(), os.path.join(reference_path, self.figure_number + ".png"))
             figure_data.append({
                 "id": fig.id,
                 "figure_number": fig.figure_number,
-                "file_name": fig.file_name,
+                "file_name": self.figure_number + ".png",
                 "file_path": fig.file_path,
                 "part1_prefix": fig.part1_prefix,
                 "part1_number": fig.part1_number,
@@ -327,10 +346,14 @@ class FgReference(Model):
                         new_figure.comments = ''
                     new_figure.taxon_name = fig["taxon_name"]
                     new_figure.save()
-                    new_figure.add_file(os.path.join(reference_path, new_figure.file_name))
-                    taxon = process_taxon_name(fig["taxon_name"])
-                    update_taxon_figure(taxon, new_figure)
-                    update_taxon_reference(taxon, self)
+                    new_figure.add_file(os.path.join(reference_path, new_figure.figure_number + ".png" ))
+                    if fig["taxon_name"] is not None and fig["taxon_name"].strip() != '':
+                        taxon = process_taxon_name(fig["taxon_name"])
+                        update_taxon_figure(taxon, new_figure)
+                        update_taxon_reference(taxon, self)
+                    else:
+                        pass
+                        #print("taxon is None", new_figure, fig["taxon_name"], self.get_abbr())
 
         # get the list of attachments that are directories in the reference path and begins with "[Att_{id}]"
         attachment_info_file = os.path.join(reference_path, "attachment_info.json")
@@ -425,6 +448,7 @@ class FgTaxon(Model):
     year = CharField(null=True)
     junior_synonym_of = ForeignKeyField('self', backref='synonyms', null=True)
     parent = ForeignKeyField('self', backref='children', null=True,on_delete="CASCADE")
+    comments = TextField(null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
 

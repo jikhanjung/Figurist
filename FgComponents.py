@@ -70,7 +70,7 @@ class FigureTableModel(QAbstractTableModel):
                 if hasattr(figure, self.column_list[column]):
                     return getattr(figure, self.column_list[column])
             else:  # icon mode
-                return f"{figure.figure_number} {figure.taxon_name}"
+                return f"{figure.figure_number} {figure.taxon_name or ''}"
         elif role == Qt.BackgroundRole:
             if index.column() in self._uneditable_columns:
                 return QColor(192, 192, 192)

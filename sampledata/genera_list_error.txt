@@ -1,0 +1,28 @@
+Error: The line does not end with a period. Acrohybus RAYMOND, 1937 [argutus] Rockledge Cgte, Vermont, USA; HUNGAIIDAE; UCAM
+Error: The line does not end with a period. Actinopeltis HAWLE & CORDA, 1847 [carolialexandri] Kral
+Error: The line does not end with a period. Aculeodiscus .NAJDR, 1950 [bohemicus] Jince Fm, Czech Republic; EODISCIDAE; MCAM. [j.s.s. of Dawsonia, fide JELL, 1997]
+Error: The line does not end with a period. Agnostoglossa OPIK, 1967 [bassa] Mungerebar Lst; AMMAGNOSTIDAE; UCAM. [j.s.s. of Ammagnostus, fide SHERGOLD et al., 1990]
+Error: The line does not end with a period. Albertellina PALMER in PALMER & HALLEY, 1979 [aspinosa] Carrara Fm, Nevada, USA; ZACANTHOIDIDAE; MCAM. 7
+Error: The line does not end with a period. Anderssonia SUN, 1924 [preocc. replaced by Anderssonella]
+Error: The line does not end with a period. Aneuacanthus BARRANDE, 1856 [unnecessary emendation of Aneucanthus and thus j.o.s. of Acontheus]
+Error: The line does not end with a period. Aojia RESSER & ENDO in KOBAYASHI, 1935c [spinosa] Changhia Fm, Liaoning, China; LISANIIDAE; MCAM. [j.s.s. of Lisania, fide W. ZHANG & JELL, 1987]
+Error: The line does not end with a period. Arion BARRANDE, 1846a [preocc., replaced by Agraulos]
+Error: The line does not end with a period. Arionellus BARRANDE, 1852[replacement name for Arionides] [j.o.s. of Agraulos]
+Error: The line does not end with a period. Arionides BARRANDE, 1847 [replacement name for Arion] [j.o.s. of Agraulos]
+Error: The line does not end with a period. Blountiella RESSER, 1938b [Blountia? alemon WALCOTT, 1916b] Nolichucky Fm, Tennessee, USA; ASAPHISCIDAE; UCAM
+Error: The line does not end with a period. Brutonia THOMAS & HOLLOWAY, 1988 [Acidasp-ides borealis CHERNYSHEVA, 1960b] Olenek River, N Siberia, Russia; LICHAKEPHALIDAE; UCAM
+Error: The line does not end with a period. Cryphaeoides DELO, 1935 [Cryphaeus rostratus KOZLOWSKI, 1923] Sicasica Fm, Patacamaya, Bolivia; CALMONIIDAE; LDEV
+Error: The line does not end with a period. Dipharus CLARK, 1923a [insperatus] Massachusetts, USA; indet. juvenile?; LCAM.[possibly s.s.s. of Hebediscus, fide SHAW, 1950]
+Error: The line does not end with a period. Discomesites OPIK, 1975b [fragum] Cymbric Vale Fm, New South Wales, Australia; EODISCIDAE; CAM. [j.s.s. of Pagetides, fide JELL, 1997]
+Error: The line does not end with a period. Dohmiella LUTKE, 1990 [Proetus (Euproetus) dohmi RICHTER & RICHTER, 1918] Junkerberg Fm, Gerolstein, Eifel, Germany; PROETIDAE; MDEV [j.s.s. of Gerastos, fide ADRAIN, 1997]
+Error: The line does not end with a period. Ferenepea OPIK, 1967 [hispida] OHara Sh, Queensland, Australia; NEPEIDAE; MCAM. Ferralsia COBBOLD, 1935b [blayaci] Herault,
+Error: The line does not end with a period. Haniwapyge ROZOVA in ROZOVA et al., 1985 [maslyanini] Maslyaninsk Horizon, NW Salair, Russia; CERATOPYGIDAE; LORD [j.s.s. of Macropyge, fide PENG, 1990]      
+Error: The line does not end with a period. Homoglossa RAYMOND, 1912[Ogygia dilatata panderi SCHMIDT, 1904] glacial erratic, ?Kukruse Stage, Estonia; STYGINIDAE; UORD [j.s.s. of Bronteopsis, fide MOORE, 1959]
+Error: The line does not end with a period. Lobocephalus RUZICKA, 1940 [preocc., replaced by Ruzickaia]
+Error: The line does not end with a period. Modellops LIEBERMAN & KLOC, 1997 [Greenops struvei MORZADEC, 1969] Kerdrelot Fm, Brittany, France; ACASTIDAE; LDEV. [j.s.s. of Hollardops, fide MORZADEC, 2001]
+Error: The line does not end with a period. Onukia KOBAYASHI & HAMADA, 1976 [Sphaerexochus (Onukia) sugiyamai] Kawauchi Fm, Iwate Prefecture, Japan; CHEIRURIDAE; USIL [j.s.s. of Sphaerexochus, fide ADRAIN, herein]
+Error: The line does not end with a period. Paratungusella REPINA, 1966 [triangulata] Kuznetsk Alatau, S Siberia, Russia; METADOXIDIDAE; LCAM
+Error: The line does not end with a period. Placosema OPIK, 1967 [caelatum] Mungerebar Lst, Queensland, Australia; LLANOASPIDIDAE; UCAM. [j.s.s. of Genevievella, fide PRATT, 1992]
+Error: The line does not end with a period. Proteuloma SDZUY, 1958b [Conocephalites geinitzi BARRANDE, 1868] Leimitz Schiefer, Bavaria; EULOMIDAE; LORD
+Error: The line does not end with a period. Rhinaspis REMELE, 1885 [erratica] glacial eratic, glauconitic Vaginatenkalk, Eberswalde, Germany; ASAPHIDAE?; MORD [preocc., not replaced; s.s.s. of Megistaspis, fide MOORE, 1959]
+Error: The line does not end with a period. Sibiriaspis REPINA in KHALFIN, 1960 [chomentovskii] Bazaikh Horizon, Kuznetsk Alatau, Russia; ABADIELLIDAE; LCAM

@@ -9,6 +9,7 @@ import copy
 import FgUtils as fg
 import shutil
 import json
+import re
 
 DATABASE_FILENAME = fg.PROGRAM_NAME + ".db"
 database_path = os.path.join(fg.DEFAULT_DB_DIRECTORY, DATABASE_FILENAME)
@@ -31,11 +32,19 @@ def update_taxon_reference( taxon, reference):
         taxref.reference = reference
         taxref.save()
 
+def find_parent_for_genus_name(genus_name):
+    if genus_name == "Undetermined":
+        return None
+    return None
+
 def process_taxon_name(taxon_name, taxon_rank = "Species", reference_abbr = None):
     if taxon_name is None:
         return None
     taxon_name = taxon_name.strip()
     comments = ""
+    if reference_abbr:
+        comments = "Reference:" + reference_abbr + "\n"
+    
     # finding "sp. nov." or "n. sp." in the taxon name
     new_species_string = [ "sp. nov.", "n. sp.", "nov. sp.", "sp.nov.", "n.sp."]
     for new_species in new_species_string:
@@ -48,6 +57,62 @@ def process_taxon_name(taxon_name, taxon_rank = "Species", reference_abbr = None
             taxon_name = taxon_name.strip()
             taxon_rank = "Species"
 
+    # regular expression for Authorname, Year
+    author_year_string = r"(\(*[A-Z][a-z]+, \d{4}\)*)"
+    author_year = re.search(author_year_string, taxon_name)
+    if author_year is not None:
+        author_year_result = author_year.group(1)
+        taxon_name = taxon_name.replace(author_year.group(0), "")
+        taxon_name = taxon_name.strip()  
+        comments += "Author, Year: " + author_year_result + "\n"
+        #comments += "Year: " + year + "\n"
+
+    # author list in the form of "Author1 et Author2" or "Author1 and Author2" or "Author1 & Author2" enclosed in () or not
+    #author_list_string = r"(\w+)( et | and | & )(\w+)"
+    author_list_string = r"(\(*[A-Z][a-z]+)( et | and | & )([A-Z][a-z]+\)*)"
+    author_list = re.search(author_list_string, taxon_name)
+    if author_list is not None:
+        author = author_list.group(1) + " & " + author_list.group(3)
+        taxon_name = taxon_name.replace(author_list.group(0), "")
+        taxon_name = taxon_name.strip()  
+        comments += "Author: " + author + "\n"
+
+    if taxon_name[-1] == ",":
+        taxon_name = taxon_name[:-1]
+        taxon_name = taxon_name.strip()
+    
+    # final attempt to find author name
+    #
+    # if the last word's first letter is in uppercase and the last word is all alphabets
+    #if len(taxon_word_list) > 2 and taxon_word_list[-1][0] 
+    # inline 
+    def name_check(taxon_name):
+        taxon_word_list = taxon_name.split(" ")
+        if len(taxon_word_list) > 2 and len(taxon_word_list[-1]) > 1 and taxon_word_list[-1][0].isupper() and taxon_word_list[-1].isalpha():
+            author_name = taxon_word_list[-1]
+            taxon_name = " ".join(taxon_word_list[:-1])
+            return True, taxon_name, author_name
+        else:
+            return False, taxon_name, None
+
+    #taxon_word_list = taxon_name.split(" ")
+    last_word_is_name, taxon_name, author_name = name_check(taxon_name)
+    while last_word_is_name:
+        comments += "Author: " + author_name + "\n"
+        last_word_is_name, taxon_name, author_name = name_check(taxon_name)
+        #comments += "Author: " + author + "\n"
+
+    is_undetermined = False
+    genus_name = ""
+    undetermined_list = [ "undetermined", "Undetermined", "indeterminate", "indet." ]
+    for undetermined_string in undetermined_list:
+        if undetermined_string in taxon_name:
+            comments += "Undetermined: " + undetermined_string + "\n"
+            is_undetermined = True
+            genus_name = "Undetermined"
+            #taxon_name = taxon_name.replace(undetermined_string, "")
+            #taxon_name = taxon_name.strip()
+    
     taxon = FgTaxon.select().where(FgTaxon.name == taxon_name)
     if taxon.count() > 0:
         taxon = taxon[0]
@@ -58,12 +123,17 @@ def process_taxon_name(taxon_name, taxon_rank = "Species", reference_abbr = None
         taxon.parent = None
         taxon.comments = comments
         #taxon.rank = self.edtTaxonRank.text()
-        if len(name_list) > 1:
-            ''' this is a species '''
-            genus_name = name_list[0].replace("?","")
+        if is_undetermined or len(name_list) == 1:
+            if is_undetermined:
+                genus_name = "Undetermined"
+            else:
+                genus_name = name_list[0].replace("?","")
             genus, created = FgTaxon.get_or_create(name=genus_name)
             #print("genus:",genus)
             genus.rank = "Genus"
+            genus_parent = find_parent_for_genus_name(genus_name)
+            if genus_parent is not None:
+                genus.parent = genus_parent
             genus.save()
             taxon.parent = genus
             taxon.rank = "Species"
@@ -576,7 +646,13 @@ class FgFigure(Model):
         thumbnail_path = self.get_thumbnail_path()
         
         if os.path.exists(thumbnail_path):
-            return thumbnail_path
+            # get time of thumbnail_path
+            thumbnail_stat = os.stat(thumbnail_path)
+            # get time of original_path
+            original_stat = os.stat(original_path)
+            # if thumbnail is newer than original, return thumbnail_path
+            if thumbnail_stat.st_mtime > original_stat.st_mtime:
+                return thumbnail_path
 
         thumbnail_size = (200, 200)  # You can adjust this size as needed
 

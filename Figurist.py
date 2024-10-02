@@ -1015,7 +1015,17 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         router = Router(gDatabase, migrate_dir=migrations_path)
 
         # Auto-discover and run migrations
-        router.run()        
+        router.run()
+
+        # prepare initial data
+        trilobite_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Trilobite").count()
+        print("trilobite count:", trilobite_count)
+        if trilobite_count == 0:
+            load_trilobite_data()
+            #FgTreeOfLife.create(common_name="Trilobite", scientific_name="Trilobita")
+            trilobite_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Trilobite").count()
+            print("trilobite count after initial data loading:", trilobite_count)
+
         return
 
     def open_taxonView_menu(self, position):

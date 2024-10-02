@@ -15,6 +15,48 @@ DATABASE_FILENAME = fg.PROGRAM_NAME + ".db"
 database_path = os.path.join(fg.DEFAULT_DB_DIRECTORY, DATABASE_FILENAME)
 gDatabase = SqliteDatabase(database_path,pragmas={'foreign_keys': 1})
 
+def load_trilobite_data(reset=False):
+    # load trilobite genera list from the TOL database
+    #tol_trilobite = []
+    trilobite_file = open('sampledata/trilobite_genera_list.txt', 'r', encoding='utf-8')
+    genus_info_key = ["genus", "type_species", "author", "locality", "family", "age", "comments"]
+
+    for line in trilobite_file:
+        genus_info = line.strip().split("\t")
+        #print(genus_info)
+        genus_name = genus_info[0]
+        genus, created = FgTreeOfLife.get_or_create(name=genus_name)
+        genus.rank = "Genus"
+        for idx, keyword in enumerate(genus_info_key):
+            if len(genus_info) > idx:
+                if keyword == "author":
+                    author = genus_info[idx]
+                    #if author.find(" in ") > -1:
+                    #    author_list, reference = author.split(" in ")
+
+                    author_words = author.split(",")
+                    year = author_words[-1].strip()
+                    if len(year) == 4 and year.isdigit():
+                        genus.year = year
+                    elif len(year) == 5 and year[-1].isalpha():
+                        genus.year = year[:-1]
+                    elif year == "nov.":
+                        genus.year = "2002"
+                    #genus.author = author
+                if hasattr(genus, keyword):
+                    setattr(genus, keyword, genus_info[idx])
+                #if keyword == "type_species":
+                #setattr(genus, keyword, genus_info[idx+1])
+            
+        genus.common_name = "Trilobite"
+        genus.save()
+        #tol_trilobite.append(line.strip())
+
+    #    tol_trilobite.append(line.strip())
+    #tol_trilobite_file.close()
+    #return tol_trilobite
+    return []
+
 def update_taxon_figure( taxon, figure):
     taxfig = FgTaxonFigure.select().where(FgTaxonFigure.figure == figure, FgTaxonFigure.taxon == taxon)
     if taxfig.count() == 0:
@@ -767,6 +809,22 @@ class FgTaxonFigure(Model):
     taxon = ForeignKeyField(FgTaxon, backref='related_figures',on_delete="CASCADE")
     figure = ForeignKeyField(FgFigure, backref='related_taxa',on_delete="CASCADE")
     reltype = CharField(null=True)
+    created_at = DateTimeField(default=datetime.datetime.now)
+    modified_at = DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        database = gDatabase
+
+class FgTreeOfLife(Model):
+    name = CharField()
+    rank = CharField(null=True)
+    author = CharField(null=True)
+    year = CharField(null=True)
+    comments = TextField(null=True)
+    locality = CharField(null=True)
+    age = CharField(null=True)
+    common_name = CharField(null=True)
+    parent = ForeignKeyField('self', backref='children', null=True,on_delete="CASCADE")
     created_at = DateTimeField(default=datetime.datetime.now)
     modified_at = DateTimeField(default=datetime.datetime.now)
 

@@ -27,7 +27,7 @@ print("router: ", router)
 # set migration_name to YYYYMMDD_HHMMSS
 migration_name = get_timestamp()
 print("migration_name: ", migration_name)
-ret = router.create(auto=[FgCollection,FgReference,FgCollectionReference,FgTaxon,FgFigure,FgTaxonReference,FgTaxonFigure,FgAttachment], name=migration_name)
+ret = router.create(auto=[FgCollection,FgReference,FgCollectionReference,FgTaxon,FgFigure,FgTaxonReference,FgTaxonFigure,FgAttachment,FgTreeOfLife], name=migration_name)
 print("ret: ", ret)
 
 

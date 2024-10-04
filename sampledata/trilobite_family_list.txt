@@ -1,6 +1,6 @@
 Abadiellidae	HUPE, 1953	1953
 Acastidae	DELO, 1935	1935
-o8Acrocephalitidae	HUPE, 1953	1953
+Acrocephalitidae	HUPE, 1953	1953
 Agnostidae	McCOY, 1849	1849
 Agraulidae	RAYMOND, 1913	1913
 Aldonaiidae	HUPE, 1953a	1953
@@ -147,7 +147,7 @@ Raphiophoridae	ANGELIN, 1854	1854
 Raymondinidae	CLARK, 1924	1924
 Redlichiidae	POULSEN, 1927	1927
 Redlichinidae	ZHANG & LIN in W. ZHANG et al., 1980a	1980
-Remopleurididae		
+Remopleurididae	HAWLE & CORDA, 1847	1847
 Rhyssometopidae	OPIK, 1967	1967
 Rorringtoniidae	OWENS in OWENS & HAMMANN, 1990	1990
 Sarkiidae	HUPE, 1953	1953

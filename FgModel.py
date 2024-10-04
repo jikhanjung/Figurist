@@ -18,10 +18,27 @@ gDatabase = SqliteDatabase(database_path,pragmas={'foreign_keys': 1})
 def load_trilobite_data(reset=False):
     # load trilobite genera list from the TOL database
     #tol_trilobite = []
-    trilobite_file = open('sampledata/trilobite_genera_list.txt', 'r', encoding='utf-8')
+    trilobite_family_file = open('sampledata/trilobite_family_list.txt', 'r', encoding='utf-8')
+    family_info_key = ["family", "author", "year"]
+    for line in trilobite_family_file:
+        line = line.strip()
+        if len(line) == 0:
+            continue
+        family_info = line.split("\t")
+        family_name = family_info[0]
+        family, created = FgTreeOfLife.get_or_create(name=family_name)
+        family.rank = "Family"
+        for idx, keyword in enumerate(family_info_key):
+            if len(family_info) > idx:
+                if hasattr(family, keyword):
+                    setattr(family, keyword, family_info[idx])
+        family.common_name = "Trilobite"
+        family.save()
+
+    trilobite_genera_file = open('sampledata/trilobite_genera_list.txt', 'r', encoding='utf-8')
     genus_info_key = ["genus", "type_species", "author", "locality", "family", "age", "comments"]
 
-    for line in trilobite_file:
+    for line in trilobite_genera_file:
         genus_info = line.strip().split("\t")
         #print(genus_info)
         genus_name = genus_info[0]
@@ -43,6 +60,17 @@ def load_trilobite_data(reset=False):
                     elif year == "nov.":
                         genus.year = "2002"
                     #genus.author = author
+                elif keyword == "family":
+                    family_name = genus_info[idx].lower()
+                    if family_name and len(family_name) > 0 and family_name != "uncertain" :
+                        family_name = family_name.replace("?","")
+                        #print(family_name)
+                        family_name = family_name[0].upper() + family_name[1:]
+                        #family = FgTreeOfLife.get(name=family_name)
+                        family = FgTreeOfLife.select().where(FgTreeOfLife.name == family_name)
+                        if family.count() > 0:
+                            family = family[0]
+                            genus.parent = family
                 if hasattr(genus, keyword):
                     setattr(genus, keyword, genus_info[idx])
                 #if keyword == "type_species":

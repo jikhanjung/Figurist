@@ -31,7 +31,7 @@ with open('sampledata/family_list.txt', 'r') as f:
             #print(family_name,author, comma, year, alpha)
             author_info = f"{author}, {year}{alpha}"
         else:
-            print("Error: No author and year found.", line)
+            print("Error: No author and year found.", line0)
         
         line2 = line
         genera_list = line.split(",")

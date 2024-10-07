@@ -658,6 +658,16 @@ class FiguristMainWindow(QMainWindow):
                 return item
         return None  # Return None if the taxon is not found
 
+    def select_taxon(self, taxon):
+        if taxon not in self.selected_taxa:
+            self.selected_taxa.append(taxon)
+        for child in taxon.children:
+            self.select_taxon(child)
+            child_item = self.find_taxon_item(child)
+            if child_item:
+                child_index = self.taxon_model.indexFromItem(child_item)
+                self.taxonView.selectionModel().select(child_index, QItemSelectionModel.Select)
+
     def on_taxon_selection_changed(self, selected, deselected):
         #print("taxon selection changed 1", time.time())
         prev_selected_taxa = self.selected_taxa
@@ -669,29 +679,18 @@ class FiguristMainWindow(QMainWindow):
         else:
             self.selected_taxa = []
 
-        newly_selected_taxa = set(self.selected_taxa) - set(prev_selected_taxa)
-        if len(newly_selected_taxa) > 0:
+        #newly_selected_taxa = set(self.selected_taxa) - set(prev_selected_taxa)
+        if len(self.selected_taxa) > 0:
             #disconnect selectionchanged
             self.taxon_selection_model.selectionChanged.disconnect(self.on_taxon_selection_changed)
 
-            for taxon in newly_selected_taxa:
+            for taxon in self.selected_taxa:
                 #print("newly selected taxon:", taxon.name)
                 if taxon.children.count() > 0:
-                    self.selected_taxa.extend(taxon.children)
+                    self.select_taxon(taxon)
                     # select children
-                    for child in taxon.children:
-                        child_item = self.find_taxon_item(child)
-                        if child_item:
-                            child_index = self.taxon_model.indexFromItem(child_item)
-                            self.taxonView.selectionModel().select(child_index, QItemSelectionModel.Select)
 
-                        # iterate taxon model and get index
-                        #index = self.taxon_model.indexFromItem(child)
-                        #self.taxonView.selectionModel().select(index, QItemSelectionModel.Select)
-
-                    #print("children:", [t.name for t in taxon.children])
             self.taxon_selection_model.selectionChanged.connect(self.on_taxon_selection_changed)
-        #print("selected taxa:", [t.name for t in self.selected_taxa])
 
         if self.mode == "Taxon":
             self.reset_referenceView()
@@ -1017,14 +1016,24 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         # Auto-discover and run migrations
         router.run()
 
-        # prepare initial data
+        # prepare initial trilobite data
         trilobite_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Trilobite").count()
-        print("trilobite count:", trilobite_count)
+        #print("trilobite count:", trilobite_count)
         if trilobite_count == 0:
             load_trilobite_data()
+            #load_archaeocyatha_data()
             #FgTreeOfLife.create(common_name="Trilobite", scientific_name="Trilobita")
             trilobite_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Trilobite").count()
             print("trilobite count after initial data loading:", trilobite_count)
+
+        archaeocyatha_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Archaeocyatha").count()
+        #print("archaeocyatha_count:", archaeocyatha_count)
+        if archaeocyatha_count == 0:
+            #load_trilobite_data()
+            load_archaeocyatha_data()
+            #FgTreeOfLife.create(common_name="Trilobite", scientific_name="Trilobita")
+            archaeocyatha_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Archaeocyatha").count()
+            #print("archaeocyatha_count after initial data loading:", archaeocyatha_count)
 
         return
 

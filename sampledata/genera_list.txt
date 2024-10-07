@@ -264,7 +264,7 @@ Antagmopleura LERMONTOVA in KHALFIN, 1960 [flerovae] Amgaian, Siberia, Russia; U
 Antagmus RESSER, 1936 [Ptychoparia teucer WALCOTT, 1886] Winooski, Vermont, USA; ANTAGMIDAE; MCAM. 
 Antatlasia HUPE, 1953a [hollardi] Issafen Fm, Morocco; ELLIPSOCEPHALIDAE; LCAM. 
 Anthes GOLDFUSS, 1843 [j.o.s. of Peltura]. 
-Anthracopeltis BOULAY, 1880 [crepini] Houiller, France; INDET (fide HENNINGSMOEN in MOORE, 1959); ?ORD. 
+Anthracopeltis BOULAY, 1880 [crepini] Houiller, France; INDET. (fide HENNINGSMOEN in MOORE, 1959); ?ORD. 
 Anujaspis BALASHOVA, 1960 [anujca] Artinskian, Kolyma, Far East, Russia; PROETIDAE; LPERM. 
 Anuloides IVSHIN, 1962[wikrami] Seletinsky Horizon, Kazakhstan; DOKIMOCEPHALIDAE; UCAM. 
 Aocaspis DOLAMBI & GOND, 1992[Platypeltis? macrophthalmus THORAL, 1935] Schistes de Saint-Chinian Fm, S France; NILEIDAE; LORD. 
@@ -297,7 +297,7 @@ Aposolenopleura RAYMOND, 1937 [dunbari] Gorge Fm, Vermont, USA; PAGODIIDAE; UCAM
 Appendicysta HAHN, HAHN & YUAN, 1989 [allodapa] Zhe Gang, Guangxi; PROETIDAE; PENN. 
 Aprathia HAHN & BRAUKMANN, 1975a [Carbonocoryphe emanueli RICHTER & RICHTER, 1950] ?Bromberg Fm, Wuppertal, Rhenish Massif, Germany; PROETIDAE; MISS. 
 Araeocephalus REPINA in REPINA et al., 1964 [primus] Sanashtykgol Horizon, Kuznetsk Alatau, Russia; UNCERTAIN; LCAM. 
-Aragotus LINAN & GOZALO, 2001 [attacanus] Dar-oca Fm, Zaragoza, Spain; CHENGKOUASPIDAE; LCAM. 
+Aragotus LINAN & GOZALO, 2001 [attacanus] Dar-oca Fm, Zaragoza, Spain; CHENGKOUASPIDIDAE; LCAM. 
 Araiocaris PŘIBYL & VANK, 1980 [Ogygiocaris araiorhachis HARRINGTON & LEANZA, 1957] Parcha Fm, Salta, Argentina; ASAPHIDAE; LORD. 
 Araiopleura HARRINGTON & LEANZA, 1957 [reticulata] Parcha Fm, Salta, Argentina; ALSATASPIDIDAE; LORD. 
 Arapahoia B.M. MILLER, 1936a [typa] Depass Fm, Wyoming, USA; PLETHOPELTIDAE; UCAM. 
@@ -1137,7 +1137,7 @@ Deadwoodia RESSER, 1938c [Ptychoparia (Liostracus) panope WALCOTT, 1890c] Deadwo
 Deanaspis HUGHES et al., 1975 [Cryptolithus? bedinanensis DEAN, 1967] Bedinan Fm, Turkey; TRINUCLEIDAE; UORD. 
 Deanokephalus PILLET, 1992[Apatokephalus brevifrons THORAL, 1935] St Chinian, Montagne Noire, France; REMOPLEURIDIDAE; LORD. 
 Dechenella KAYSER, 1880 [Phillipsia verneuili BARRANDE, 1852] Celechovice, Czech Republic; PROETIDAE; MDEV. 
-Dechenelloides GANDL, 1968 [Proetus angustigenatus LEYH, 1897] Geigen Schiefe, W Germany; ROETIDAE; MISS. 
+Dechenelloides GANDL, 1968 [Proetus angustigenatus LEYH, 1897] Geigen Schiefe, W Germany; PROETIDAE; MISS. 
 Dechenellurus MAKSIMOVA in KRYSKOV et al., 1960 [ursus] River Ashiozek, NE Prebaikal, Russia; PROETIDAE; LDEV. 
 Deckera FREDERICKSON, 1949 [aldenensis] Honey Ck Fm, Oklahoma, USA; DOKIMOCEPHALIDAE; UCAM. 
 Declivoharpes PŘIBYL & VANK, 1981b [Harpes dvorcensis praecedens PRANTL & PŘIBYL, 1954] Lochkov Fm, Czech Republic; HARPETIDAE; LDEV [j.s.s. of Bohemoharpes, fide EBACH & McNAMARA, 2002]. 
@@ -1953,7 +1953,7 @@ Holotrachelus HOLM, 1898 [Homalonotus punctillosus TORNQUIST, 1884] Boda Lst, Da
 Holoubkocheilus MERGL, 1994 [Eulomina gran-ulatum RUZICKA, 1926] T"enice Fm, Czech Republic; BAVARILLIDAE; LORD. 
 Holoubkovia PŘIBYL & VANK, 1969 [Lichas klouceki RUZICKA, 1926] T"enice Fm, Czech Republic; LICHIDAE; LORD [j.s.s. of Metopolichas, fide THOMAS & HOLLOWAY, 1988]. 
 Holstonia RESSER, 1938b [holstonensis] Nolichucky Fm, Virginia, USA; CEDARIIDAE; UCAM [j.s.s. of Bonneterrina, fide LOCHMAN in MOORE, 1959]. 
-Holteria WALCOTT, 1924b [Ogygia ? problematica WALCOTT, 1884a] Secret Canyon Sh, Nevada, USA; DORYPGIDAE; MCAM. 
+Holteria WALCOTT, 1924b [Ogygia ? problematica WALCOTT, 1884a] Secret Canyon Sh, Nevada, USA; DORYPYGIDAE; MCAM. 
 Holubaspis PŘIBYL, 1950 [Holubia bohemica KLOU!EK, 1931] Milina Fm, Czech Republic; ?HYSTRICURIDAE; LORD [replacement name for Holubia]. 
 Holubia KLOU!EK, 1931 [preocc., replaced by Holubaspis]. 
 Holyoakia PALMER in PALMER & ROWELL, 1995 [granulosa] Shackelton Lst, Antarctica; EMUELLIDAE; LCAM. 

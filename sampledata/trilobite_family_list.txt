@@ -28,6 +28,9 @@ Bohemillidae	BARRANDE, 1872	1872
 Bolaspididae	HOWELL in MOORE, 1959	1959
 Brachymetopidae	PRANTL & PŘIBYL, 1951	1951
 Burlingiidae	WALCOTT, 1908	1908
+Calmoniidae	DELO, 1935	1935
+Calodiscidae	KOBAYASHI, 1943	1943
+Calymenidae	BURMEISTER, 1843	1843
 Catillicephalidae	RAYMOND, 1938	1938
 Cedariidae	RAYMOND, 1937	1937
 Centropleuridae	ANGELIN, 1854	1854
@@ -35,7 +38,7 @@ Ceratopygidae	LINNARSSON, 1869	1869
 Changshaniidae	KOBAYASHI, 1935c	1935
 Cheilocephalidae	SHAW, 1956	1956
 Cheiruridae	SALTER, 1864	1864
-Chengkouaspidae	ZHANG & LIN in W. ZHANG et al., 1980a	1980
+Chengkouaspididae	ZHANG & LIN in W. ZHANG et al., 1980a	1980
 Chengkouiidae	ZHU in W.ZHANG et al., 1980a	1980
 Clavagnostidae	HOWELL, 1937	1937
 Condylopygidae	RAYMOND, 1913	1913

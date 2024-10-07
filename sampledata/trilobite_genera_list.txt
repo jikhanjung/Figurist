@@ -264,7 +264,7 @@ Antagmopleura	flerovae	LERMONTOVA in KHALFIN, 1960	Amgaian, Siberia, Russia	UTII
 Antagmus	Ptychoparia teucer WALCOTT, 1886	RESSER, 1936	Winooski, Vermont, USA	ANTAGMIDAE	MCAM	
 Antatlasia	hollardi	HUPE, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
 Anthes		GOLDFUSS, 1843				[j.o.s. of Peltura]
-Anthracopeltis	crepini	BOULAY, 1880	Houiller, France	INDET (fide HENNINGSMOEN in MOORE, 1959)	?ORD	
+Anthracopeltis	crepini	BOULAY, 1880	Houiller, France	INDET. (fide HENNINGSMOEN in MOORE, 1959)	?ORD	
 Anujaspis	anujca	BALASHOVA, 1960	Artinskian, Kolyma, Far East, Russia	PROETIDAE	LPERM	
 Anuloides	wikrami	IVSHIN, 1962	Seletinsky Horizon, Kazakhstan	DOKIMOCEPHALIDAE	UCAM	
 Aocaspis	Platypeltis? macrophthalmus THORAL, 1935	DOLAMBI & GOND, 1992	Schistes de Saint-Chinian Fm, S France	NILEIDAE	LORD	
@@ -297,7 +297,7 @@ Aposolenopleura	dunbari	RAYMOND, 1937	Gorge Fm, Vermont, USA	PAGODIIDAE	UCAM	[j.
 Appendicysta	allodapa	HAHN, HAHN & YUAN, 1989	Zhe Gang, Guangxi	PROETIDAE	PENN	
 Aprathia	Carbonocoryphe emanueli RICHTER & RICHTER, 1950	HAHN & BRAUKMANN, 1975a	?Bromberg Fm, Wuppertal, Rhenish Massif, Germany	PROETIDAE	MISS	
 Araeocephalus	primus	REPINA in REPINA et al., 1964	Sanashtykgol Horizon, Kuznetsk Alatau, Russia	UNCERTAIN	LCAM	
-Aragotus	attacanus	LINAN & GOZALO, 2001	Dar-oca Fm, Zaragoza, Spain	CHENGKOUASPIDAE	LCAM	
+Aragotus	attacanus	LINAN & GOZALO, 2001	Dar-oca Fm, Zaragoza, Spain	CHENGKOUASPIDIDAE	LCAM	
 Araiocaris	Ogygiocaris araiorhachis HARRINGTON & LEANZA, 1957	PŘIBYL & VANK, 1980	Parcha Fm, Salta, Argentina	ASAPHIDAE	LORD	
 Araiopleura	reticulata	HARRINGTON & LEANZA, 1957	Parcha Fm, Salta, Argentina	ALSATASPIDIDAE	LORD	
 Arapahoia	typa	B.M. MILLER, 1936a	Depass Fm, Wyoming, USA	PLETHOPELTIDAE	UCAM	
@@ -1137,7 +1137,7 @@ Deadwoodia	Ptychoparia (Liostracus) panope WALCOTT, 1890c	RESSER, 1938c	Deadwood
 Deanaspis	Cryptolithus? bedinanensis DEAN, 1967	HUGHES et al., 1975	Bedinan Fm, Turkey	TRINUCLEIDAE	UORD	
 Deanokephalus	Apatokephalus brevifrons THORAL, 1935	PILLET, 1992	St Chinian, Montagne Noire, France	REMOPLEURIDIDAE	LORD	
 Dechenella	Phillipsia verneuili BARRANDE, 1852	KAYSER, 1880	Celechovice, Czech Republic	PROETIDAE	MDEV	
-Dechenelloides	Proetus angustigenatus LEYH, 1897	GANDL, 1968	Geigen Schiefe, W Germany	ROETIDAE	MISS	
+Dechenelloides	Proetus angustigenatus LEYH, 1897	GANDL, 1968	Geigen Schiefe, W Germany	PROETIDAE	MISS	
 Dechenellurus	ursus	MAKSIMOVA in KRYSKOV et al., 1960	River Ashiozek, NE Prebaikal, Russia	PROETIDAE	LDEV	
 Deckera	aldenensis	FREDERICKSON, 1949	Honey Ck Fm, Oklahoma, USA	DOKIMOCEPHALIDAE	UCAM	
 Declivoharpes	Harpes dvorcensis praecedens PRANTL & PŘIBYL, 1954	PŘIBYL & VANK, 1981b	Lochkov Fm, Czech Republic	HARPETIDAE	LDEV	[j.s.s. of Bohemoharpes, fide EBACH & McNAMARA, 2002]
@@ -1953,7 +1953,7 @@ Holotrachelus	Homalonotus punctillosus TORNQUIST, 1884	HOLM, 1898	Boda Lst, Dala
 Holoubkocheilus	Eulomina gran-ulatum RUZICKA, 1926	MERGL, 1994	T"enice Fm, Czech Republic	BAVARILLIDAE	LORD	
 Holoubkovia	Lichas klouceki RUZICKA, 1926	PŘIBYL & VANK, 1969	T"enice Fm, Czech Republic	LICHIDAE	LORD	[j.s.s. of Metopolichas, fide THOMAS & HOLLOWAY, 1988]
 Holstonia	holstonensis	RESSER, 1938b	Nolichucky Fm, Virginia, USA	CEDARIIDAE	UCAM	[j.s.s. of Bonneterrina, fide LOCHMAN in MOORE, 1959]
-Holteria	Ogygia ? problematica WALCOTT, 1884a	WALCOTT, 1924b	Secret Canyon Sh, Nevada, USA	DORYPGIDAE	MCAM	
+Holteria	Ogygia ? problematica WALCOTT, 1884a	WALCOTT, 1924b	Secret Canyon Sh, Nevada, USA	DORYPYGIDAE	MCAM	
 Holubaspis	Holubia bohemica KLOU!EK, 1931	PŘIBYL, 1950	Milina Fm, Czech Republic	?HYSTRICURIDAE	LORD	[replacement name for Holubia]
 Holubia		KLOU!EK, 1931				[preocc., replaced by Holubaspis]
 Holyoakia	granulosa	PALMER in PALMER & ROWELL, 1995	Shackelton Lst, Antarctica	EMUELLIDAE	LCAM	

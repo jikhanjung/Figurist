@@ -2571,7 +2571,8 @@ class ImportCollectionDialog(QDialog):
         collection = FgCollection()
         # wait cursor
         QApplication.setOverrideCursor(Qt.WaitCursor)
-        collection.import_collection(collection_path)
+        with gDatabase.atomic():
+            collection.import_collection(collection_path)
         # restore cursor
         QApplication.restoreOverrideCursor()
         self.accept()

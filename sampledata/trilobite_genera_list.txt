@@ -14,9 +14,9 @@ Acanthagnostus	longispinus	QIAN, 1982	Kushan Fm, Shandong, China	CLAVAGNOSTIDAE	
 Acanthaloma		CONRAD, 1840				[suppressed by decision of ICZN, for discussion see WHITTINGTON, 1952c][j.s.s. of Leonaspis, fide WHITTINGTON, 1952c]
 Acanthalomina	Odontopleura minuta BARRANDE, 1846a	PRANTL & PŘIBYL, 1949a	Kopanina Fm, Czech Republic	ODONTOPLEURIDAE	USIL	
 Acanthocephalus	longispinus	QIU in QIU et al., 1983	Hsuchuang, Fm, Jiangsu, China	PROASAPHISCIDAE	MCAM	
-Acanthocnemis	verrucosa	HAWLE & CORDA, 1847	Jince Fm, Czech Republic	SOLENOPLEURIDAE	MCAM	[j.s.s. of Sao,fide ŠNAJDR, 1958a]
-Acanthogramma	speciosa	HAWLE & CORDA, 1847	Jince Fm, Czech Republic	SOLENOPLEURIDAE	MCAM	[j.s.s. of Sao, fideŠNAJDR, 1958a]
-Acantholenus	Leptoplastus spiniger MATTHEW, 1889	MATTHEW, 1898	New Brunswick, Canada	ACROCEPHALITIDAE	UCAM	[j.s.s.of Acrocephalites, fide ÖPIK, 1967]
+Acanthocnemis	verrucosa	HAWLE & CORDA, 1847	Jince Fm, Czech Republic	SOLENOPLEURIDAE	MCAM	[j.s.s. of Sao, fide ŠNAJDR, 1958a]
+Acanthogramma	speciosa	HAWLE & CORDA, 1847	Jince Fm, Czech Republic	SOLENOPLEURIDAE	MCAM	[j.s.s. of Sao, fide ŠNAJDR, 1958a]
+Acantholenus	Leptoplastus spiniger MATTHEW, 1889	MATTHEW, 1898	New Brunswick, Canada	ACROCEPHALITIDAE	UCAM	[j.s.s. of Acrocephalites, fide ÖPIK, 1967]
 Acanthometopus	obesus	LU & QIAN, 1983a	Changshan Fm, Liaoning, China	SOLENOPLEURIDAE	UCAM	
 Acanthomicmacca	Micmacca walcotti MATTHEW, 1899b	HUPE, 1953a	Conception Bay, Newfoundland, Canada	CHENGKOUIIDAE	LCAM	
 Acanthoparypha	perforata	WHITTINGTON & EVITT, 1954	Edinburg Fm, Virginia, USA	CHEIRURIDAE	UORD	
@@ -3116,7 +3116,7 @@ Olimus	hilarus	ROMANENKO in GOGIN & PEGEL, 1997	Glyptagnostus stolidotus Zone, G
 Olinaspis	timios	SUVOROVA, 1964	Shangan Fm, Tuva, Russia	CORYNEXOCHIDAE	LCAM	
 Omegops	Calymene accipitrina PHILLIPS, 1841	STRUVE, 1976	Pilton Beds, England	PHACOPIDAE	UDEV	
 Omeipsis	Acidaspis huangi SUN, 1931	KOBAYASHI, 1951b	Tachengssu Fm, Sichuan, China	TAIHUNGSHANIIDAE	LORD	
-Ommokris	Dalmanites bassleri ULRICH & DELO in DELO, 1940	HOLLOWAY, 1981	St. Clair Lst, Arkansas, USA	DALMANITIDAE	LSIL	[j.s.s.of Dalmanites, fide RAMSKOLD, 1985]
+Ommokris	Dalmanites bassleri ULRICH & DELO in DELO, 1940	HOLLOWAY, 1981	St. Clair Lst, Arkansas, USA	DALMANITIDAE	LSIL	[j.s.s. of Dalmanites, fide RAMSKOLD, 1985]
 Ompheter	priscus	SHERGOLD in LAURIE & SHERGOLD, 1996	Emanuel Fm, Western Australia	TELEPHINIDAE	LORD	[j.s.s. of Opipeuter, fide ADRAIN, herein]
 Omuliovia	mira	CHUGAEVA, 1962	Khitinsk Horizon, Elgenchask Mts, Russia	HYSTRICURIDAE	MORD	
 Onaraspis	somniurna	ÖPIK, 1968	Redlichia chinensis Zone, Northern Territory, Australia	METADOXIDIDAE	LCAM	
@@ -3545,7 +3545,7 @@ Phalacromina	Agnostus nudus ovalis ILLING, 1916	KOBAYASHI, 1962	Stockingford Sh,
 Phalagnostus	Battus nudus BEYRICH, 1845	HOWELL, 1955	Jince Fm, Czech Republic	AGNOSTIDAE	MCAM	
 Phalangocephalus	Dalmanites dentata BARRETT, 1876	CAMPBELL, 1977	Port Jervis Lst, New York, USA	DALMANITIDAE	LDEV	
 Phaldagnostus	orbiformis	IVSHIN in KHALFIN, 1960	Kulbich Fm, Kazakhstan	AGNOSTINA FAMILY UNCERTAIN	UCAM	
-Phanoptes	Paradoxides pusillus BARRANDE, 1846a	HAWLE & CORDA, 1847	Jince Fm, Czech Republic	PARADOXIDIDAE	MCAM	[s.o.s.of Eccaparadoxides, submission to ICZN for its suppression pending]
+Phanoptes	Paradoxides pusillus BARRANDE, 1846a	HAWLE & CORDA, 1847	Jince Fm, Czech Republic	PARADOXIDIDAE	MCAM	[s.o.s. of Eccaparadoxides, submission to ICZN for its suppression pending]
 Pharostoma	Calymenepulchra BARRANDE, 1846a	HAWLE & CORDA, 1847	.arka Fm, Czech Republic	PHAROSTOMATIDAE	MORD	[j.s.s. of Prionocheilus, fide MAREK in HORNY & BASTL, 1970]
 Pharostomaspis	meridianus	ABDULLAEV in ABDULLAEV & KHALETSKAYA, 1970	Pskem Ridge, Uzbekistan	PHAROSTOMATIDAE	UORD	[j.s.s. of Thulincola, fide ADRAIN, herein]
 Pharostomina	oepiki	SDZUY, 1955	Leimitz Sh, Bavaria, Germany	PHAROSTOMATIDAE	LORD	

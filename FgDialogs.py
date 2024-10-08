@@ -2579,3 +2579,123 @@ class ImportCollectionDialog(QDialog):
         
     def on_btn_cancel_clicked(self):
         self.reject()
+
+class TOLDialog(QDialog):
+    def __init__(self, parent=None):
+        super(TOLDialog, self).__init__(parent)
+        self.m_app = parent
+        self.setWindowTitle(self.tr("Tree of Life"))
+        self.resize(400, 300)
+        self.read_settings()
+        self.init_ui()
+
+    def init_ui(self):
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.treeTOL = QTreeView()
+        self.layout.addWidget(self.treeTOL)
+
+        self.btnImport = QPushButton(self.tr("Import"))
+        self.btnImport.clicked.connect(self.on_btn_import_clicked)
+        self.layout.addWidget(self.btnImport)
+
+        self.btnExport = QPushButton(self.tr("Export"))
+        self.btnExport.clicked.connect(self.on_btn_export_clicked)
+        self.layout.addWidget(self.btnExport)
+
+        self.btnCancel = QPushButton(self.tr("Cancel"))
+        self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
+        self.layout.addWidget(self.btnCancel)
+
+        # load tree
+        self.load_tree()
+    
+    def load_tree(self):
+        # load FgTreeOfLife into treeview
+        # create a model
+        model = QStandardItemModel()
+        self.treeTOL.setModel(model)
+        # get all root nodes
+        # wait cursor
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        root_nodes = FgTreeOfLife.select().where(FgTreeOfLife.parent == None)
+        for root_node in root_nodes:
+            root_item = QStandardItem(root_node.name)
+            root_item.setData(root_node)
+            model.appendRow(root_item)
+            self.load_children(root_node, root_item)
+        # end wait cursor
+        QApplication.restoreOverrideCursor()
+
+    def load_children(self, parent_node, parent_item):
+        children = FgTreeOfLife.select().where(FgTreeOfLife.parent == parent_node)
+        for child in children:
+            child_item = QStandardItem(child.name)
+            child_item.setData(child)
+            parent_item.appendRow(child_item)
+            self.load_children(child, child_item)
+
+    def write_settings(self):
+        pass
+    
+    def read_settings(self):
+        pass
+
+    def on_btn_import_clicked(self):
+        directory = QFileDialog.getExistingDirectory(self, self.tr("Select TOL data file"))
+        if directory:
+            self.edtCollection.setText(directory)
+
+    def on_btn_export_clicked(self):
+
+        def read_tree(node):
+            item = {
+                "name": node.name,
+                "rank": node.rank if node.rank else "",
+                "author": node.author if node.author else "",
+                "comments": node.comments if node.comments else "",
+                "redirect_to": node.redirect_to.name if node.redirect_to else "",
+                "redirect_reason": node.redirect_reason if node.redirect_reason else "",
+                "common_name": node.common_name if node.common_name else "",
+                "children": [],
+            }
+            children = FgTreeOfLife.select().where(FgTreeOfLife.parent == node)
+            for child in children:
+                child_item = read_tree(child)
+                item["children"].append(child_item)
+            return item
+        
+        tree = []
+        root_nodes = FgTreeOfLife.select().where(FgTreeOfLife.parent == None)
+        for root_node in root_nodes:
+            root_item = read_tree(root_node)
+            tree.append(root_item)
+
+        # export tree of life
+        open_file_name = QFileDialog.getSaveFileName(self, self.tr("Save TOL data file"), "", "JSON Files (*.json)")
+        if open_file_name:
+            # open utf-8 file
+            with open(open_file_name[0], 'w', encoding='utf-8') as f:
+                json.dump(tree, f, indent=4, ensure_ascii=False)
+
+    def on_btn_export_clicked_(self):
+        # export tree of life
+        open_file_name = QFileDialog.getSaveFileName(self, self.tr("Save TOL data file"), "", "TEXT Files (*.txt)")
+        if open_file_name:
+            # open utf-8 file
+            with open(open_file_name[0], 'w', encoding='utf-8') as f:
+                for i in range(self.treeTOL.model().rowCount()):
+                    root_item = self.treeTOL.model().item(i)
+                    self.export_node(f, root_item)
+
+    def export_node(self, f, item, depth=0):
+        #print( " " * 2 * depth + item.text())
+        node = item.data()
+        f.write(" " * 2 * depth + f"{node.rank} {node.name} {node.author or ""}\n")
+        for i in range(item.rowCount()):
+            child_item = item.child(i)
+            self.export_node(f, child_item, depth+1)
+
+    def on_btn_cancel_clicked(self):
+        self.reject()

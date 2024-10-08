@@ -14,9 +14,9 @@ Acanthagnostus QIAN, 1982[longispinus] Kushan Fm, Shandong, China; CLAVAGNOSTIDA
 Acanthaloma CONRAD, 1840 [suppressed by decision of ICZN, for discussion see WHITTINGTON, 1952c] [j.s.s. of Leonaspis, fide WHITTINGTON, 1952c]. 
 Acanthalomina PRANTL & PŘIBYL, 1949a [Odontopleura minuta BARRANDE, 1846a] Kopanina Fm, Czech Republic; ODONTOPLEURIDAE; USIL. 
 Acanthocephalus QIU in QIU et al., 1983 [longispinus] Hsuchuang, Fm, Jiangsu, China; PROASAPHISCIDAE; MCAM. 
-Acanthocnemis HAWLE & CORDA, 1847 [verrucosa] Jince Fm, Czech Republic; SOLENOPLEURIDAE; MCAM [j.s.s. of Sao,fide ŠNAJDR, 1958a]. 
-Acanthogramma HAWLE & CORDA, 1847 [speciosa] Jince Fm, Czech Republic; SOLENOPLEURIDAE; MCAM [j.s.s. of Sao, fideŠNAJDR, 1958a]. 
-Acantholenus MATTHEW, 1898 [Leptoplastus spiniger MATTHEW, 1889] New Brunswick, Canada; ACROCEPHALITIDAE; UCAM [j.s.s.of Acrocephalites, fide ÖPIK, 1967]. 
+Acanthocnemis HAWLE & CORDA, 1847 [verrucosa] Jince Fm, Czech Republic; SOLENOPLEURIDAE; MCAM [j.s.s. of Sao, fide ŠNAJDR, 1958a]. 
+Acanthogramma HAWLE & CORDA, 1847 [speciosa] Jince Fm, Czech Republic; SOLENOPLEURIDAE; MCAM [j.s.s. of Sao, fide ŠNAJDR, 1958a]. 
+Acantholenus MATTHEW, 1898 [Leptoplastus spiniger MATTHEW, 1889] New Brunswick, Canada; ACROCEPHALITIDAE; UCAM [j.s.s. of Acrocephalites, fide ÖPIK, 1967]. 
 Acanthometopus LU & QIAN, 1983a [obesus] Changshan Fm, Liaoning, China; SOLENOPLEURIDAE; UCAM. 
 Acanthomicmacca HUPE, 1953a [Micmacca walcotti MATTHEW, 1899b] Conception Bay, Newfoundland, Canada; CHENGKOUIIDAE; LCAM. 
 Acanthoparypha WHITTINGTON & EVITT, 1954 [perforata] Edinburg Fm, Virginia, USA; CHEIRURIDAE; UORD. 
@@ -3116,7 +3116,7 @@ Olimus ROMANENKO in GOGIN & PEGEL, 1997 [hilarus] Glyptagnostus stolidotus Zone,
 Olinaspis SUVOROVA, 1964 [timios] Shangan Fm, Tuva, Russia; CORYNEXOCHIDAE; LCAM. 
 Omegops STRUVE, 1976 [Calymene accipitrina PHILLIPS, 1841] Pilton Beds, England; PHACOPIDAE; UDEV. 
 Omeipsis KOBAYASHI, 1951b [Acidaspis huangi SUN, 1931] Tachengssu Fm, Sichuan, China; TAIHUNGSHANIIDAE; LORD. 
-Ommokris HOLLOWAY, 1981 [Dalmanites bassleri ULRICH & DELO in DELO, 1940] St. Clair Lst, Arkansas, USA; DALMANITIDAE; LSIL [j.s.s.of Dalmanites, fide RAMSKOLD, 1985]. 
+Ommokris HOLLOWAY, 1981 [Dalmanites bassleri ULRICH & DELO in DELO, 1940] St. Clair Lst, Arkansas, USA; DALMANITIDAE; LSIL [j.s.s. of Dalmanites, fide RAMSKOLD, 1985]. 
 Ompheter SHERGOLD in LAURIE & SHERGOLD, 1996 [priscus] Emanuel Fm, Western Australia; TELEPHINIDAE; LORD [j.s.s. of Opipeuter, fide ADRAIN, herein]. 
 Omuliovia CHUGAEVA, 1962[mira] Khitinsk Horizon, Elgenchask Mts, Russia; HYSTRICURIDAE; MORD. 
 Onaraspis ÖPIK, 1968 [somniurna] Redlichia chinensis Zone, Northern Territory, Australia; METADOXIDIDAE; LCAM. 
@@ -3545,7 +3545,7 @@ Phalacromina KOBAYASHI, 1962[Agnostus nudus ovalis ILLING, 1916] Stockingford Sh
 Phalagnostus HOWELL, 1955 [Battus nudus BEYRICH, 1845] Jince Fm, Czech Republic; AGNOSTIDAE; MCAM. 
 Phalangocephalus CAMPBELL, 1977 [Dalmanites dentata BARRETT, 1876] Port Jervis Lst, New York, USA; DALMANITIDAE; LDEV. 
 Phaldagnostus IVSHIN in KHALFIN, 1960 [orbiformis] Kulbich Fm, Kazakhstan; AGNOSTINA FAMILY UNCERTAIN; UCAM. 
-Phanoptes HAWLE & CORDA, 1847 [Paradoxides pusillus BARRANDE, 1846a] Jince Fm, Czech Republic; PARADOXIDIDAE; MCAM [s.o.s.of Eccaparadoxides, submission to ICZN for its suppression pending]. 
+Phanoptes HAWLE & CORDA, 1847 [Paradoxides pusillus BARRANDE, 1846a] Jince Fm, Czech Republic; PARADOXIDIDAE; MCAM [s.o.s. of Eccaparadoxides, submission to ICZN for its suppression pending]. 
 Pharostoma HAWLE & CORDA, 1847 [Calymenepulchra BARRANDE, 1846a] .arka Fm, Czech Republic; PHAROSTOMATIDAE; MORD [j.s.s. of Prionocheilus, fide MAREK in HORNY & BASTL, 1970]. 
 Pharostomaspis ABDULLAEV in ABDULLAEV & KHALETSKAYA, 1970 [meridianus] Pskem Ridge, Uzbekistan; PHAROSTOMATIDAE; UORD [j.s.s. of Thulincola, fide ADRAIN, herein]. 
 Pharostomina SDZUY, 1955 [oepiki] Leimitz Sh, Bavaria, Germany; PHAROSTOMATIDAE; LORD. 

@@ -21,6 +21,8 @@ def load_trilobite_data(reset=False):
     with gDatabase.atomic():
         class_Trilobita, created = FgTreeOfLife.get_or_create(name="Trilobita")
         class_Trilobita.rank = "Class"
+        class_Trilobita.author = "Walch, 1771"
+        class_Trilobita.year = "1771"
         class_Trilobita.save()
         #tol_trilobite = []
 
@@ -44,6 +46,7 @@ def load_trilobite_data(reset=False):
 
         trilobite_genera_file = open('sampledata/trilobite_genera_list.txt', 'r', encoding='utf-8')
         genus_info_key = ["genus", "type_species", "author", "locality", "family", "age", "comments"]
+        synonym_list = []
 
         for line in trilobite_genera_file:
             genus_info = line.strip().split("\t")
@@ -67,6 +70,15 @@ def load_trilobite_data(reset=False):
                         elif year == "nov.":
                             genus.year = "2002"
                         #genus.author = author
+                    elif keyword == "comments":
+                        comments = genus_info[idx]
+                        synonym_type_list = [ "j.o.s.", "j.s.s." ]
+                        for synonym_type in synonym_type_list:
+                            if comments.find(synonym_type) > -1:
+                                synonym_search = re.search(r"s. of (\w+)", comments)
+                                if synonym_search is not None:
+                                    synonym_name = synonym_search.group(1)
+                                    synonym_list.append([genus_name, synonym_name, synonym_type])
                     elif keyword == "family":
                         family_name = genus_info[idx].lower()
                         if family_name and len(family_name) > 0 and family_name != "uncertain" :
@@ -112,25 +124,40 @@ def load_trilobite_data(reset=False):
                         setattr(genus, keyword, genus_info[idx])
                     #if keyword == "type_species":
                     #setattr(genus, keyword, genus_info[idx+1])
-                
+            if genus.parent is None:
+                genus.parent = class_Trilobita
             genus.common_name = "Trilobite"
             genus.save()
             #tol_trilobite.append(line.strip())
+        for synonymy in synonym_list:
+            #print(synonymy)
+            genus_name = synonymy[0]
+            synonym_name = synonymy[1]
+            synonym_type = synonymy[2]            
 
+            genus = FgTreeOfLife.select().where(FgTreeOfLife.name == genus_name)
+            synonym = FgTreeOfLife.select().where(FgTreeOfLife.name == synonym_name)
+            if genus.count() > 0 and synonym.count() > 0:
+                genus = genus[0]
+                synonym = synonym[0]
+                genus.redirect_to = synonym
+                genus.redirect_reason = "Junior synonym of " + synonym_type
+                genus.save()
         #    tol_trilobite.append(line.strip())
         #tol_trilobite_file.close()
         #return tol_trilobite
     return []
 
-def load_archaeocyatha_data(reset=False):
+def load_other_taxa_data(reset=False):
     with gDatabase.atomic():
-        archaeocyatha_taxa_file = open('sampledata/archaeocyatha_taxa_list.txt', 'r', encoding='utf-8')
+        other_taxa_file = open('sampledata/other_taxa_list.txt', 'r', encoding='utf-8')
         taxa_info_key = ["taxon", "author_year"]
         prev_space_count = 0
         space_count = 0
+        root_taxon_name = ""
         parent_taxon_dict = {}
-        for line in archaeocyatha_taxa_file:
-            print(line)
+        for line in other_taxa_file:
+            #print(line)
             # get indentation of space character in the line to decide the parent-child relationship
             space_count = 0
             while(line[0] == " "):
@@ -152,19 +179,22 @@ def load_archaeocyatha_data(reset=False):
             if len(line) == 0:
                 continue
             taxon_info = line.split("\t")
-            print("taxon info:", taxon_info)
+            #print("taxon info:", taxon_info)
             rank, taxon_name = taxon_info[0].split(" ", 1)
+            if space_count == 0:
+                root_taxon_name = taxon_name
             tol_taxon, created = FgTreeOfLife.get_or_create(name=taxon_name)
             if created:
                 tol_taxon.rank = rank
                 tol_taxon.parent = parent_taxon
-                tol_taxon.author = taxon_info[1]
-                tol_taxon.year = taxon_info[1].split(",")[-1].strip()
-                tol_taxon.common_name = "Archaeocyatha"
+                if len(taxon_info) > 1:
+                    tol_taxon.author = taxon_info[1]
+                    tol_taxon.year = taxon_info[1].split(",")[-1].strip()
+                tol_taxon.common_name = root_taxon_name
                 tol_taxon.save()
             prev_taxon = tol_taxon
             prev_space_count = space_count
-        archaeocyatha_taxa_file.close()
+        other_taxa_file.close()
 
 
 
@@ -186,7 +216,7 @@ def update_taxon_reference( taxon, reference):
         taxref.save()
 
 def find_or_pull_taxon_info(taxon_name, taxon_rank = "Genus"):
-    print("find_or_pull_taxon_info:", taxon_name)
+    #print("find_or_pull_taxon_info:", taxon_name)
     if taxon_name is None:
         return None
     #if taxon_name == "Undetermined":

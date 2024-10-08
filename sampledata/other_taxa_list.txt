@@ -1,4 +1,4 @@
-Clade Archaeocyata	Vologdin, 1937
+Clade Archaeocyatha	Vologdin, 1937
   Family Ajacicyathidae	Bedford & Bedford, 1939
     Genus Aldanocyathus	Voronin, 1971
     Genus Neoloculicyathus	Voronin, 1974
@@ -15,3 +15,15 @@ Clade Archaeocyata	Vologdin, 1937
   Family Protopharetridae	Vologdin, 1937
     Genus Protopharetra	Bornemann, 1884
     Genus Agastrocyathus	Debrenne, 1964
+Class Hyolitha	Marek, 1963
+  Genus Nevadotheca	
+Class Trilobita	Walch, 1771
+  Family Emuellidae	Pocock, 1970
+    Genus Balcorcania	Pocock, 1970
+  Family Bigotinidae
+    Genus Sdzuyia
+  Genus Yuehsienszella
+Grade Stromatolite
+  Genus Linella	Krylov, 1967
+  Genus Tungussia	Semikhatov, 1962
+  Genus Tifounkeia	Bertrand-Sarfati, 1972

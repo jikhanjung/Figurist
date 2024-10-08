@@ -178,6 +178,8 @@ class FiguristMainWindow(QMainWindow):
         self.actionAbout.setShortcut(QKeySequence("F1"))
         self.actionPreferences = QAction(QIcon(fg.resource_path(ICON['preferences'])),self.tr("Preferences"), self)
         self.actionPreferences.triggered.connect(self.on_action_preferences_triggered)
+        self.actionTOL = QAction(QIcon(fg.resource_path(ICON['preferences'])),self.tr("TOL"), self)
+        self.actionTOL.triggered.connect(self.on_action_TOL_triggered)
 
         self.toolbar.addAction(self.actionNewCollection)
         self.toolbar.addAction(self.actionNewReference)
@@ -192,6 +194,7 @@ class FiguristMainWindow(QMainWindow):
         self.file_menu.addAction(self.actionNewCollection)
         self.file_menu.addAction(self.actionNewReference)
         self.file_menu.addAction(self.actionImportCollection)
+        self.file_menu.addAction(self.actionTOL)
         self.file_menu.addAction(self.actionExit)
         self.help_menu = self.main_menu.addMenu(self.tr("Help"))
         self.help_menu.addAction(self.actionAbout)
@@ -216,6 +219,10 @@ class FiguristMainWindow(QMainWindow):
         self.figureView.verticalHeader().hide()
         '''
         self.toggle_view()
+
+    def on_action_TOL_triggered(self):
+        self.dlg = TOLDialog(self)
+        self.dlg.exec_()
 
     def handleItemExpanded(self, item):
         #print(f"Item expanded: {item.text()}")
@@ -755,7 +762,9 @@ class FiguristMainWindow(QMainWindow):
 
     def load_children(self, taxon, parent_item):
         for child in taxon.children.order_by(FgTaxon.name):
-            item1 = QStandardItem(child.name)
+            name = child.name if child.rank == "Species" else child.rank + " " + child.name
+            name += " " + child.author if child.author is not None else ""
+            item1 = QStandardItem( name)
             item1.setData(child)
             parent_item.appendRow([item1])
             self.load_children(child, item1)
@@ -781,7 +790,9 @@ class FiguristMainWindow(QMainWindow):
             taxa_list = FgTaxon.select().where(FgTaxon.parent==None).order_by(FgTaxon.name)
             #print("taxa_list:", taxa_list)
             for taxon in taxa_list:
-                item1 = QStandardItem(taxon.name)
+                name = taxon.name if taxon.rank == "Species" else taxon.rank + " " + taxon.name
+                name += " " + taxon.author if taxon.author is not None else ""
+                item1 = QStandardItem(name)
                 item1.setData(taxon)
                 self.taxon_model.appendRow([item1])
                 self.load_children(taxon, item1)
@@ -1026,13 +1037,13 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
             trilobite_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Trilobite").count()
             print("trilobite count after initial data loading:", trilobite_count)
 
-        archaeocyatha_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Archaeocyatha").count()
+        other_taxa_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name != "Trilobite").count()
         #print("archaeocyatha_count:", archaeocyatha_count)
-        if archaeocyatha_count == 0:
+        if other_taxa_count == 0:
             #load_trilobite_data()
-            load_archaeocyatha_data()
+            load_other_taxa_data()
             #FgTreeOfLife.create(common_name="Trilobite", scientific_name="Trilobita")
-            archaeocyatha_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Archaeocyatha").count()
+            other_taxa_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name != "Trilobite").count()
             #print("archaeocyatha_count after initial data loading:", archaeocyatha_count)
 
         return

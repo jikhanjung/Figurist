@@ -2317,7 +2317,7 @@ class AddFiguresDialog(QDialog):
             taxref.save()
 
 
-    def process_taxon_name(self, taxon_name, taxon_rank = "Species"):
+    def process_taxon_name(self, taxon_name, taxon_rank = "Species", reference_abbr = ""):
         taxon = FgTaxon.select().where(FgTaxon.name == taxon_name)
         if taxon.count() > 0:
             taxon = taxon[0]
@@ -2649,6 +2649,12 @@ class TOLDialog(QDialog):
 
     def on_btn_export_clicked(self):
 
+        # export tree of life
+        open_file_name = QFileDialog.getSaveFileName(self, self.tr("Save TOL data file"), "", "JSON Files (*.json)")
+        if not open_file_name or open_file_name[0] == "":
+            return
+
+
         def read_tree(node):
             item = {
                 "name": node.name,
@@ -2672,12 +2678,9 @@ class TOLDialog(QDialog):
             root_item = read_tree(root_node)
             tree.append(root_item)
 
-        # export tree of life
-        open_file_name = QFileDialog.getSaveFileName(self, self.tr("Save TOL data file"), "", "JSON Files (*.json)")
-        if open_file_name:
-            # open utf-8 file
-            with open(open_file_name[0], 'w', encoding='utf-8') as f:
-                json.dump(tree, f, indent=4, ensure_ascii=False)
+        # open utf-8 file
+        with open(open_file_name[0], 'w', encoding='utf-8') as f:
+            json.dump(tree, f, indent=4, ensure_ascii=False)
 
     def on_btn_export_clicked_(self):
         # export tree of life

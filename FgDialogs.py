@@ -2619,9 +2619,13 @@ class TOLDialog(QDialog):
         # get all root nodes
         # wait cursor
         QApplication.setOverrideCursor(Qt.WaitCursor)
-        root_nodes = FgTreeOfLife.select().where(FgTreeOfLife.parent == None)
+        root_nodes = FgTreeOfLife.select().where(FgTreeOfLife.parent == None).order_by(FgTreeOfLife.rank, FgTreeOfLife.name)
         for root_node in root_nodes:
-            root_item = QStandardItem(root_node.name)
+            name = root_node.name
+            if root_node.rank and root_node.rank != "Species":
+                name = f"{root_node.rank} {name}"
+
+            root_item = QStandardItem(name)
             root_item.setData(root_node)
             model.appendRow(root_item)
             self.load_children(root_node, root_item)
@@ -2629,9 +2633,12 @@ class TOLDialog(QDialog):
         QApplication.restoreOverrideCursor()
 
     def load_children(self, parent_node, parent_item):
-        children = FgTreeOfLife.select().where(FgTreeOfLife.parent == parent_node)
+        children = FgTreeOfLife.select().where(FgTreeOfLife.parent == parent_node).order_by(FgTreeOfLife.rank, FgTreeOfLife.name)
         for child in children:
-            child_item = QStandardItem(child.name)
+            name = child.name
+            if child.rank and child.rank != "Species":
+                name = f"{child.rank} {name}"
+            child_item = QStandardItem(name)
             child_item.setData(child)
             parent_item.appendRow(child_item)
             self.load_children(child, child_item)
@@ -2664,6 +2671,7 @@ class TOLDialog(QDialog):
                 "redirect_to": node.redirect_to.name if node.redirect_to else "",
                 "redirect_reason": node.redirect_reason if node.redirect_reason else "",
                 "common_name": node.common_name if node.common_name else "",
+                "source": node.source if node.source else "",
                 "children": [],
             }
             children = FgTreeOfLife.select().where(FgTreeOfLife.parent == node)

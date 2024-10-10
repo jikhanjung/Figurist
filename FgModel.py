@@ -24,6 +24,14 @@ def load_trilobite_data(reset=False):
         class_Trilobita.author = "Walch, 1771"
         class_Trilobita.year = "1771"
         class_Trilobita.save()
+        family_uncertain, created = FgTreeOfLife.get_or_create(name="Uncertain", rank="Family")
+        family_uncertain.rank = "Family"
+        family_uncertain.parent = class_Trilobita
+        family_uncertain.save()
+        order_uncertain, created = FgTreeOfLife.get_or_create(name="Uncertain", rank="Order")
+        order_uncertain.rank = "Order"
+        order_uncertain.parent = class_Trilobita
+        order_uncertain.save()        
         #tol_trilobite = []
 
         trilobite_family_file = open('sampledata/trilobite_family_list.txt', 'r', encoding='utf-8')
@@ -36,12 +44,13 @@ def load_trilobite_data(reset=False):
             family_name = family_info[0]
             family, created = FgTreeOfLife.get_or_create(name=family_name)
             family.rank = "Family"
-            family.parent = class_Trilobita
+            family.parent = order_uncertain
             for idx, keyword in enumerate(family_info_key):
                 if len(family_info) > idx:
                     if hasattr(family, keyword):
                         setattr(family, keyword, family_info[idx])
             family.common_name = "Trilobite"
+            family.source = "Jell & Adrain, 2002"
             family.save()
 
         trilobite_genera_file = open('sampledata/trilobite_genera_list.txt', 'r', encoding='utf-8')
@@ -81,20 +90,21 @@ def load_trilobite_data(reset=False):
                                     synonym_list.append([genus_name, synonym_name, synonym_type])
                     elif keyword == "family":
                         family_name = genus_info[idx].lower()
-                        if family_name and len(family_name) > 0 and family_name != "uncertain" :
+                        if family_name and len(family_name) > 0:
                             family_name = family_name.replace("?","")
                             #print(family_name)
                             family_name = family_name[0].upper() + family_name[1:]
                             #family = FgTreeOfLife.get(name=family_name)
-                            family = FgTreeOfLife.select().where(FgTreeOfLife.name == family_name)
+                            family = FgTreeOfLife.select().where(FgTreeOfLife.name == family_name, FgTreeOfLife.rank == "Family")
                             if family.count() > 0:
                                 family = family[0]
                                 genus.parent = family
-                            elif family_name.split(' ')[0] == "Indet.":
-                                family = FgTreeOfLife.select().where(FgTreeOfLife.name == family_name)
+                            elif family_name.split(' ')[0] == "Indet." or family_name.split(' ')[0] == "Uncertain":
+                                family = FgTreeOfLife.select().where(FgTreeOfLife.name == "Uncertain", FgTreeOfLife.rank == "Family")
                                 if family.count() > 0:
                                     family = family[0]
                                     genus.parent = family
+                                    genus.comments = family_name if genus.comments is None or genus.comments == "" else genus.comments + "\n" + family_name
                                 else:
                                     family = FgTreeOfLife()
                                     family.name = family_name
@@ -125,7 +135,8 @@ def load_trilobite_data(reset=False):
                     #if keyword == "type_species":
                     #setattr(genus, keyword, genus_info[idx+1])
             if genus.parent is None:
-                genus.parent = class_Trilobita
+                genus.parent = family_uncertain
+            genus.source = "Jell & Adrain, 2002"
             genus.common_name = "Trilobite"
             genus.save()
             #tol_trilobite.append(line.strip())
@@ -141,7 +152,7 @@ def load_trilobite_data(reset=False):
                 genus = genus[0]
                 synonym = synonym[0]
                 genus.redirect_to = synonym
-                genus.redirect_reason = "Junior synonym of " + synonym_type
+                genus.redirect_reason = f"{synonym_type} of {synonym_name}"
                 genus.save()
         #    tol_trilobite.append(line.strip())
         #tol_trilobite_file.close()
@@ -150,14 +161,14 @@ def load_trilobite_data(reset=False):
 
 def load_other_taxa_data(reset=False):
     with gDatabase.atomic():
-        other_taxa_file = open('sampledata/other_taxa_list.txt', 'r', encoding='utf-8')
+        other_taxa_file = open('sampledata/tol.txt', 'r', encoding='utf-8')
         taxa_info_key = ["taxon", "author_year"]
         prev_space_count = 0
         space_count = 0
         root_taxon_name = ""
         parent_taxon_dict = {}
         for line in other_taxa_file:
-            #print(line)
+            #print(line.strip())
             # get indentation of space character in the line to decide the parent-child relationship
             space_count = 0
             while(line[0] == " "):
@@ -183,15 +194,21 @@ def load_other_taxa_data(reset=False):
             rank, taxon_name = taxon_info[0].split(" ", 1)
             if space_count == 0:
                 root_taxon_name = taxon_name
-            tol_taxon, created = FgTreeOfLife.get_or_create(name=taxon_name)
+            tol_taxon, created = FgTreeOfLife.get_or_create(name=taxon_name, rank=rank)
             if created:
+                #print("Created:", space_count, taxon_name, parent_taxon.name if parent_taxon is not None else "")
                 tol_taxon.rank = rank
                 tol_taxon.parent = parent_taxon
                 if len(taxon_info) > 1:
                     tol_taxon.author = taxon_info[1]
                     tol_taxon.year = taxon_info[1].split(",")[-1].strip()
                 tol_taxon.common_name = root_taxon_name
-                tol_taxon.save()
+            else:
+                #print("Not created:", space_count, taxon_name, parent_taxon.name if parent_taxon is not None else "")
+                tol_taxon.parent = parent_taxon
+            if len(taxon_info) > 2:
+                tol_taxon.source = taxon_info[2]
+            tol_taxon.save()
             prev_taxon = tol_taxon
             prev_space_count = space_count
         other_taxa_file.close()
@@ -216,6 +233,7 @@ def update_taxon_reference( taxon, reference):
         taxref.save()
 
 def find_or_pull_taxon_info(taxon_name, taxon_rank = "Genus"):
+    linnean_rank_list = ["Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"]
     #print("find_or_pull_taxon_info:", taxon_name)
     if taxon_name is None:
         return None
@@ -223,12 +241,12 @@ def find_or_pull_taxon_info(taxon_name, taxon_rank = "Genus"):
     #    return None
     
     # first find taxon from FgTaxon
-    fg_taxon = FgTaxon.select().where(FgTaxon.name == taxon_name)
+    fg_taxon = FgTaxon.select().where(FgTaxon.name == taxon_name, FgTaxon.rank == taxon_rank)
     if fg_taxon.count() > 0:
         return fg_taxon[0]
     
     # if not found, find taxon from FgTreeOfLife
-    tol_taxon = FgTreeOfLife.select().where(FgTreeOfLife.name == taxon_name)
+    tol_taxon = FgTreeOfLife.select().where(FgTreeOfLife.name == taxon_name, FgTreeOfLife.rank == taxon_rank)
     if tol_taxon.count() > 0:
         tol_taxon = tol_taxon[0]
         fg_taxon = FgTaxon()
@@ -238,7 +256,7 @@ def find_or_pull_taxon_info(taxon_name, taxon_rank = "Genus"):
         fg_taxon.year = tol_taxon.year
         fg_taxon.save()
         if tol_taxon.parent is not None:
-            parent = find_or_pull_taxon_info(tol_taxon.parent.name)
+            parent = find_or_pull_taxon_info(tol_taxon.parent.name, tol_taxon.parent.rank)
             if parent is not None:
                 fg_taxon.parent = parent
                 fg_taxon.save()
@@ -993,6 +1011,7 @@ class FgTreeOfLife(Model):
     locality = CharField(null=True)
     age = CharField(null=True)
     common_name = CharField(null=True)
+    source = CharField(null=True)
     parent = ForeignKeyField('self', backref='children', null=True,on_delete="CASCADE")
     redirect_to = ForeignKeyField('self', backref='redirects_from', null=True,on_delete="CASCADE")
     redirect_reason = CharField(null=True)

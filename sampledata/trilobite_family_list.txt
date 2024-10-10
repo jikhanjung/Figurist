@@ -1,29 +1,29 @@
-Abadiellidae	HUPE, 1953	1953
+Abadiellidae	HUPÉ, 1953	1953
 Acastidae	DELO, 1935	1935
-Acrocephalitidae	HUPE, 1953	1953
+Acrocephalitidae	HUPÉ, 1953	1953
 Agnostidae	McCOY, 1849	1849
 Agraulidae	RAYMOND, 1913	1913
-Aldonaiidae	HUPE, 1953a	1953
+Aldonaiidae	HUPÉ, 1953a	1953
 Alokistocaridae	RESSER, 1939	1939
 Alsataspididae	TURNER, 1940	1940
 Amgaspididae	CHERNYSHEVA, 1960	1960
 Ammagnostidae	OPIK, 1967	1967
 Andrarinidae	RAYMOND, 1937	1937
-Anomocarellidae	HUPE, 1955	1955
+Anomocarellidae	HUPÉ, 1955	1955
 Anomocaridae	POULSEN, 1927	1927
-Antagmidae	HUPE, 1953	1953
+Antagmidae	HUPÉ, 1953	1953
 Aphelaspididae	PALMER, 1960	1960
 Archaeaspididae	REPINA, 1979	1979
 Asaphidae	BURMEISTER, 1843	1843
 Asaphiscidae	RAYMOND, 1924	1924
-Atopidae	HUPE, 1953c	1953
+Atopidae	HUPÉ, 1953c	1953
 Aulacopleuridae	ANGELIN, 1854	1854
 Auritamidae	OPIK, 1967	1967
 Avoninidae	LOCHMAN, 1936	1936
 Bathycheilidae	PŘIBYL, 1953	1953
 Bathyuridae	WALCOTT, 1886	1886
 Bavarillidae	SDZUY, 1957	1957
-Bigotinidae	HUPE, 1953	1953
+Bigotinidae	HUPÉ, 1953	1953
 Bohemillidae	BARRANDE, 1872	1872
 Bolaspididae	HOWELL in MOORE, 1959	1959
 Brachymetopidae	PRANTL & PŘIBYL, 1951	1951
@@ -43,7 +43,7 @@ Chengkouiidae	ZHU in W.ZHANG et al., 1980a	1980
 Clavagnostidae	HOWELL, 1937	1937
 Condylopygidae	RAYMOND, 1913	1913
 Conocoryphidae	ANGELIN, 1854	1854
-Conokephalinidae	HUPE, 1953	1953
+Conokephalinidae	HUPÉ, 1953	1953
 Corynexochidae	ANGELIN, 1854	1854
 Crepicephalidae	KOBAYASHI, 1935c	1935
 Cyclopygidae	RAYMOND, 1925	1925
@@ -52,7 +52,7 @@ Damesellidae	KOBAYASHI, 1935c	1935
 Diaphanometopidae	JAANUSSON in MOORE, 1959	1959
 Diceratocephalidae	LU, 1954	1954
 Dikelocephalidae	MILLER, 1889	1889
-Dimeropygidae	HUPE, 1953	1953
+Dimeropygidae	HUPÉ, 1953	1953
 Dinesidae	LERMONTOVA, 1940	1940
 Dionididae	GURICH, 1907	1907
 Diplagnostidae	WHITEHOUSE, 1936	1936
@@ -61,28 +61,28 @@ Dolerolenidae	KOBAYASHI, 1951	1951
 Dolichometopidae	WALCOTT, 1916	1916
 Doryagnostidae	SHERGOLD et al., 1990	1990
 Dorypygidae	KOBAYASHI, 1935c	1935
-Edelsteinaspididae	HUPE, 1953	1953
+Edelsteinaspididae	HUPÉ, 1953	1953
 Ellipsocephalidae	MATTHEW, 1887	1887
-Ellipsocephaloididae	HUPE, 1955	1955
+Ellipsocephaloididae	HUPÉ, 1955	1955
 Elviniidae	KOBAYASHI, 1935c	1935
 Emuellidae	POCOCK, 1970	1970
 Encrinuridae	ANGELIN, 1854	1854
 Eodiscidae	RAYMOND, 1913	1913
 Estaingiidae	OPIK, 1970	1970
 Eulomidae	KOBAYASHI, 1955	1955
-Eurekiidae	HUPE, 1953	1953
-Fallotaspididae	HUPE, 1953	1953
+Eurekiidae	HUPÉ, 1953	1953
+Fallotaspididae	HUPÉ, 1953	1953
 Gigantopygidae	HARRINGTON in MOORE, 1959	1959
 Glyptagnostidae	WHITEHOUSE, 1936	1936
 Harpetidae	HAWLE & CORDA, 1847	1847
 Harpididae	WHITTINGTON, 1950	1950
 Hebediscidae	KOBAYASHI, 1944	1944
-Holmiidae	HUPE, 1953	1953
-Holocephalinidae	HUPE, 1953b	1953
+Holmiidae	HUPÉ, 1953	1953
+Holocephalinidae	HUPÉ, 1953b	1953
 Holotrachelidae	WARBURG, 1925	1925
 Homalonotidae	CHAPMAN, 1890	1890
 Hungaiidae	RAYMOND, 1924	1924
-Hystricuridae	HUPE, 1953	1953
+Hystricuridae	HUPÉ, 1953	1953
 Idahoiidae	LOCHMAN, 1956	1956
 Ignotogregatidae	W. ZHANG & JELL, 1987	1987
 Illaenidae	HAWLE & CORDA, 1847	1847
@@ -101,7 +101,7 @@ Lichidae	HAWLE & CORDA, 1847	1847
 Lisaniidae	W.ZHANG, 1963	1963
 Liostracinidae	RAYMOND, 1937	1937
 Llanoaspididae	LOCHMAN, 1944	1944
-Lonchocephalidae	HUPE, 1953	1953
+Lonchocephalidae	HUPÉ, 1953	1953
 Lorenzellidae	W.ZHANG, 1963	1963
 Mapaniidae	W.ZHANG, 1963	1963
 Marjumiidae	KOBAYASHI, 1935c	1935
@@ -110,13 +110,13 @@ Menneraspididae	POKROVSKAYA, 1959	1959
 Menomoniidae	WALCOTT, 1916	1916
 Metadoxididae	WHITEHOUSE, 1939	1939
 Metagnostidae	JAEKEL, 1909	1909
-Missisquoiidae	HUPE, 1953	1953
+Missisquoiidae	HUPÉ, 1953	1953
 Monkaspididae	KOBAYASHI, 1935c	1935
 Namanoiidae	LERMONTOVA, 1951b	1951
 Nektaspida	RAYMOND, 1920	1920
-Neltneriidae	HUPE, 1953	1953
+Neltneriidae	HUPÉ, 1953	1953
 Nepeidae	WHITEHOUSE, 1939	1939
-Nevadiidae	HUPE, 1953	1953
+Nevadiidae	HUPÉ, 1953	1953
 Nileidae	ANGELIN, 1854	1854
 Norwoodiidae	WALCOTT, 1916	1916
 Odontopleuridae	BURMEISTER, 1843	1843
@@ -125,14 +125,14 @@ Olenidae	BURMEISTER, 1843	1843
 Ordosiidae	LU, 1954	1954
 Oryctocephalidae	BEECHER, 1897	1897
 Pagodiidae	KOBAYASHI, 1935c	1935
-Palaeolenidae	HUPE, 1953a	1953
+Palaeolenidae	HUPÉ, 1953a	1953
 Panderiidae	BRUTON, 1968	1968
 Papyriaspididae	WHITEHOUSE, 1939	1939
 Parabolinoididae	LOCHMAN, 1956	1956
 Paradoxididae	HAWLE & CORDA, 1847	1847
 Peronopsidae	WESTERGARD, 1936	1936
 Phacopidae	HAWLE & CORDA, 1847	1847
-Pharostomatidae	HUPE, 1953	1953
+Pharostomatidae	HUPÉ, 1953	1953
 Phylacteridae	LUDVIGSEN & WESTROP in LUDVIGSEN et al., 1989	1989
 Pilekiidae	SDZUY, 1955	1955
 Plethopeltidae	RAYMOND, 1925	1925
@@ -153,18 +153,18 @@ Redlichinidae	ZHANG & LIN in W. ZHANG et al., 1980a	1980
 Remopleurididae	HAWLE & CORDA, 1847	1847
 Rhyssometopidae	OPIK, 1967	1967
 Rorringtoniidae	OWENS in OWENS & HAMMANN, 1990	1990
-Sarkiidae	HUPE, 1953	1953
-Saukiandidae	HUPE, 1953	1953
+Sarkiidae	HUPÉ, 1953	1953
+Saukiandidae	HUPÉ, 1953	1953
 Saukiidae	ULRICH & RESSER, 1930	1930
 Scharyiidae	OSMOLSKA, 1957	1957
-Shirakiellidae	HUPE, 1953	1953
+Shirakiellidae	HUPÉ, 1953	1953
 Shumardiidae	LAKE, 1907	1907
 Solenopleuridae	ANGELIN, 1854	1854
 Styginidae	VOGDES, 1890	1890
 Sunaspididae	W.ZHANG & JELL, 1987	1987
 Taihungshaniidae	SUN, 1931	1931
 Telephinidae	MAREK, 1952	1952
-Toernquistiidae	HUPE, 1953	1953
+Toernquistiidae	HUPÉ, 1953	1953
 Tricrepicephalidae	PALMER, 1954	1954
 Trinucleidae	HAWLE & CORDA, 1847	1847
 Tropidocoryphidae	PŘIBYL, 1946	1946
@@ -174,7 +174,7 @@ Utiidae	KOBAYASHI, 1935c	1935
 Weymouthiidae	KOBAYASHI, 1943	1943
 Wuaniidae	W.ZHANG & YUAN, 1981	1981
 Xystriduridae	WHITEHOUSE, 1939	1939
-Yinitidae	HUPE, 1953	1953
+Yinitidae	HUPÉ, 1953	1953
 Yukoniidae	S. ZHANG in W. ZHANG et al., 1980a	1980
-Yunnanocephalidae	HUPE, 1953	1953
+Yunnanocephalidae	HUPÉ, 1953	1953
 Zacanthoididae	SWINNERTON, 1915	1915

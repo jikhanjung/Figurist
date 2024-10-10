@@ -1,5 +1,5 @@
 Aayemenaytcheia	Dechenella paragranulata ORMISTON, 1967	LIEBERMAN, 1994	Blue Fjiord Fm, Nunavut, Canada	PROETIDAE	MDEV	
-Abadiella	bourgini	HUPE, 1953a	Amouslek Fm, Morocco	ABADIELLIDAE	LCAM	
+Abadiella	bourgini	HUPÉ, 1953a	Amouslek Fm, Morocco	ABADIELLIDAE	LCAM	
 Abagnostus	circularis	YANG & LIU in YANG et al., 1991	Baguamiao Fm, N Sichuan, China	PERONOPSIDAE	MCAM	[j.s.s. of Lisogoragnostus, fide SHERGOLD & LAURIE, 1997]
 Abakania	superba	POLETAEVA, 1973	Sanashtykgol Horizon, W Sayan, Russia	CORYNEXOCHIDAE	LCAM	
 Abakanopleura	kenensis	SIVOV in EGOROVA et al., 1955	Arbat Fm, W Sayan, Russia	SOLENOPLEURIDAE	UCAM	
@@ -18,7 +18,7 @@ Acanthocnemis	verrucosa	HAWLE & CORDA, 1847	Jince Fm, Czech Republic	SOLENOPLEUR
 Acanthogramma	speciosa	HAWLE & CORDA, 1847	Jince Fm, Czech Republic	SOLENOPLEURIDAE	MCAM	[j.s.s. of Sao, fide ŠNAJDR, 1958a]
 Acantholenus	Leptoplastus spiniger MATTHEW, 1889	MATTHEW, 1898	New Brunswick, Canada	ACROCEPHALITIDAE	UCAM	[j.s.s. of Acrocephalites, fide ÖPIK, 1967]
 Acanthometopus	obesus	LU & QIAN, 1983a	Changshan Fm, Liaoning, China	SOLENOPLEURIDAE	UCAM	
-Acanthomicmacca	Micmacca walcotti MATTHEW, 1899b	HUPE, 1953a	Conception Bay, Newfoundland, Canada	CHENGKOUIIDAE	LCAM	
+Acanthomicmacca	Micmacca walcotti MATTHEW, 1899b	HUPÉ, 1953a	Conception Bay, Newfoundland, Canada	CHENGKOUIIDAE	LCAM	
 Acanthoparypha	perforata	WHITTINGTON & EVITT, 1954	Edinburg Fm, Virginia, USA	CHEIRURIDAE	UORD	
 Acanthophillipsia	guiyangensis	YUAN et al., 1992	Maokou Fm, Guizhou, China	PROETIDAE	LPERM	
 Acanthopleurella	grindrodi	GROOM, 1902	Bronsil Sh Fm, England	SHUMARDIIDAE	LORD	
@@ -119,7 +119,7 @@ Aksayaspis	convexus	G. ERGALIEV in ERGALIEV & ERGALIEV, 2001	Zhumabaisk Fm, Kaza
 Aksuaspis	aksuensis	ZHOU et al., 1998b	Qiulitag Group, Xinjiang, China	BATHYURIDAE	LORD	
 Aktugaiella	acuminulata	ERGALIEV, 1980	Trisulcagnostus trisulcus Zone, Kazakhstan	REMOPLEURIDIDAE	LORD	
 Alacephalus	contortus	REPINA, 1960	Lower Kameshkov Fm, SW Siberia, Russia	EDELSTEINASPIDIDAE	LCAM	
-Alanisia	Camaraspis guillermoi RICHTER & RICHTER, 1940	HUPE, 1953a	Alania Sh, Spain	ESTAINGIIDAE	LCAM	
+Alanisia	Camaraspis guillermoi RICHTER & RICHTER, 1940	HUPÉ, 1953a	Alania Sh, Spain	ESTAINGIIDAE	LCAM	
 Alaskadiscus	Neocobboldia spinosa PALMER, 1968	S. ZHANG in W. ZHANG et al., 1980a	Adams Argillite, E Alaska	YUKONIIDAE	LCAM	
 Alaskalethe	muffleri	HAHN & HAHN, 1991	Ladrones Lst, SE Alaska, USA	PROETIDAE	PENN	
 Alataupleura	duoculiensis	LISOGOR, 1977a	Tuyuksaisk Fm, Kazakhstan	ALSATASPIDIDAE	LORD	
@@ -236,7 +236,7 @@ Anglagnostus	Agnostus dux CALLAWAY, 1877	HOWELL, 1935b	Shineton Sh Fm, England	A
 Anglibole	Proetus (subg.?) anglicus RICHTER, 1913	ARCHINAL, 1991	Whiteway Slates Fm, England	PROETIDAE	MISS	
 Angsiduoa	lajishanensis	ZHOU in ZHOU et al., 1996	Liudaogou Fm, Qinghai, China	MAPANIIDAE	UCAM	
 Angulophacops	Phacops angulatus MAKSIMOVA, 1968	MAKSIMOVA, 1978c	Sardzhalskii Horizon, central Kazakhstan	PHACOPIDAE	LDEV	
-Angustaeva	Ptychoparia? annio COBBOLD, 1910	HUPE, 1953a	Comley Lst Fm, England	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Triangulaspis, fide SDZUY, 1961]
+Angustaeva	Ptychoparia? annio COBBOLD, 1910	HUPÉ, 1953a	Comley Lst Fm, England	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Triangulaspis, fide SDZUY, 1961]
 Angustibole	Archegonus (Angusti-bole) winterbergensis	HAHN, 1965b	Erdbach Lst, Harz Mtns, Germany	PROETIDAE	MISS	
 Angustolenellus	Olenellus hamoculus COWIE & McNAMARA, 1978	PALMER & REPINA, 1993	NW Scotland	OLENELLIDAE	LCAM	
 Anhuiaspis	gingyangensis	QIAN & QIU in QIU et al., 1983	Wucun Fm, Anhui, China	KAOLISHANIIDAE	UCAM	
@@ -262,7 +262,7 @@ Anorina		WHITEHOUSE, 1936				[j.o.s. of Eoasaphus]
 Antagmella	tchetchuica	SUVOROVA in OGIENKO, 1974	Podkamensk Horizon, S Siberia, Russia	ANTAGMIDAE	MCAM	
 Antagmopleura	flerovae	LERMONTOVA in KHALFIN, 1960	Amgaian, Siberia, Russia	UTIIDAE	MCAM	
 Antagmus	Ptychoparia teucer WALCOTT, 1886	RESSER, 1936	Winooski, Vermont, USA	ANTAGMIDAE	MCAM	
-Antatlasia	hollardi	HUPE, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
+Antatlasia	hollardi	HUPÉ, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
 Anthes		GOLDFUSS, 1843				[j.o.s. of Peltura]
 Anthracopeltis	crepini	BOULAY, 1880	Houiller, France	INDET. (fide HENNINGSMOEN in MOORE, 1959)	?ORD	
 Anujaspis	anujca	BALASHOVA, 1960	Artinskian, Kolyma, Far East, Russia	PROETIDAE	LPERM	
@@ -283,7 +283,7 @@ Aphelaspidella	macropyge	RASETTI, 1965a	Nolichucky Fm, Tennessee, USA	APHELASPID
 Aphelaspis	Conocephalites depressus SHUMARD, 1861	RESSER, 1935	Nolichucky Fm, Virginia, USA	APHELASPIDIDAE	UCAM	
 Apheloides	latemarginatus	IVSHIN, 1962	Seletinsky Horizon, Kazakhstan	APHELASPIDIDAE	UCAM	
 Aphelotoxon	Bynumiella? acuminata PALMER, 1960	PALMER, 1965	Dunderberg Fm, Nevada, USA	PHYLACTERIDAE	UCAM	
-Apianurus	barbatus	WHITTINGTON, 1956a	Edin-burg Fm, Virginia, USA	ODONTOPLEURIDAE	UORD	
+Apianurus	barbatus	WHITTINGTON, 1956a	Edinburg Fm, Virginia, USA	ODONTOPLEURIDAE	UORD	
 Apiflabellum	eucallum	SUN, 1993	Fengshan Fm, Hebei, China	REMOPLEURIDIDAE	UCAM	
 Aplexura	pulchella	ROZOVA, 1963	Entsyisky Horizon, Siberia, Russia	LIOSTRACINIDAE	UCAM	
 Aplotaspis	Charchaqia erugata WHITEHOUSE, 1939	HENDERSON, 1976	Georgina Lst, Queensland, Australia	CERATOPYGIDAE	UCAM	[j.s.s. of Charchaqia, fide BAO & JAGO, 2000]
@@ -297,7 +297,7 @@ Aposolenopleura	dunbari	RAYMOND, 1937	Gorge Fm, Vermont, USA	PAGODIIDAE	UCAM	[j.
 Appendicysta	allodapa	HAHN, HAHN & YUAN, 1989	Zhe Gang, Guangxi	PROETIDAE	PENN	
 Aprathia	Carbonocoryphe emanueli RICHTER & RICHTER, 1950	HAHN & BRAUKMANN, 1975a	?Bromberg Fm, Wuppertal, Rhenish Massif, Germany	PROETIDAE	MISS	
 Araeocephalus	primus	REPINA in REPINA et al., 1964	Sanashtykgol Horizon, Kuznetsk Alatau, Russia	UNCERTAIN	LCAM	
-Aragotus	attacanus	LINAN & GOZALO, 2001	Dar-oca Fm, Zaragoza, Spain	CHENGKOUASPIDIDAE	LCAM	
+Aragotus	attacanus	LIÑÁN & GOZALO, 2001	Daroca Fm, Zaragoza, Spain	CHENGKOUASPIDIDAE	LCAM	
 Araiocaris	Ogygiocaris araiorhachis HARRINGTON & LEANZA, 1957	PŘIBYL & VANK, 1980	Parcha Fm, Salta, Argentina	ASAPHIDAE	LORD	
 Araiopleura	reticulata	HARRINGTON & LEANZA, 1957	Parcha Fm, Salta, Argentina	ALSATASPIDIDAE	LORD	
 Arapahoia	typa	B.M. MILLER, 1936a	Depass Fm, Wyoming, USA	PLETHOPELTIDAE	UCAM	
@@ -307,7 +307,7 @@ Archaeagnostus	primigeneus	KOBAYASHI, 1939a	Elliptocephala asaphoides Faunule, N
 Archaeaspis	hupei	REPINA in KHOMENTOVSKY & REPINA, 1965	Atdaban Horizon, Siberia, Russia	ARCHAEASPIDIDAE	LCAM	
 Archaeocoryphe	Diacoryphe incisa HAHN, HAHN & BRAUKMANN, 1989	HAHN, HAHN & GAWLICK, 1995	Hangenberg Fm, Wuppertal, Rhenish Massif, Germany	PROETIDAE	MISS	
 Archaeopleura	kazakhensis	RAMSKOLD, 1991b	Lotagnostus trisectus Zone, Kazakhstan	ODONTOPLEURIDAE	UCAM/LORD	
-Archaeops	lui	HUPE, 1953a	Chiungchussu Fm, Yunnan, China	REDLICHIIDAE	LCAM	[j.s.s. of Eoredlichia, fide W. ZHANG et al., 1997]
+Archaeops	lui	HUPÉ, 1953a	Chiungchussu Fm, Yunnan, China	REDLICHIIDAE	LCAM	[j.s.s. of Eoredlichia, fide W. ZHANG et al., 1997]
 Archaeuloma	Euloma (Archaeuloma) guizhouensis	LI in YIN & LI, 1978	Sandu Fm, Guizhou, China	EULOMIDAE	UCAM	
 Archegonus	Calymene? aequalis MEYER, 1831	BURMEISTER, 1843	Posidonia Sh, Herborn, Rhenish Massif, Germany	PROETIDAE	MISS	
 Archikainella	vomerinus	LIU, 1982	Qiangongping, Hunan, China	LICHAKEPHALIDAE	UCAM	
@@ -357,7 +357,7 @@ Asaphellus	Asaphus (Isotelus?) homfrayi SALTER, 1866a	CALLAWAY, 1877	Tremadoc Se
 Asaphiscus	wheeleri	MEEK, 1873	Wheeler Fm, Utah, USA	ASAPHISCIDAE	MCAM	
 Asaphoon	pithogastron	HUTCHISON & INGHAM, 1967	Shineton Sh Fm, England	ASAPHIDAE	LORD	[j.s.s. of Asaphellus, fide FORTEY & OWENS, 1987]
 Asaphopsis	jacobi	MANSUY, 1920	Dong-son, Vietnam	TAIHUNGSHANIIDAE	LORD	
-Asaphopsoides	Dicellocephalus? villebruni BERGERON, 1895	HUPE, 1955	Schistes de Saint-Chinian, Montagne Noire	HUNGAIIDAE	LORD	
+Asaphopsoides	Dicellocephalus? villebruni BERGERON, 1895	HUPÉ, 1955	Schistes de Saint-Chinian, Montagne Noire	HUNGAIIDAE	LORD	
 Asaphus	Entomostracites expansus WAHLENBERG, 1821	BRONGNIART, 1822	Huk Fm, Sweden	ASAPHIDAE	LORD	
 Ascetopeltis	bockeliei	OWENS, 1973a	Husbergya Fm, Asker, Norway	PROETIDAE	UORD	
 Ascionepea	janitrix	ÖPIK, 1967	Steamboat Sst, Queensland, Australia	NEPEIDAE	MCAM	
@@ -543,7 +543,7 @@ Bienvillia	Dikelocephalus? corax BILLINGS, 1865	CLARK, 1924	Levis Fm, Quebec, Ca
 Bifodina	longifrons	ROBISON & PANTOJA-ALOR, 1968	Tinu Fm, Oaxaca, Mexico	UNCERTAIN	LORD	
 Bigotina	bivallata	COBBOLD, 1935a	Saint-Jean-de-la-Riviere Fm, W France	BIGOTINIDAE	LCAM	
 Bigotinella	malykanica	SUVOROVA, 1960	Sinsk Horizon, Siberia, Russia	BIGOTINIDAE	LCAM	
-Bigotinops	dangeardi	HUPE, 1953a	Amouslek Fm, Morocco	BIGOTINIDAE	LCAM	
+Bigotinops	dangeardi	HUPÉ, 1953a	Amouslek Fm, Morocco	BIGOTINIDAE	LCAM	
 Bigranulella	latigenae	SHAW & CLARK in CLARK & SHAW, 1968	Gorge Fm, Vermont, USA	SOLENOPLEURIDAE	UCAM	
 Bijaspis	krivtchikovi	PETRUNINA, 1990	Ishpinsk Fm, Gorny Altay, Russia	UNCERTAIN	LORD	
 Bijelina	studenikini	M. ROMANENKO in ROMANENKO & ROMANENKO, 1967	Gorny Altay, S. Siberia, Russia	SOLENOPLEURIDAE	MCAM	
@@ -560,7 +560,7 @@ Birmanitella	Birmanites hupeiensis YI, 1957	KOBAYASHI, 1960a	Yangtze Gorge, Hube
 Birmanites	Ogygites birmanicus REED, 1915	SHENG, 1934	Hwe Mawng Beds, Burma	ASAPHIDAE	LORD	
 Bitumulina	Phillipsia bitumulata WEBER, 1932	OSMOLSKA, 1970	Karak-bulak River region, Mugodzhars, Russia	PROETIDAE	MISS	
 Blackwelderia	Calymmene? sinensis BERGERON, 1899	WALCOTT, 1906	Kushan Fm, Shandong, China	DAMESELLIDAE	UCAM	
-Blackwelderioides	Stephanocare monkei WALCOTT, 1911	HUPE, 1955	Kushan Fm, Shandong, China	DAMESELLIDAE	UCAM	
+Blackwelderioides	Stephanocare monkei WALCOTT, 1911	HUPÉ, 1955	Kushan Fm, Shandong, China	DAMESELLIDAE	UCAM	
 Blainia	gregarius	WALCOTT, 1916b	Conasauga Fm, Alabama, USA	ASAPHISCIDAE	MCAM	
 Blainiopsis	holtedahli	POULSEN, 1946	Cape Wood Fm, Greenland	ASAPHISCIDAE	MCAM	
 Blairella	crassimarginata	RASETTI, 1965b	Pleasant Hills Fm, Pennsylvania	PTYCHOPARIIDAE	MCAM	
@@ -605,7 +605,7 @@ Bolivicrania	Paladin yampupatensis ARELLANO, 1983	KOBAYASHI & HAMADA, 1986b	Copa
 Boliviproetus	branisai	ELDREDGE & ORMISTON, 1979	Belen Fm, Bolivia	PROETIDAE	MDEV	
 Bollandia	Asaphus globiceps PHILLIPS, 1836	REED, 1943a	Carboniferous Lst, Kildare, Ireland	PROETIDAE	MISS	
 Bondarevites	venustus	LAZARENKO, 1989	Novaya Zemlya	OLENIDAE	UCAM	
-Bondonella	typica	HUPE, 1953a	Issafen Fm, Morocco	NELTNERIIDAE	LCAM	
+Bondonella	typica	HUPÉ, 1953a	Issafen Fm, Morocco	NELTNERIIDAE	LCAM	
 Bonnaria	Bonnia salemensis RESSER, 1936	LOCHMAN, 1956b	Elliptocephala Faunule, New York, USA	DORYPYGIDAE	LCAM	
 Bonnaspidella	Cyrtosymbole(Macrobole) oriens CHLUPAC 1961	YUAN, 1988	Moravia, Czech Republic	PROETIDAE	UDEV	
 Bonnaspis	Karlia stephenensis WALCOTT, 1888	RESSER, 1936	Stephen Fm, British Columbia, Canada	CORYNEXOCHIDAE	MCAM	
@@ -659,7 +659,7 @@ Brevidiscus	lunulatus	KOBAYASHI, 1943a	Protolenus Lst, England	CALODISCIDAE	LCAM
 Breviphillipsia	Phillipsia sampsoni VOGDES, 1888	HESSLER, 1963	Choteau Lst, Missouri, USA	PROETIDAE	MISS	
 Breviredlichia	granulosa	W. ZHANG & LIN in YIN & LI, 1978	Chintingshan Fm, Guizhou, China	REDLICHIIDAE	LCAM	
 Breviscutellum	Bronteus transversus HAWLE & CORDA, 1847	ŠNAJDR, 1960	Koneprusy Lst, Czech Republic	STYGINIDAE	LDEV	
-Brevitermierella	brevifrons	HUPE, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
+Brevitermierella	brevifrons	HUPÉ, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
 Briania		EDGECOMBE, 1994				[preocc., replaced by Brianurus]
 Brianurus	Briania jeffersoni EDGECOMBE, 1994	EDGECOMBE & FORTEY, 1995	Whittaker Fm, Northwest Territories, Canada	ENCRINURIDAE	LSIL	[replacement name for Briania]
 Bridgeia	mirabila	LOCHMAN in LOCHMAN & DUNCAN, 1944	Pilgrim Fm, Montana, USA	MENOMONIIDAE	UCAM	
@@ -894,7 +894,7 @@ Choneilobarges	Lichas (Corydocephalus) maccullochi REED, 1914	PHLEGER, 1936	Sout
 Chorbusulina	bella	LAZARENKO, 1962	Daldyn Fm, N Siberia, Russia	ELLIPSOCEPHALIDAE	LCAM	
 Chosenia	laticephala	KOBAYASHI, 1934b	Clarkella Zone, Saisho-ri, South Korea	LEIOSTEGIIDAE	LORD	
 Chotecops	Phacops (Chotecops) auspex	CHLUPAC, 1971b	Chote Lst, Czech Republic	PHACOPIDAE	MDEV	
-Choubertella	spinosa	HUPE, 1953a	Amouslek Fm, Morocco	FALLOTASPIDIDAE	LCAM	
+Choubertella	spinosa	HUPÉ, 1953a	Amouslek Fm, Morocco	FALLOTASPIDIDAE	LCAM	
 Chuangia	Ptychoparia batia WALCOTT, 1905	WALCOTT, 1911	Changshan Fm, Shandong, China	LEIOSTEGIIDAE	UCAM	[j.s.s. of Schantungia, preserved by ICZN opinion 1261]
 Chuangiella	elongata	KOBAYASHI, 1935c	Eoorthis Zone, Doten, South Korea	LEIOSTEGIIDAE	UCAM	
 Chuangina	fossula	KOBAYASHI, 1967	Kuh-I-Namak, Iran	LEIOSTEGIIDAE	UCAM	
@@ -917,7 +917,7 @@ Circulocrania	orbissima	FORTEY & OWENS, 1987	Pontyfenni Fm, Wales	CYCLOPYGIDAE	M
 Cirquella	nummularia	FRITZ, 1993	Donald Fm, British Columbia, Canada	NEVADIIDAE	LCAM	
 Clappaspis	typica	DEISS, 1939	Pentagon Sh, Montana, USA	ALOKISTOCARIDAE	MCAM	[j.s.s. of Ehmaniella, fide HOWELL in MOORE, 1959]
 Clarella	Anapolenus sic	HOWELL, 1933	venustus BILLINGS, 1874] Manuels River Fm, Newfoundland, Canada	CENTROPLEURIDAE	MCAM	
-Clariondia	chazani	HUPE, 1953a	Issafen Fm, Morocco	SAUKIANDIDAE	LCAM	
+Clariondia	chazani	HUPÉ, 1953a	Issafen Fm, Morocco	SAUKIANDIDAE	LCAM	
 Clarkeaspis	padillaensis	LIEBERMAN, 1993	Icla Fm, Bolivia	CALMONIIDAE	LMDEV	
 Clavagnostus	Agnostus repandusWESTERGARD in HOLM & WESTERGARD, 1930	HOWELL, 1937	Andrarum Lst, Sweden	CLAVAGNOSTIDAE	MUCAM	
 Clavaspidella	sinupyga	POULSEN, 1927	Cape Frederick VII Fm, NW Greenland	DOLICHOMETOPIDAE	MCAM	
@@ -944,7 +944,7 @@ Coignops	Namuropyge (Coignops) martinezi	GANDL, 1980	Mere, Oviedo, Spain	AULACOP
 Coleopachys	strix	RAYMOND, 1937	Rockledge Cgte, Vermont, USA	TRICREPICEPHALIDAE	UCAM	[j.s.s. of Meteoraspis, fide SHAW, 1952]
 Colliceps	subita	REPINA in REPINA et al., 1974	Sektensk Fm, Siberia, Russia	SOLENOPLEURIDAE	LCAM	
 Collis	parvulus	KOROLEVA, 1959	U Maylisor Horizon, Kazakhstan	RAPHIOPHORIDAE	UORD	
-Collyrolenus	staminops	HUPE, 1953a	Tamanart Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Myopsolenus, fide GEYER, 1990]
+Collyrolenus	staminops	HUPÉ, 1953a	Tamanart Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Myopsolenus, fide GEYER, 1990]
 Colobinion	Amphion julius BILLINGS, 1865	WHITTINGTON, 1961	Shallow Bay Fm, Newfoundland, Canada	PLIOMERIDAE	MORD	
 Colossaspis	anhuiensis	Q.Z. ZHANG in QIU et al., 1983	Changhia Fm, Anhui, China	LICHAKEPHALIDAE	UCAM	
 Colpocoryphe	Calymene (Synhomalonotus) arago ROUAULT, 1849	NOVAK in PERNER, 1918	Ille-et-Villaeine, Brittany, France	CALYMENIDAE	MORD	
@@ -953,7 +953,7 @@ Coltraneia	Treveropyge celtica MORZADEC, 1969	LIEBERMAN & KLOC, 1997	Verveur Fm,
 Columbicephalus	macrops	KOBAYASHI, 1955b	McKay Group, British Columbia, Canada	INDET.	LORD	
 Colymbus		HADDING, 1913a				[preocc., replaced by Paryfenus]
 Comanchia	Ptychopleurites amplooculata FREDERICKSON, 1948	FREDERICKSON in WILSON & FREDERICKSON, 1950	Honey Ck Lst, Oklahoma, USA	IDAHOIIDAE	UCAM	
-Comluella	Anomocare platycephalum COBBOLD, 1910	HUPE, 1953a	Strenuella Lst, Shropshire, England	ELLIPSOCEPHALIDAE	LCAM	
+Comluella	Anomocare platycephalum COBBOLD, 1910	HUPÉ, 1953a	Strenuella Lst, Shropshire, England	ELLIPSOCEPHALIDAE	LCAM	
 Compsocephalus	mitis	REPINA in REPINA et al., 1964	Aldanian, Sayan Altay Fold Belt, Russia	DINESIDAE	LCAM	
 Comptonaspis	Proetus swallowi SHUMARD, 1855	BREZINSKI, 1988a	Chouteau Fm, Missouri, USA	PROETIDAE	MISS	
 Comura	Cryphaeus cometa RICHTER, 1909	RICHTER & RICHTER, 1926	Eifel, Germany	ACASTIDAE	LDEV	
@@ -971,7 +971,7 @@ Conocoryphe	Trilobites sulzeri SCHLOTHEIM, 1823	HAWLE & CORDA, 1847	Jince Fm, Cz
 Conoides	edsoni	HOWELL, 1937	St Albans Sh, Vermont, USA	ASAPHISCIDAE	MCAM	
 Conokephalina	Conocephalitesornatus BROGGER, 1878	BROGGER, 1886a	Norway	CONOKEPHALINIDAE	MCAM	
 Conolichas	Lichas aequiloba STEINHARDT, 1874	DAMES, 1877	Keila Fm, Estonia	LICHIDAE	UORD	
-Conomicmacca	Micmacca? plana MATTHEW, 1895	HUPE, 1953a	Hanford Brook Fm, New Brunswick, Canada	METADOXIDIDAE	LCAM	
+Conomicmacca	Micmacca? plana MATTHEW, 1895	HUPÉ, 1953a	Hanford Brook Fm, New Brunswick, Canada	METADOXIDIDAE	LCAM	
 Conoparia	convexa	HAWLE & CORDA, 1847	Dvorce-Prokop Lst, Czech Republic	AULACOPLEURIDAE	LDEV	[j.s.s. of Otarion, fide ADRAIN & CHATTERTON, 1994]
 Conophillipsia	brevicaudata	ROBERTS, 1963	Bonnington Fm, New South Wales, Australia	PROETIDAE	MISS	
 Conophrys	salopiensis	CALLAWAY, 1877	Shineton Sh Fm, England	SHUMARDIIDAE	LORD	
@@ -991,9 +991,9 @@ Corcorania	trispinosa	JELL, 1980	Stauro gully Sh, Victoria, Australia	NEKTASPIDA
 Cordania	Phaethonides cyclurus HALL in HALL & CLARKE, 1888	CLARKE, 1892b	New Scotland Lst, New York, USA	BRACHYMETOPIDAE	LDEV	
 Cordapeltis	koneprusiensis	PŘIBYL & VANK, 1971a	Suchomasty Lst, Czech Republic	PHACOPIDAE	MDEV	[j.s.s. of Chotecops, fideCHLUPAC, 1977]
 Coreanocephalus	kogenensis	KOBAYASHI, 1935c	Dictya Zone, South Korea	PTYCHASPIDIDAE	UCAM	[j.s.s. of Changia, fide W. ZHANG & JELL, 1987]
-Coreolenus	Protolenus coreanicus SAITO, 1933	HUPE, 1953a	Protolenus Sh, North Korea	ESTAINGIIDAE	LCAM	
+Coreolenus	Protolenus coreanicus SAITO, 1933	HUPÉ, 1953a	Protolenus Sh, North Korea	ESTAINGIIDAE	LCAM	
 Cornovica	didymograpti	WHITTARD, 1960	Hope Shale Fm, England	ENCRINURIDAE	MORD	[j.s.s. of Dindymene, fide FORTEY & OWENS, 1987]
-Cornucoryphe	schirmi	SDZUY & LINAN, 1996	Mansilla Fm, Spain	CONOCORYPHIDAE	MCAM	[j.s.s. of Cainatops, fide COTTON, 2001]
+Cornucoryphe	schirmi	SDZUY & LIÑÁN, 1996	Mansilla Fm, Spain	CONOCORYPHIDAE	MCAM	[j.s.s. of Cainatops, fide COTTON, 2001]
 Cornuproetus	Gerastos cornutus GOLDFUSS, 1843	RICHTER & RICHTER, 1919	Ahrdorf Fm, Gerolstein, Eifel, Germany	TROPIDOCORYPHIDAE	MDEV	
 Cornuscutellum	Bronteus rhinoceros BARRANDE, 1872	ŠNAJDR, 1960	Vinarice Lst, Czech Republic	STYGINIDAE	LDEV	
 Coronaspis	Coronocephalus changningensis W. ZHANG, 1974	WU, 1990	Xiushan Fm, Sichuan, China	ENCRINURIDAE	LSIL	
@@ -1013,7 +1013,7 @@ Costonia	Marrolithus ultimus BANCROFT, 1949	WHITTARD, 1956	Costonian, England	TR
 Cotalagnostus	Agnostus lensGRONWALL, 1902	WHITEHOUSE, 1936	Bornholm, Denmark	PERONOPSIDAE	MCAM	
 Couloumania	Conocoryphe heberti MUNIER-CHALMAS & BERGERON in BERGERON, 1889	THORAL, 1946	Schistes Troues, Coulouma, France	CONOCORYPHIDAE	MCAM	[j.s.s. of Conocoryphe, fide COTTON, 2001]
 Courtessolium	Pseudosphaerexochus (Pateraspis) prepater COURTESSOLE & PILLET, 1975	PŘIBYL & VANKinPŘIBYL et al., 1985b	Tremadoc erratic, Herault, France	CHEIRURIDAE	LORD	
-Craigheadia	Bronteus grayi REED, 1904	HUPE, 1955	Craighead Lst, Scotland	STYGINIDAE	UORD	
+Craigheadia	Bronteus grayi REED, 1904	HUPÉ, 1955	Craighead Lst, Scotland	STYGINIDAE	UORD	
 Craspedarges	wilcanniae	GURICH, 1901	Amphi-theatre Group, New South Wales, Australia	LICHIDAE	LDEV	
 Craspedops	Pseudosilesiops (Craspedops) themis	HAHN & HAHN, 2002	upper Balvian, Hoppecke-Tal, Sauerland, Germany	PROETIDAE	MISS	
 Crassibole	Archegonus (Crassibole) crassus	GANDL, 1980	Mere, Oviedo, Spain	PROETIDAE	PENN	
@@ -1096,7 +1096,7 @@ Cyrtosymbole	Dechenella escoti KOENEN, 1886	RICHTER, 1913	Cabrieres, France	PROE
 Cyrtosymboloides	Proetus barrandei ROEMER, 1854	ALBERTI, 1967b	Wissenbacher Schiefer, Harz Mts, Germany	TROPIDOCORYPHIDAE	MDEV	
 Cystispina	Phillibole? (Cystispina) cystispina	RICHTER & RICHTER, 1939a	Frankenau, Hessen, Germany	PROETIDAE	MISS	
 Dactylocephalus	dactyloidea	HSU in HSU & MA, 1948	Ichang Fm, Hubei, China	HUNGAIIDAE	LORD	
-Daguinaspis	ambroggii	HUPE, 1953a	Amouslek, Morocco	FALLOTASPIDIDAE	LCAM	
+Daguinaspis	ambroggii	HUPÉ, 1953a	Amouslek, Morocco	FALLOTASPIDIDAE	LCAM	
 Dahungshania		LI et al., 1975				[misspelling of Taihungshania]
 Daihuaia	sinensis	YUAN, 1988	Daihua Fm, Gui-zhou, China	PROETIDAE	UDEV	
 Dainellicauda	Asaphus elegantulus GORTANI, 1934	KOBAYASHI, 1960a	Chisil, Karakorum, Pakistan	HUNGAIIDAE	MORD	[j.s.s. of Asaphopsoides, fide JELL & STAIT, 1985]
@@ -1307,7 +1307,7 @@ Drepanura	premesnili	BERGERON, 1899	Kushan Fm, Shandong, China	DAMESELLIDAE	UCAM
 Drepanuroides	latilimbata	W. ZHANG, 1966	Tsanglangpu Fm, Yunnan, China	YINITIDAE	LCAM	
 Dresbachia	amata	WALCOTT, 1916a	Eau Claire Lst, Wisconsin, USA	MENOMONIIDAE	UCAM	
 Drevermannia	schmidti	RICHTER, 1913	Cypridinen Sh, Wuppertal, Rhenish Massif, Germany	PROETIDAE	UDEV	
-Dreyfussina	Dalmania exophthalma DREYFUSS, 1948	HUPE in CHOUBERT et al., 1956	Glauzy Fm, Montagne Noire, France	DALMANITIDAE	UORD	
+Dreyfussina	Dalmania exophthalma DREYFUSS, 1948	HUPÉ in CHOUBERT et al., 1956	Glauzy Fm, Montagne Noire, France	DALMANITIDAE	UORD	
 Drotops	megalomanicus	STRUVE, 1990	Maider, SE Morocco	PHACOPIDAE	MDEV	
 Drozdoviella	laevis	KOROBOV, 1989	Khairkansky Fm, W Mongolia	DOLICHOMETOPIDAE	LCAM	
 Drumaspis	walcotti	RESSER, 1942b	St Charles Fm, Idaho, USA	ELVINIIDAE	UCAM	
@@ -1460,7 +1460,7 @@ Eocryphops	Phacops kayseri HERRMANN, 1911	RICHTER & RICHTER, 1931	Hermershuasen 
 Eoctenopyge	Sphaerophthalmus flagellifer ANGELIN, 1854	HENNINGSMOEN, 1957	Andrarum, Sweden	OLENIDAE	UCAM	
 Eocyphinium	clitheroense	REED, 1942	Worston Sh Group, England	PROETIDAE	MISS	
 Eocyrtosymbole	magnifica	PILLET, 1973a	Angers Lst, Bretagne, France	PROETIDAE	LDEV	
-Eodaguinaspis	abadiei	HUPE, 1953	Amouslek Fm, Morocco	FALLOTASPIDIDAE	LCAM	[j.s.s. of Daguinaspis, fide GEYER, 1996]
+Eodaguinaspis	abadiei	HUPÉ, 1953	Amouslek Fm, Morocco	FALLOTASPIDIDAE	LCAM	[j.s.s. of Daguinaspis, fide GEYER, 1996]
 Eodalmanitina	Calymene macro-phthalma BRONGNIART, 1822	HENRY, 1964	Schistes a Calymenes, Loire-Atlantique, France	DALMANITIDAE	MORD	
 Eodamesella	yinshanensis	J. ZHANG & LIU, 1986	Changhia Fm, Inner Mongolia, China	DAMESELLIDAE	MCAM	[j.s.s. of Damesella, fide W.T. ZHANG, pers. comm.]
 Eodindymene	Dindymene pulchra OLIN, 1906	KIELAN, 1960	Tretaspis Sh, Scania, Sweden	ENCRINURIDAE	UORD	
@@ -1501,7 +1501,7 @@ Eoryctocephalus	Oryctocephalus (Eoryctocephalus) sinicus	ZHAO & YUAN in YUAN et 
 Eosaukia	latilimbata	LU, 1954a	Sandu Fm, Guizhou, China	SAUKIIDAE	UCAM	
 Eoscutellum	Scutellum michnevitchi MAKSIMOVA, 1968	MAKSIMOVA, 1978a	Kokbaital Horizon, central Kazakhstan	STYGINIDAE	LDEV	
 Eoshengia	quadrata	YANG in ZHOU et al., 1977	Laochatian Fm, Guizhou, China	LISANIIDAE	UCAM	[type species here designated because subquadrata was not erected in original publication]
-Eoshumardia	Shumardia orientalis MANSUY, 1916	HUPE, 1953	Fengshanian, North Vietnam	SHUMARDIIDAE	UCAM	
+Eoshumardia	Shumardia orientalis MANSUY, 1916	HUPÉ, 1953	Fengshanian, North Vietnam	SHUMARDIIDAE	UCAM	
 Eosoproetus	zhengi	ZHOU, SIVETER & OWENS, 2000	Yikewusu Fm, Inner Mongolia, China	PROETIDAE	MDEV	
 Eosoptychoparia	Ptychoparia kochibei WALCOTT, 1911	W. ZHANG, 1963	Changhia Fm, Liaoning, China	PTYCHOPARIIDAE	MCAM	
 Eosoptychopyge	xinjiangensis	T. ZHANG, 1981	Dawangou Fm, Xinjiang, China	ASAPHIDAE	MORD	[j.s.s. of Zhenganites, fide ZHOU et al., 1998a]
@@ -1513,7 +1513,7 @@ Eowinterbergia	Winterbergia (Eowinterbergia) transversa	YUAN & XIANG, 1998	Wangy
 Eowuhuia	hejinensis	J. ZHANG & WANG, 1983	Changhia Fm, Shanxi, China	PTYCHASPIDIDAE	UCAM	
 Eoyosimuraspis	truncatus	QIAN, 1985b	Yosimuraspis Zone, Jilin, China	REMOPLEURIDIDAE	LORD	[j.s.s. of Yosimuraspis, fide PENG, 1990]
 Eozacanthoides	spectabilis	QIU, 1980	Manto Fm, Jiangsu, China	ZACANTHOIDIDAE	MCAM	
-Epidaguinaspis	angusta	HUPE, 1953a	Amouslek Fm, Morocco	FALLOTASPIDIDAE	LCAM	[j.s.s. of Daguinaspis, fide GEYER, 1996]
+Epidaguinaspis	angusta	HUPÉ, 1953a	Amouslek Fm, Morocco	FALLOTASPIDIDAE	LCAM	[j.s.s. of Daguinaspis, fide GEYER, 1996]
 Epumeria	lata	RUSCONI, 1958b	El Totoral, Mendoza, Argentina	INDET.	MCAM	
 Erbenaspis	Eodrevermannia (Erbenaspis) arabica	ALBERTI, 1966	Rechoua Lst, NW Morocco	PROETIDAE	LDEV	
 Erbenia	abundans	WITTKE, 1984	Mila Fm, Iran	ASAPHISCIDAE	MUCAM	
@@ -1593,7 +1593,7 @@ Falcatoproetus	Proetus falcatus OWENS, 1973b	LUTKE, 1990	Coalbrookdale Fm, Engla
 Falkopingia	Drepanuraeremita WESTERGARD, 1947	QIAN & ZHOU, 1984	Agnostus pisiformis Zone, Vastergotland, Sweden	DAMESELLIDAE	UCAM	[j.s.s. of Paradamesella, fide W. ZHANG, pers. comm.]
 Fallagnostus	blayaci	HOWELL, 1935b	Coulouma, France	CONDYLOPYGIDAE	MCAM	[j.s.s. of Condylopyge, fide SHERGOLD et al., 1990]
 Fallotaspidella	musatovi	REPINA, 1961	Sajanaspis Zone, S Siberia, Russia	ARCHAEASPIDIDAE	LCAM	
-Fallotaspis	typica	HUPE, 1953a	Amouslek Fm, Morocco	FALLOTASPIDIDAE	LCAM	
+Fallotaspis	typica	HUPÉ, 1953a	Amouslek Fm, Morocco	FALLOTASPIDIDAE	LCAM	
 Famatinolithus	noticus	HARRINGTON & LEANZA, 1957	Suri Fm, La Rioja, Argentina	TRINUCLEIDAE	MORD	
 Fandianaspis	fandianensis	LI, 1978	Chiungchussu Fm, Sichuan, China	REDLICHIINA FAMILY UNCERTAIN	LCAM	
 Farsia	abundans	WOLFART, 1974b	Kushanian, SE Iran	PROASAPHISCIDAE	UCAM	
@@ -1695,9 +1695,9 @@ Geratrinodus	perconvexus	KOBAYASHI & HAMADA, 1978a	Langkawi Islands, Malaysia	ME
 Germaropyge	Ellipsocephalus germari BARRANDE, 1852	ŠNAJDR, 1957b	Jince Fm, Czech Republic	ELLIPSOCEPHALIDAE	MCAM	[j.s.s. of Ellipsocephalus, fide GEYER, 1990]
 Ghwaiella	yemjenriensis	KIM, 1980	Chonjuri Fm, North Korea	DINESIDAE	MCAM	
 Gibbocephalus		PILLET, 1965a	. Gibscherella REPINA, 1979a  Sinersky Fm, S Siberia, Russia	JAKUTIDAE	LCAM	[j.o.s. of Crotalocephalina][sibirica]
-Gigantopygus	papillatus	HUPE, 1953a	Issafen Fm, Morocco	GIGANTOPYGIDAE	LCAM	
+Gigantopygus	papillatus	HUPÉ, 1953a	Issafen Fm, Morocco	GIGANTOPYGIDAE	LCAM	
 Gignopeltis	Dolichometopus? rarus BILLINGS, 1865	RAYMOND, 1924	Oxford Fm, Ontario, Canada	BATHYURIDAE	LORD	
-Gigoutella	atlasensis	HUPE, 1953a	Jbel Wawrmast Fm, Morocco	PALAEOLENIDAE	LCAM	
+Gigoutella	atlasensis	HUPÉ, 1953a	Jbel Wawrmast Fm, Morocco	PALAEOLENIDAE	LCAM	
 Giordanella	Illaenus meneghinii BORNEMANN, 1883	BORNEMANN, 1891	Nebida Fm, Sardinia, Italy	DOLEROLENIDAE	LCAM	
 Girandia	typa	KOBAYASHI, 1943b	Solenoparia Zone, Kotui River, Siberia, Russia	PAGODIIDAE	UCAM	
 Girvanagnostus	Agnostus girvanensis REED, 1903	KOBAYASHI, 1939a	Scotland	METAGNOSTIDAE	ORD	[j.s.s. of Arthrorhachis, fide SHERGOLD et al., 1990]
@@ -1706,7 +1706,7 @@ Gitarra	Griffithides pupuloides LEYH, 1897	GANDL, 1968	Geigen Schiefer, Germany	
 Glaberagnostus	altaicus	ROMANENKO, 1985	Glyptagnostus reticulatus Zone, Gorny Altay, Russia	AGNOSTINA FAMILY UNCERTAIN	UCAM	
 Glabrella,	ventrosa	LERMONTOVA, 1940	Amgaian, S Fergarna, Russia	ELLIPSOCEPHALIDAE	MCAM	
 Glabretina	andrewsi	LOCHMAN, 1965	10,223 feet in SW Richey borehole, Williston Basin, Montana, USA	HYSTRICURIDAE	LORD	
-Gladiatoria	Macropyge gladiator ROSS, 1951	HUPE, 1955	Garden City Fm, Idaho, USA	UNCERTAIN	LORD	
+Gladiatoria	Macropyge gladiator ROSS, 1951	HUPÉ, 1955	Garden City Fm, Idaho, USA	UNCERTAIN	LORD	
 Glaphurella	Cyphaspis? harknessi REED, 1896	DEAN, 1971	Keisley Lst Fm, England	DIMEROPYGIDAE	UORD	
 Glaphurina	lamottensis	ULRICH, 1930	Crown Point Fm, Vermont, USA	RAYMONDINIDAE	UORD	
 Glaphurus	Arionellus pustulatus WALCOTT, 1877	RAYMOND, 1905a	Crown Point Fm, Vermont, USA	RAYMONDINIDAE	UORD	
@@ -1830,7 +1830,7 @@ Hallandclarkeops	Kayserops? cantarmoricus MORZADEC & ARBIZU, 1978	LIEBERMAN & KL
 Hallanta	modesta	POULSEN, 1965	Skelbro Lst Fm, Bornholm, Denmark	STYGINIDAE	MORD	
 Hallaspis	Amphion? matutina HALL, 1863	RAASCH & LOCHMAN, 1943	Eau Claire Fm, Minnesota, USA	CATILLICEPHALIDAE	UCAM	[j.s.s. of Pemphigaspis, fide PALMER & PEEL, 1981]
 Hamashania	pulchra	KOBAYASHI, 1942d	N Hebei, China	SAUKIIDAE	UCAM	
-Hamatolenus	continuus	HUPE, 1953a	Asrir Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
+Hamatolenus	continuus	HUPÉ, 1953a	Asrir Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
 Hamiroproetus	hamiro	ŠNAJDR, 1977	Koneprusy Lst, Czech Republic	PROETIDAE	LDEV	
 Hammannopyge	Acidaspis unica THOMSON, 1857	PŘIBYL & VANKinPŘIBYL et al., 1985b	Balclatchie Fm, Scotland	CHEIRURIDAE	UORD	
 Hammatocnemis	tetrasulcatus	KIELAN, 1960	Holy Cross Mts, Poland	PLIOMERIDAE	UORD.	[j.s.s. of Ovalocephalus, fide ZHOU & DEAN, 1986]
@@ -1926,7 +1926,7 @@ Highgatea	laeviuscula	RAYMOND, 1937	Gorge Fm, Vermont, USA	IDAHOIIDAE	UCAM	[j.s.
 Highgatella	Terranovella gelasinata SHAW, 1951	SHAW, 1955	Gorge Fm, Vermont, USA	OLENIDAE	LORD	
 Hildaphillipsia	Phillipsia hildae GHEYSELINCK, 1937	HAHN & HAHN, 1972	Basleo Beds, Timor	PROETIDAE	UPERM	
 Hillyardina	semicylindrica	ROSS, 1951	Garden City Fm, Idaho, USA	HYSTRICURIDAE	LORD	
-Hindermeyeria	Strenuella (Strenuaeva) insecta RICHTER & RICHTER, 1940	HUPE, 1953a	Alanis Sh, Spain	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Strenuaeva, fide SDZUY, 1962]
+Hindermeyeria	Strenuella (Strenuaeva) insecta RICHTER & RICHTER, 1940	HUPÉ, 1953a	Alanis Sh, Spain	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Strenuaeva, fide SDZUY, 1962]
 Hintzecurus	Hystricurus paragenalatus ROSS, 1951	ADRAIN et al., 2003	Garden City Fm, Idaho, USA	HYSTRICURIDAE	LORD	
 Hintzeia	Protopliomerops aemula HINTZE, 1953	HARRINGTON, 1957	Fillmore Fm, Utah, USA	PLIOMERIDAE	LORD	
 Hispaniaspis	Dicanthaspis morenaica HAMMANN, 1976	HAMMANN, 1992	Bancos Mixtos, Spain	ODONTOPLEURIDAE	UORD	
@@ -1934,7 +1934,7 @@ Histiomona	oculosa	ÖPIK, 1967	Georgina Lst, Queensland, Australia	DAMESELLIDAE	
 Hoeferia		REDLICH, 1899				[preocc., replaced by Redlichia]
 Hoekaspiella	spinosa	RUSCONI, 1950a	Mendoza, Argentina	INDET.	CAM	
 Hoekaspis	Megalaspis matacensis HOEK in STEINMANN & HOEK, 1912	KOBAYASHI, 1937b	Pampa de Otavi, Bolivia	ASAPHIDAE	MORD	
-Hoffetella	Micmacca elongata LU, 1941	HUPE, 1953a	Lungwangmiao Fm, Yunnan, China	PALAEOLENIDAE	LCAM	
+Hoffetella	Micmacca elongata LU, 1941	HUPÉ, 1953a	Lungwangmiao Fm, Yunnan, China	PALAEOLENIDAE	LCAM	
 Holanshania	ninghsiaensis	TU in LU, 1957	Gansu, China	PROASAPHISCIDAE	MCAM	
 Holasaphus	centropyge	MATTHEW, 1895	MacMullin Fm, Cape Breton Is, Canada	PTYCHOPARIIDAE	UCAM	
 Holcacephalus	granulata	RESSER, 1938b	Nolichucky Fm, Tennessee, USA	NORWOODIIDAE	UCAM	
@@ -2006,7 +2006,7 @@ Humilogriffithides	divinopleurus	INAI, 1936	Liaoning, China	PROETIDAE	PENN
 Hunanaspis	gracilis	ZHOU in ZHOU et al., 1977	Huaqiao Fm, Hunan, China	ANOMOCARIDAE	UCAM	
 Hunanocephalus	ovalis	LI in EGOROVAet al., 1963	Chiungchussu Fm, Hunan, China	ORYCTOCEPHALIDAE	MCAM	
 Hunanolenus	aglaos	LIU, 1977	Huaqiao Fm, Hunan, China	OLENIDAE	UCAM	
-Hunanoproetus	robustus	J. YANG, 1981	Shidengzi Fm, Hunan, China	LINGUAPROETIDAE	MISS	
+Hunanoproetus	robustus	J. YANG, 1981	Shidengzi Fm, Hunan, China	PROETIDAE	MISS	
 Hunanopyge	sejuncta	PENG, 1984	Shenjiawan Fm, Hunan, China	CERATOPYGIDAE	UCAM	
 Hundwarella	personata	REED, 1934	Nutunus Fm, Kashmir, India	PROASAPHISCIDAE	MCAM	
 Hungaia	Dikelocephalus magnificus BILLINGS, 1860b	WALCOTT, 1914a	Levis Fm, Quebec, Canada	HUNGAIIDAE	UCAM	
@@ -2090,7 +2090,7 @@ Iohomia	sickia	HU, 1971	Meagher Fm, Montana, USA	ANOMOCARIDAE	MCAM
 Iolgia	prima	KRAEVSKY, 1965	Botomian, Gorny Altay, S Siberia, Russia	REDLICHIINA FAMILY UNCERTAIN	LCAM	
 Iranaspidion	sagittalis	KOBAYASHI & HAMADA, 1978b	Kuh-e-hambast Range, Iran	PROETIDAE	PERM	
 Iranaspis	harrisoni	KING, 1937	Pa Vashtah, Iran	LEIOSTEGIIDAE	UCAM	
-Iranella	Saratogia latefrons KING, 1937	HUPE, 1953b	Sayad Hassan, Iran	IDAHOIIDAE	UCAM	[j.s.s. of Maladioidella, fide SHERGOLD & SDZUY, 1984]
+Iranella	Saratogia latefrons KING, 1937	HUPÉ, 1953b	Sayad Hassan, Iran	IDAHOIIDAE	UCAM	[j.s.s. of Maladioidella, fide SHERGOLD & SDZUY, 1984]
 Irania		KING, 1937				[preocc., replaced by Iranoleesia]
 Iranochresterius	shahmirzadensis	PENG et al., 1999	Mila Fm, Alborz Mtns, Iran	PROASAPHISCIDAE	MCAM	
 Iranochuangia	Chuangia nais var. persicum KING, 1937	KOBAYASHI, 1960b	Dimeh Salt Plug, Iran	LEIOSTEGIIDAE	UCAM	
@@ -2134,7 +2134,7 @@ Iwayaspis	asaphoides	KOBAYASHI, 1962	Black Sh, Mt Sambang-san, South Korea	CERAT
 Iyouella	contracta	GEYER & PALMER, 1995	Sectigena Zone, Morocco	HOLMIIDAE	LCAM	
 Izarnia	Bronteus gouzesi BERGERON, 1889	FEIST, 1974	Izarne Fm, Montagne Noire, France	STYGINIDAE	LDEV	
 Jakutus	Dorypyge quadriceps RJONSNITZKY in LERMONTOVA, 1951b	LERMONTOVA, 1951b	Kutorgina Fm, Siberia, Russia	JAKUTIDAE	LCAM	
-Jalonella	Termierella (Jalonella) celtiberica	HUPE, 1953a	Celtiberican Mountains, Spain	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Lusatiops, fide SDZUY, 1961]
+Jalonella	Termierella (Jalonella) celtiberica	HUPÉ, 1953a	Celtiberican Mountains, Spain	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Lusatiops, fide SDZUY, 1961]
 Jangudaspis	princeps	OGIENKO in CHERNYSHEVA et al., 1956	River Yangud, Siberia, Russia	PTYCHOPARIIDAE	LCAM	
 Janshinicus	aleksandri	KOROBOV, 1989	Akbashinsky Fm, W Mongolia	JAKUTIDAE	LCAM	
 Japonoscutellum	Scutellum (Japonoscutellum) japonicum KOBAYASHI & HAMADA, 1965	PŘIBYL & VANK, 1971b	Yokokura-yama, Shikoku, Japan	STYGINIDAE	USIL	
@@ -2267,7 +2267,7 @@ Kijanella	magna	REPINA, 1958	Bazaikh Horizon, Kuznetsk Alatau, Russia	ELLIPSOCEP
 Kilmahogia	jamesbeggi	LAMONT, 1975	Leny Lst, Scotland	INDET.	LCAM	
 Kindbladia	Berkeia wichitaensis RESSER, 1942b	FREDERICKSON, 1948	Honey Ck, Lst, Oklahoma, USA	DOKIMOCEPHALIDAE	UCAM	
 Kinderlania	tschegodaevi	ANTSYGIN, 1977	Kara-kol-Mikhailovsk Horizon, S Urals, Russia	HOLOTRACHELIDAE	LORD	
-Kingaspidoides	armatus	HUPE, 1953a	Jbel Wawr-mast Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
+Kingaspidoides	armatus	HUPÉ, 1953a	Jbel Wawr-mast Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
 Kingaspis	Anomocare camp-belli KING, 1923	KOBAYASHI, 1935c	Burj Lst, Israel	ELLIPSOCEPHALIDAE	LCAM	
 Kingstonella	Kingstonia walcotti RESSER, 1938b	ROZOVA, 1960a	Nolichucky Fm, Tennessee	KINGSTONIIDAE	UCAM	[j.s.s. of Kingstonia, fide ADRAIN, herein]
 Kingstonia	apion	WALCOTT, 1924b	Maryville Fm, Tennessee, USA	KINGSTONIIDAE	UCAM	
@@ -2337,7 +2337,7 @@ Krattaspis	viridatus	ÖPIK, 1937	Maekula-Schichten, Estonia	CHEIRURIDAE	LORD
 Krohbole	Perakaspis (Krohbole) elongata	KOBAYASHI & HAMADA, 1972	Kroh, Malaysia	TROPIDOCORYPHIDAE	LMDEV	
 Krolina	pressulata	REPINA, 1960	Zherzhul Fm, E Sayan, Russia	ELLIPSOCEPHALIDAE	LCAM	
 Ktenoura	retrospina	LANE, 1971	Much Wenlock Lst Fm, England	CHEIRURIDAE	LSIL	
-Kuanyangia	Redlichia pustulosa LU, 1941	HUPE, 1953a	Chiungchussu Fm, Yunnan, China	REDLICHIIDAE	LCAM	
+Kuanyangia	Redlichia pustulosa LU, 1941	HUPÉ, 1953a	Chiungchussu Fm, Yunnan, China	REDLICHIIDAE	LCAM	
 Kueichowia	liui	LU, 1942	Mingxinsi Fm, Guizhou, China	KUEICHOWIIDAE	LCAM	
 Kujandaspis	kujandensis	IVSHIN, 1956	Kuyandinsky Horizon, Kazakhstan	EULOMIDAE	UCAM	
 Kujandina	taskudukensis	IVSHIN, 1956	Kuyandinsky Horizon, Kazakhstan	ELVINIIDAE	UCAM	
@@ -2399,12 +2399,12 @@ Latibole	Archegonus (Latibole) paprothae	HAHN & HAHN, 1969	Richrath Lst, Sondern
 Laticephalus	trapezoidalis	POKROVSKAYA, 1959	Shangansky Fm, Tuva, Russia	EDELSTEINASPIDIDAE	LCAM	
 Laticoryphe	Proetus barroisi MAILLEIUX, 1903	ERBEN, 1966	Couvin, Belgium	TROPIDOCORYPHIDAE	MDEV	
 Latiglobusia	ziegleri	HAHN, HAHN & BRAUCKMANN, 1994	Erdbach Lst, Hessen, Germany	PROETIDAE	MISS	
-Latikingaspis	Kingaspis alatus HUPE, 1953a	GEYER, 1990	Jbel Wawrmast Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
+Latikingaspis	Kingaspis alatus HUPÉ, 1953a	GEYER, 1990	Jbel Wawrmast Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
 Latilorenzella	Agraulos divi WALCOTT, 1905	KOBAYASHI, 1960b	Hsuchuang Fm, Shandong, China	WUANIIDAE	MCAM	
 Latipalaeolenus	latilimbatus	GUO & AN, 1982	Jianchang Fm, Liaoning, China	PALAEOLENIDAE	LCAM	
 Latiproetus	Proetus latilimbatus LU, 1957	LU, 1962	Lojoping Fm, Hubei, China	PROETIDAE	LSIL	
-Latiredlichia	Redlichia saitoi LU, 1950	HUPE, 1953a	Antakkol, North Korea	REDLICHIIDAE	LCAM	
-Latoucheia	Protolenus latoucheia COBBOLD, 1910	HUPE, 1953a	Comley Lst, England	ELLIPSOCEPHALIDAE	LCAM	
+Latiredlichia	Redlichia saitoi LU, 1950	HUPÉ, 1953a	Antakkol, North Korea	REDLICHIIDAE	LCAM	
+Latoucheia	Protolenus latoucheia COBBOLD, 1910	HUPÉ, 1953a	Comley Lst, England	ELLIPSOCEPHALIDAE	LCAM	
 Latuzella	poletaevae	FEDYANINA & ROMANENKO in REPINA et al., 1999	Usa Fm, Kuznetsk Alatau, Russia	ELLIPSOCEPHALIDAE	LCAM	
 Lauchellum	gerolsteinense	BASSE, 2002	Lauch Fm, Rhenish Massif, Germany	PROETIDAE	MDEV	
 Laudonia	bispinata	HARRINGTON, 1956	Mahto Fm, Alberta, Canada	OLENELLIDAE	LCAM	
@@ -2563,7 +2563,7 @@ Lonchocephalus	chippewaensis	OWEN, 1852	Eau Claire Fm, Wisconsin, USA	LONCHOCEPH
 Lonchodomas	Ampyx rostratus SARS, 1835	ANGELIN, 1854	Vollen Fm, Norway	RAPHIOPHORIDAE	MORD	
 Lonchopygella	megaspina	XIANG in ZHOU et al., 1977	Baoshan Fm, Yunnan, China	TSINANIIDAE	UCAM	
 Longduia	lata	ZHANG & QIAN in LU et al., 1974a	Tsanglangpu Fm, Yunnan, China	YINITIDAE	LCAM	
-Longianda	termieri	HUPE, 1953a	Issafen Fm, Morocco	SAUKIANDIDAE	LCAM	
+Longianda	termieri	HUPÉ, 1953a	Issafen Fm, Morocco	SAUKIANDIDAE	LCAM	
 Longicoryphe	Tropidocoryphe novaki BEYER, 1896	ERBEN, 1966	Lower Stringocephalus Lst, Haina near Wetzlar, Hessen, Germany	TROPIDOCORYPHIDAE	MDEV	
 Longilobus	Griffithides convexicaudatus MITCHELL, 1918	ENGEL & MORRIS, 1995	Flagstaff Fm, New South Wales, Australia	PROETIDAE	MISS	
 Longiproetus	Proetus tenuimargo RICHTER, 1909	CAVET & PILLET, 1958	Junkerberg Fm, Gerolstein, Eifel, Germany	PROETIDAE	MDEV	
@@ -2594,7 +2594,7 @@ Loxonepea	loxophrys	ÖPIK, 1970	Age Creek Fm, Queensland, Australia	NEPEIDAE	MCA
 Loxoparia	obliqua	RASETTI, 1965a	Nolichucky Fm, Tennessee, USA	UNCERTAIN	UCAM	
 Loxopeltis	problematica	RASETTI, 1957	Mt Whyte Fm, British Columbia, Canada	UNCERTAIN	MCAM	
 Luaspides	lingyuanensis	DUAN, 1966	Maochuang Fm, Liaoning, China	ANTAGMIDAE	MCAM	
-Luaspis	Pseudoptychoparia reedi LU, 1941	HUPE, 1953a	Chiungchussu Fm, Yunnan, China	YUNNANOCEPHALIDAE	LCAM	
+Luaspis	Pseudoptychoparia reedi LU, 1941	HUPÉ, 1953a	Chiungchussu Fm, Yunnan, China	YUNNANOCEPHALIDAE	LCAM	
 Luaspis		PENG et al., 1995				[preocc., replaced by Luyanhaoaspis]
 Ludvigsenella	el-lipsepyga	TREMBLAY & WESTROP, 1991	Sunblood Fm, Northwest Territories, Canada	BATHYURIDAE	MORD	[j.s.s. of Psephosthenaspis, fide FORTEY & DROSER, 1996]
 Lugalella	pi	HAHN & WUNN-PETRY, 1983	nasutus Zone, Rhenish Massif, Germany	PROETIDAE	MISS	
@@ -2695,12 +2695,12 @@ Marjumia	typa	WALCOTT, 1916b	Marjum Fm, Utah, USA	MARJUMIIDAE	MCAM
 Markhaspis	binodaeformis	OGIENKO in OGIENKO & SKURATOVA, 1987	Chukuksk Fm, SE Siberia, Russia	SOLENOPLEURIDAE	MCAM	
 Marrolithoides	Marrolithus (Marrolithoides) simplex	WILLIAMS, 1948	Middle Llandeilo Flags, Wales	TRINUCLEIDAE	UORD	
 Marrolithus	Trinucleus ornatus var. favus SALTER, 1847	BANCROFT, 1929	Upper Llandeilo Flags, Wales	TRINUCLEIDAE	UORD	
-Marsaisia	robauxi	HUPE, 1953a	Amouslek Fm, Morocco	SAUKIANDIDAE	LCAM	[j.s.s. of Richterops, fide W. ZHANG et al., 1997]
+Marsaisia	robauxi	HUPÉ, 1953a	Amouslek Fm, Morocco	SAUKIANDIDAE	LCAM	[j.s.s. of Richterops, fide W. ZHANG et al., 1997]
 Maryvillia	arion	WALCOTT, 1916b	Maryville Lst, Tennessee, USA	KINGSTONIIDAE	UCAM	
 Maspakites	occidentalis	LAZARENKO in LAZARENKO & NIKIFOROV, 1968	Kulyumbina Fm, NW Siberia, Russia	CONOKEPHALINIDAE	UCAM	
 Matania	ovata	RASETTI, 1946b	Levis Fm, Quebec, Canada	CATILLICEPHALIDAE	MCAM	
 Mataninella	escharoida	SIVOV in EGOROVA et al., 1955	Tolctochikhin Fm, Salair, Russia	SOLENOPLEURIDAE	UCAM	
-Matthewlenus	Agraulos? articephalus MATTHEW, 1886	HUPE, 1953a	Hanford Brook Fm, New Brunswick, Canada	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Protolenus, fide HENNINGSMOEN in MOORE, 1959]
+Matthewlenus	Agraulos? articephalus MATTHEW, 1886	HUPÉ, 1953a	Hanford Brook Fm, New Brunswick, Canada	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Protolenus, fide HENNINGSMOEN in MOORE, 1959]
 Mauraspis	Isoprusia (Mauraspis) cyrius	ALBERTI, 1967b	Calcaires marmoreens grisbleu, Sidi Abdallah des Rehamma, W Morocco	ODONTOPLEURIDAE	MDEV	[j.s.s. of either Koneprusia or Isoprusia, fide VANK & PEK, 1987]
 Maurotarion	Harpidella maura ALBERTI, 1967b	ALBERTI, 1969	Ostrakoden-Kalk, NW Morocco	AULACOPLEURIDAE	USIL	[j.s.s. of Goniopleura, fide ADRAIN, herein;nomen protectum, see NOTE 5]
 Maustonia	Conocephalites nasutus HALL, 1863	RAASCH in LOCHMAN, 1950	Franconia Fm, Wisconsin, USA	PARABOLINOIDIDAE	UCAM	[j.s.s. of Taenicephalus, fide WESTROP, 1986b]
@@ -2762,7 +2762,7 @@ Merlinia	rhyakos	FORTEY & OWENS, 1978	Carmarthen Fm, Wales	ASAPHIDAE	LORD
 Meropalla	quadrans	ÖPIK, 1967	Mungerebar Lst, Queensland, Australia	LEIOSTEGIIDAE	MCAM	
 Meroperix	ataphrus	LANE, 1972	Drommebjerg Lst, N Greenland	STYGINIDAE	LSIL	
 Mesagnostus		JAEKEL, 1909				[j.o.s. of Peronopsis]
-Mesetaia	Hartshillia maroccana GIGOUT, 1951	HUPE, 1953a	Tamanart Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Kingaspis, fide GEYER, 1990]
+Mesetaia	Hartshillia maroccana GIGOUT, 1951	HUPÉ, 1953a	Tamanart Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Kingaspis, fide GEYER, 1990]
 Mesocrepicephalus	Crepicephalus damia WALCOTT, 1905	KOBAYASHI, 1935c	Changhia Fm, Shandong, China	CREPICEPHALIDAE	MCAM	[j.s.s. of Crepicephalina, fide W. ZHANG & JELL, 1987]
 Mesoctenopyge	Ctenopyge spectabilis BROGGER, 1882	HENNINGSMOEN, 1957	Slemmestad, Norway	OLENIDAE	UCAM	
 Mesodema	venulosa	WHITEHOUSE, 1939	Yelvertoft Beds, Queensland, Australia	REDLICHIIDAE	LCAM	[j.s.s. of Redlichia, fideÖPIK, 1958]
@@ -2914,8 +2914,8 @@ Myinda	uriconii	STUBBLEFIELD in STUBBLEFIELD & BULMAN, 1927	Shineton Sh Fm, Engl
 Myindella	crux	HUTCHISON & INGHAM, 1967	Shineton Sh Fm, England	TRINUCLEIDAE	LORD	
 Myoproetus		MAKSIMOVA, 1978a				[j.o.s. of Myoproetus, ŠNAJDR]
 Myoproetus	Proetus myops BARRANDE, 1846a	ŠNAJDR, 1976a	Koneprusy Lst, Czech Republic	PROETIDAE	MDEV	
-Myopsolenus	magnus	HUPE, 1953a	Tamanart Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
-Myopsomicmacca	Micmacca protolenoides COBBOLD, 1931a	HUPE, 1953a	Olenellus Lst, Shropshire, England	CHENGKOUIIDAE	LCAM	[j.s.s. of Acanthomicmacca, fide GEYER & MALINKY, 1997]
+Myopsolenus	magnus	HUPÉ, 1953a	Tamanart Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
+Myopsomicmacca	Micmacca protolenoides COBBOLD, 1931a	HUPÉ, 1953a	Olenellus Lst, Shropshire, England	CHENGKOUIIDAE	LCAM	[j.s.s. of Acanthomicmacca, fide GEYER & MALINKY, 1997]
 Myopsostrenua	sabulosa	RUSHTON, 1966	Purley Sh, England	ELLIPSOCEPHALIDAE	LCAM	
 Myrmecomimus	tribulis	ÖPIK, 1979	V Creek Lst, Queensland, Australia	PTYCHAGNOSTIDAE	MCAM	
 Mystrocephala	Cordania pulchra COOPER & CLOUD, 1938	WHITTINGTON, 1960	Taghanic Stage, Illinois, USA	BRACHYMETOPIDAE	MDEV	
@@ -2958,7 +2958,7 @@ Nelegeria	lata	KOROBOV, 1966a	Sekten Fm, Siberia, Russia	ELLIPSOCEPHALIDAE	LCAM
 Nelgakia	strobilata	PEGEL in EGOROVA & PEGEL, 1979	Ust-Botomsk Fm, Siberia, Russia	ALOKISTOCARIDAE	MCAM	
 Nellina	miranda	POKROVSKAYA in ZHURAVLEVA et al., 1967	Sanashtykgol Horizon, Tuva, Russia	CHENGKOUASPIDIDAE	LCAM	[j.s.s. of Terechtaspis, fide W. ZHANG et al., 1997]
 Nelsonia	schesis	PALMER & GATEHOUSE, 1972	Nelson Lst, Antarctica	PTYCHOPARIIDAE	MCAM	
-Neltneria	Wanneria jacqueti NELTNER & POCTEY, 1949	HUPE, 1953a	Issafen Fm, Morocco	NELTNERIIDAE	LCAM	
+Neltneria	Wanneria jacqueti NELTNER & POCTEY, 1949	HUPÉ, 1953a	Issafen Fm, Morocco	NELTNERIIDAE	LCAM	
 Neoacrocephalites	togensis	SIVOV in EGOROVA et al., 1955	Gornoshor Fm, Gorny Shoria, Russia	SOLENOPLEURIDAE	UCAM	
 Neoagnostus	aspidoides	KOBAYASHI, 1955b	Mc Kay Gp, British Columbia, Canada	DIPLAGNOSTIDAE	UCAM	[j.s.s. of Pseudorhaptagnostus, fide NIELSEN, 1997]
 Neoanomocarella	asiatica	XIANG in EGOROVA et al., 1963	Changshan Fm, Hunan, China	ANOMOCARELLIDAE	UCAM	
@@ -3192,7 +3192,7 @@ Otarozoum	Lichas (Homolichas) melmerbiensis REED, 1907a	THOMAS & HOLLOWAY, 1988	
 Otodechenella	convexa	ZHOU, SIVETER & OWENS, 2000	Zhusileng Fm, Inner Mongolia, China	PROETIDAE	LDEV	
 Ottenbyaspis	Illaenus oriens MOBERG & SEGERBERG, 1906	BRUTON, 1968	Bjrkasholmen Fm, Sweden	PANDERIIDAE	LORD	
 Ottoaspis	peki	VANK et al., 1992	Lodenice Fm, Czech Republic	STYGINIDAE	LDEV	
-Ouijjania	meridionalis	HUPE, 1953a	Amouslek Fm, Morocco	BIGOTINIDAE	LCAM	
+Ouijjania	meridionalis	HUPÉ, 1953a	Amouslek Fm, Morocco	BIGOTINIDAE	LCAM	
 Ourikaia	calva	GEYER, 1990	Jbel Wawrmast Fm, Morocco	ELLIPSOCEPHALIDAE	MCAM	
 Ovalagnostus	Oidalagnostus changi LU in WANG, 1964	LU in LU et al., 1974b	Zhejiang, China	DIPLAGNOSTIDAE	MUCAM	[j.s.s. of Oidalagnostus, fide SHERGOLD et al., 1990]
 Ovalocephalus	kelleri	KOROLEVA, 1959	Late Caradoc, N Kazakhstan	PLIOMERIDAE	UORD	
@@ -3297,7 +3297,7 @@ Paracrocephalites	robusta	POULSEN, 1954	Kharaulakh, Siberia, Russia	SOLENOPLEURI
 Paracryphaeus	Cryphaeus jonesi OEHLERT, 1877	GANDL, 1972	Brittany, France	ACASTIDAE	LDEV	
 Paracyamella	hujiabaensis	ZHOU & XIANG, 1993	Pagoda Lst, Shaanxi, China	RORRINGTONIIDAE	UORD	[j.s.s. of Cyamella, fide FORTEY, 1997]
 Paracybantyx	asulcatus	LUDVIGSEN & TRIPP, 1990	Road River Fm, Northwest Territories, Canada	STYGINIDAE	USIL	
-Paracybeloides	Cybele loveni girvanensis REED, 1906a	HUPE, 1955	South Threave Fm, Scotland	ENCRINURIDAE	UORD	
+Paracybeloides	Cybele loveni girvanensis REED, 1906a	HUPÉ, 1955	South Threave Fm, Scotland	ENCRINURIDAE	UORD	
 Paradalmanites	Phacops acacia SCHWARZ, 1906	PILLET, 1954	Bokkeveld Group, South Africa	CALMONIIDAE	LDEV	[j.s.s. of Bainella, fide ELDREDGE & BRANIA, 1980]
 Paradamesella	typica	YANG in ZHOU et al., 1977	Baojingia Fm, Hunan, China	DAMESELLIDAE	MCAM	
 Paradamesops	jimaensis	YANG in LU et al., 1974b	Guizhou, China	DAMESELLIDAE	MCAM	[j.s.s. of Damesops, fide JELL & HUGHES, 1997]
@@ -3414,7 +3414,7 @@ Paraprotolenella	subcylindrica	ZHU & JIANG, 1981	Mufushan Fm, Jiangsu, China	ELL
 Paraptychopyge	Ptychopyge plautini SCHMIDT, 1904	BALASHOVA, 1964	Volkov Fm, St Petersburg region, Russia	ASAPHIDAE	MORD	
 Paraqingshuiheella	Qingshuiheella truncata LU & QIAN, 1983a	LU & QIAN, 1984	Chang-shan Fm, Inner Mongolia, China	CHANGSHANIIDAE	UCAM	[replacement name for Qingshuiheella]
 Pararaia	Dolichometopus tatei WOODWARD, 1884b	KOBAYASHI, 1942e	Parara Lst, South Australia	ESTAINGIIDAE	LCAM	
-Pararedlichia	pulchella	HUPE, 1953a	Amouslek Fm, Morocco	REDLICHIIDAE	LCAM	[j.s.s. of Eoredlichia, fide W. ZHANG et al., 1997]
+Pararedlichia	pulchella	HUPÉ, 1953a	Amouslek Fm, Morocco	REDLICHIIDAE	LCAM	[j.s.s. of Eoredlichia, fide W. ZHANG et al., 1997]
 Parasajanaspis	lauta	CHERNYSHEVA, 1972	Pamir, Russia	REDLICHINIDAE	LCAM	
 Parashantungia	elongata	ZHU, 1959	Kushan Fm, Liaoning, China	DAMESELLIDAE	UCAM	
 Parashengia	elongata	LUO, 1982	Hetaoping Fm, Yunnan, China	LISANIIDAE	UCAM	
@@ -3428,7 +3428,7 @@ Parasphaerexochus	galeatus	CHUGAEVA, 1973	Kolyma, Far E Siberia, Russia	CHEIRURI
 Paraszechuanella	latilimbata	LIU in ZHOU et al., 1977	Nantsinkuan Fm, Sichuan, China	LEIOSTEGIIDAE	LORD	
 Parataitzuia	Solenoparia tang-shihensis ENDO, 1944	W. ZHANG, 1963	Changhia Fm, Liaoning, China	SOLENOPLEURIDAE	MCAM	[j.s.s. of Menocephalites, fide W. ZHANG & JELL, 1987]
 Paratamdaspis	longiformis	G. ERGALIEV in ERGALIEV & ERGALIEV, 2001	Bestogaisk Fm, Kazakhstan	ASAPHIDAE	UCAM	
-Paratermierella	elegans	HUPE, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Brevitermierella, fide GEYER, 1990]
+Paratermierella	elegans	HUPÉ, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	[j.s.s. of Brevitermierella, fide GEYER, 1990]
 Paratiresias	turkestanicus	PETRUNINA in REPINA et al., 1975	Kielanella-Tretaspis Zone, Turkestan-Alai Ridge, Tien Shan, Turkestan	ISOCOLIDAE	UORD	
 Paratollaspis		KOBAYASHI, 1943b				[j.o.s. of Erbia]
 Paratoernquistia	sanchezae	CHATTERTON et al., 1998	Las Aguaditas Fm, San Juan, Argentina	TOERNQUISTIIDAE	UORD	[j.s.s. of Toernquistia, fide ADRAIN, herein]
@@ -3451,7 +3451,7 @@ Parazhongtiaoshanaspis	Zhongtiaoshanaspis (Parazhongtiaoshanaspis) jiangzhuangen
 Paraziboaspis	porcata	NAN & ZAN, 1982a	Shiqiao Fm, Liaoning, China	PTYCHOPARIIDAE	MCAM	
 Pardailhania	Solenopleura ? hispida THORAL, 1935	THORAL, 1947	Schistes troues, France	SOLENOPLEURIDAE	MCAM	
 Parehmania	princeps	DEISS, 1939	Pentagon Sh, Montana, USA	ALOKISTOCARIDAE	MCAM	
-Pareops	transitans	HUPE, 1953a	Issafen Fm, Morocco	SAUKIANDIDAE	LCAM	
+Pareops	transitans	HUPÉ, 1953a	Issafen Fm, Morocco	SAUKIANDIDAE	LCAM	
 Pareuloma	brachymetopa	RASETTI, 1954	Cap des Rosiers, Quebec, Canada	EULOMIDAE	LORD	
 Parevenkaspis	elgoni	KRAMARENKO, 1952	Tunguska River, Siberia, Russia	PTERYGOMETOPIDAE	UORD	
 Parillaenus	Illaenus fallax HOLM, 1882	JAANUSSON, 1954	Kullsberg Lst, Sweden	ILLAENIDAE	UORD	
@@ -3846,8 +3846,8 @@ Prouktaspis	Paramicmacca insolens SUVOROVA, 1960	REPINA in KHOMENTOVSKY & REPINA
 Proveedoria	starquistae	LOCHMAN, 1948	Los Ar-rojos Fm, Sonora, Mexico	ALOKISTOCARIDAE	MCAM	
 Proxiniobe	Niobe flabellifera FORTEY, 1975	HOEL, 1999	Valhallfona Fm, Spitsbergen	ASAPHIDAE	LORD	
 Prozacanthoides	Olenoides stissingensis DWIGHT, 1889	RESSER, 1937b	Stissing Fm, New York, USA	ZACANTHOIDIDAE	MCAM	
-Pruvostina	nicklesi	HUPE, 1953a	Amouslek Fm, Morocco	BIGOTINIDAE	LCAM	
-Pruvostinoides	angustilineatus	HUPE, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
+Pruvostina	nicklesi	HUPÉ, 1953a	Amouslek Fm, Morocco	BIGOTINIDAE	LCAM	
+Pruvostinoides	angustilineatus	HUPÉ, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
 Psalaspis	Conocephalites patersoni HALL, 1863	RESSER, 1937b	Franconia Fm, Wisconsin, USA	IDAHOIIDAE	UCAM	
 Psalikilopsis	cuspidicauda	ROSS, 1953	Garden City Fm, Idaho, USA	HYSTRICURIDAE	LORD	
 Psalikilus	typicum	ROSS, 1951	Garden City Fm, Idaho, USA	HYSTRICURIDAE	LORD	
@@ -3884,7 +3884,7 @@ Pseudocalvinella	spinosa	QIU, 1984	Tangcun Fm, Anhui, China	SAUKIIDAE	UCAM
 Pseudocalymene	superba	PILLET, 1973b	Shirgesht Fm, eastern Iran	LEIOSTEGIIDAE	MORD	
 Pseudocheirurus	Cheirurus beyrichi BARRANDE, 1846a	PRANTL & PŘIBYL, 1947c	Kopanina Fm, Czech Republic	CHEIRURIDAE	USIL	
 Pseudoclelandia	cornupsittaca	ROSS, 1951	Garden City Fm, Idaho, USA	UNCERTAIN	LORD	
-Pseudocobboldia	Cobboldia ? pulchra HUPE, 1953a	HUPE in BOUDDA et al., 1979	Jbel Wawr-mast Fm, Morocco	CALODISCIDAE	LCAM	
+Pseudocobboldia	Cobboldia ? pulchra HUPÉ, 1953a	HUPÉ in BOUDDA et al., 1979	Jbel Wawr-mast Fm, Morocco	CALODISCIDAE	LCAM	
 Pseudocrepicephalus	subconicus	ZHU & ZHANG in ZHU et al., 1979	Lower Olonbulag Fm, Qinghai, China	CREPICEPHALIDAE	MCAM	
 Pseudocryphaeus	Phacops michelini ROUAULT, 1851	PILLET, 1954	Sierra de Guadarrama, Guadalajara, Spain	ACASTIDAE	LDEV	
 Pseudocybele	nasuta	ROSS, 1951	Garden City Fm, Idaho, USA	PLIOMERIDAE	LORD	
@@ -3912,7 +3912,7 @@ Pseudokoldinia	gloriosa	ROZOVA, 1968	Mansi Horizon, NW Siberia, Russia	CHEILOCEP
 Pseudokoldinioidia	granulosa	ENDO, 1944	Yenchou Fm, Guangdung, China	MISSISQUOIIDAE	UCAM	
 Pseudolancastria	longispina	LI in EGOROVA et al., 1963	Tsanglangpu Fm, Hunan, China	ORYCTOCEPHALIDAE	LCAM	[j.s.s. of Lancastria, fide W. ZHANG, 1997]
 Pseudoleiostegium	striatum	QIAN, 1986	Fengshan Fm, Jilin, China	LEIOSTEGIIDAE	UCAM	
-Pseudolenus	ourikaensis	HUPE, 1953a	Jbel Wawrmast Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
+Pseudolenus	ourikaensis	HUPÉ, 1953a	Jbel Wawrmast Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
 Pseudolevinia	macropyge	RUSCONI, 1951b	Mendoza, Argentina	INDET.	CAM	
 Pseudoliostracina		KOBAYASHI, 1938b				[j.o.s. of Lioparia]
 Pseudoliostracus	torosus	EGOROVA in EGOROVA et al., 1982	Ust-Maisk Fm, Siberia, Russia	PTYCHOPARIIDAE	MCAM	
@@ -3948,7 +3948,7 @@ Pseudosaratogia	magna	WILSON, 1951	Gatesburg Fm, Pennsylvania, USA	DOKIMOCEPHALI
 Pseudosarkia	deceptrix	SHERGOLD in LAURIE & SHERGOLD, 1996	Emanuel Fm, Western Australia	UNCERTAIN	LORD	
 Pseudosaukia		KOBAYASHI, 1951				[preocc., replaced by Saukioides]
 Pseudosaukia	Dikelocephalus sesostris BILLINGS, 1865	RASETTI, 1944	Levis Fm, Quebec, Canada	ELVINIIDAE	UCAM	
-Pseudosaukianda	lata	HUPE, 1953a	Issafen Fm, Morocco	SAUKIANDIDAE	LCAM	
+Pseudosaukianda	lata	HUPÉ, 1953a	Issafen Fm, Morocco	SAUKIANDIDAE	LCAM	
 Pseudosilesiops	Chlupacula (Pseudosilesiops) effenbergensis	HAHN, HAHN & BRAUCKMANN, 1994	Hangenberg Lst, Sauerland, Germany	PROETIDAE	MISS	
 Pseudosolenoparia	yangkongensis	ZHOU in LU et al., 1974a	Gaotai Fm, Guizhou, China	SOLENOPLEURIDAE	MCAM	
 Pseudosolenopleura	Solenopleura kotoi KOBAYASHI, 1933a	SUN, 1935	Changshan Fm, Liaoning, China	WUANIIDAE	UCAM	
@@ -4000,7 +4000,7 @@ Ptychometopus	Calymene (Ptychometopus) volborthi	SCHMIDT, 1894	Baltic region, Ru
 Ptychoparella	brevicauda	POULSEN, 1927	Cape Wood Fm, NW Greenland	PTYCHOPARIIDAE	MCAM	
 Ptychoparia	Conocephalus striatus EMMRICH, 1839	HAWLE & CORDA, 1847	Jince Fm, Czech Republic	PTYCHOPARIIDAE	MCAM	
 Ptychoparioides	nobilis	RUZICKA, 1940	Jince Fm, Czech Republic	PTYCHOPARIIDAE	MCAM	[j.s.s. of Ptychoparia, fide ŠNAJDR, 1958a]
-Ptychoparopsis	issafenensis	HUPE, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	[s.s.s. of Berabechia, fide GEYER, 1990]
+Ptychoparopsis	issafenensis	HUPÉ, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	[s.s.s. of Berabechia, fide GEYER, 1990]
 Ptychopleura		KOBAYASHI, 1936a				[preocc. replaced by Ptychopleurites]
 Ptychopleurites	Ptychopleura brevifrons KOBAYASHI, 1936a	KOBAYASHI, 1936b	Jones Ridge Lst, E Alaska, USA	PAGODIIDAE	UCAM	[replacement name for Ptychopleura]
 Ptychopyge	Asaphus angustifronsDALMAN, 1827	ANGELIN, 1854	Ostergotland, Sweden	ASAPHIDAE	LORD	
@@ -4080,7 +4080,7 @@ Rasettaspis	francoi	IVSHIN, 1962	Seletinsky Horizon, Kazakhstan	ILLAENURIDAE	UCA
 Rasettia	Bathyurus capax BILLINGS, 1860b	LOCHMAN, 1953a	Levis Fm, Quebec, Canada	ILLAENURIDAE	UCAM	[replacement name for Platycolpus]
 Ratinkaspis	Cheirurus bifurcatus BARRANDE, 1852	PŘIBYL & VANK, 1977	Lite. Fm, Czech Republic	CHEIRURIDAE	LSIL	
 Rawlinsella	Acrocephalites? glomeratus WALCOTT, 1916a	SHAW, 1956a	Buck Spring Fm, Wyoming, USA	BOLASPIDIDAE	MCAM	
-Rawops	dubius	HUPE, 1953a	Amouslek Fm, Morocco	SAUKIANDIDAE	LCAM	[j.s.s. of Perrector, fide W. ZHANG et al., 1997]
+Rawops	dubius	HUPÉ, 1953a	Amouslek Fm, Morocco	SAUKIANDIDAE	LCAM	[j.s.s. of Perrector, fide W. ZHANG et al., 1997]
 Raymondarges	reporyjensis	PHLEGER, 1937b	Lite. Fm, Czech Republic	LICHIDAE	LSIL	[j.s.s. of Dicranopeltis, fide TRIPP, 1957]
 Raymondaspis	Holometopus limbatus ANGELIN, 1854	PŘIBYL in PRANTL & PŘIBYL, 1949b	Scania, Sweden	STYGINIDAE	MORD	
 Raymondella	Ampyx? macconochiei ETHERIDGE & NICHOLSON in NICHOLSON & ETHERIDGE, 1880	REED, 1935	Balclatchie Fm, Scotland	RAPHIOPHORIDAE	UORD	
@@ -4154,17 +4154,17 @@ Richardsonella	Dikelocephalus megalops BILLINGS, 1860b	RAYMOND, 1924	Levis Fm, Q
 Richterarges	Lichas (Dicranogmus) ptyonurus HALL & CLARKE, 1888	PHLEGER, 1936	Cobleskill Lst, New York, USA	LICHIDAE	USIL	
 Richteraspis	Proetus (Euproetus) bi-vallatus RICHTER, 1913	ALBERTI, 1969	Adorf Lst (Manti-coceras.Stufe), Oberscheld, Rhenish Massif, Germany	TROPIDOCORYPHIDAE	UDEV	
 Richterella	snakedenensis	HESSLER, 1965	Chou-teau Lst, Missouri, USA	PROETIDAE	MISS	
-Richterops	falloti	HUPE, 1953a	Amouslek Fm, Morocco	SAUKIANDIDAE	LCAM	
+Richterops	falloti	HUPÉ, 1953a	Amouslek Fm, Morocco	SAUKIANDIDAE	LCAM	
 Rimouskia	typica	RESSER, 1938b	Levis Fm, Quebec, Canada	SOLENOPLEURIDAE	LCAM	
 Rina	Solenopleura copa SIVOV, 1940	POLETAEVA in ROZOVA, 1964	Saarmsk Horizon, Sayan Altay Belt, Russia	SOLENOPLEURIDAE	MCAM	
 Rinconaspis	santiaguensis	BALDIS & GONZALEZ, 1981	Rincon Fm, Santiago del Estro, Argentina	ODONTOPLEURIDAE	LDEV	
-Rinconia	Protolenus schneideri RICHTER & RICHTER, 1941a	HUPE, 1953a	Herrerias Marl, Spain	ELLIPSOCEPHALIDAE	LCAM	
+Rinconia	Protolenus schneideri RICHTER & RICHTER, 1941a	HUPÉ, 1953a	Herrerias Marl, Spain	ELLIPSOCEPHALIDAE	LCAM	
 Rinella	multifaria	POLETAEVA & EGOROVA in EGOROVA & SAVITSKY, 1969	Suludinsk Fm, Mayaian, N Siberia, Russia	LISANIIDAE	MCAM	
 Ritella	plena	KHRAMOVA & PEGEL in PEGEL & KHRAMOVA, 1985	Ayusokkansk Stage, N Siberia, Russia	DOKIMOCEPHALIDAE	UCAM	
 Robergia	Remopleurides micro-phthalmus LINNARSSON, 1875	WIMAN, 1905	Anderson Sh, Jamtland, Sweden	REMOPLEURIDIDAE	MORD	
-Robergiella	sagittalis	WHITTINGTON, 1959	Edin-burg Lst, Virginia, USA	REMOPLEURIDIDAE	UORD	
+Robergiella	sagittalis	WHITTINGTON, 1959	Edinburg Lst, Virginia, USA	REMOPLEURIDIDAE	UORD	
 Robroyia	andersoni	LAMONT, 1975	Leny Lst, Scotland	UNCERTAIN	LCAM	
-Rogersvillia	Genevievella rogers-villensis RESSER, 1938b	HUPE, 1955	Nolichucky Fm, Virginia, USA	LLANOASPIDIDAE	UCAM	
+Rogersvillia	Genevievella rogers-villensis RESSER, 1938b	HUPÉ, 1955	Nolichucky Fm, Virginia, USA	LLANOASPIDIDAE	UCAM	
 Roksaspis	turbinella	LUDVIGSEN & WESTROP in LUDVIGSEN et al., 1989	Shallow Bay Fm, Newfoundland, Canada	PARABOLINOIDIDAE	UCAM	
 Rokycania	Barrandeia sic	PŘIBYL & VANĚK, 1965	primula HOLUB, 1912] Klabava Fm, Czech Republic	NILEIDAE	LMORD.	[j.s.s. of Illaenopsis, fide FORTEY & OWENS, 1987]
 Rokycanocoryphe	Phas-eolops krafti ŠNAJDR, 1983a	PŘIBYL & VANK, 1987	.arka Fm, Czech Republic	TROPIDOCORYPHIDAE	MORD	
@@ -4236,7 +4236,7 @@ Sarrabesia	teichmuelleri	HAMMANN & LEONE, 1997	Punta Serpeddi Fm, Sardinia, Ital
 Saryaspis	micrinatus	LISOGOR, 1997	Maidansk Fm, E. Kazakhstan	DORYPYGIDAE	MCAM	
 Saukia	Dikelocephalus lodensis WHITFIELD, 1880	WALCOTT, 1914a	Saint Lawrence Fm, Wisconsin, USA	SAUKIIDAE	UCAM	
 Saukianda	an-dalusiae	RICHTER & RICHTER, 1940	Alanis Sh, Spain	SAUKIANDIDAE	LCAM	
-Saukiandops	Redlichia walcotti MANSUY, 1912	HUPE, 1953a	Chiungchussu Fm, Yunnan, China	REDLICHIIDAE	LCAM	[j.s.s. of Eoredlichia, fide W. ZHANG et al., 1997]
+Saukiandops	Redlichia walcotti MANSUY, 1912	HUPÉ, 1953a	Chiungchussu Fm, Yunnan, China	REDLICHIIDAE	LCAM	[j.s.s. of Eoredlichia, fide W. ZHANG et al., 1997]
 Saukiella	typicalis	ULRICH & RESSER, 1933	St Lawrence Fm, Minnesota, USA	SAUKIIDAE	UCAM	
 Saukioides	Pseudosaukia suni KOBAYASHI, 1951a	KOBAYASHI, 1952	Fengshan Fm, Liaoning, China	PTYCHASPIDIDAE	UCAM	[replacement name for Pseudosaukia KOBAYASHI]
 Sayanella	Klotziella poletaevae LERMONTOVA, 1940	POKROVSKAYA, 1959	Shangansky Fm, Tuva, Russia	DINESIDAE	LCAM	[j.s.s. of Botomella, fide SUVOROVA, 1960]
@@ -4309,7 +4309,7 @@ Senticucullus	elegans	XIA in W. ZHANG, 1974	Xiushan Fm, Jiangxi, China	ENCRINURI
 Septidenta	Acanthopyge (Septidenta) bogdanovi	MAKSIMOVA, 1975	Karaespinsk Fm, Kazakhstan	LICHIDAE	LDEV	[j.s.s. of Radiolichas, fide THOMAS & HOLLOWAY, 1988]
 Septimopeltis	Bronteus clementinus BARRANDE, 1872	PŘIBYL & VAN#, 1972	Daleje Sh, Czech Republic	STYGINIDAE	MDEV	
 Seriaspis	parvula	KOROBOV, 1989	Burgasutaisky Fm, W Mongolia	PTYCHOPARIIDAE	LCAM	
-Serrania	verae	LINAN, 1978	Pedroche Fm, Cordoba, Spain	BIGOTINIDAE	LCAM	
+Serrania	verae	LIÑÁN, 1978	Pedroche Fm, Cordoba, Spain	BIGOTINIDAE	LCAM	
 Serrodiscus	serratus	RICHTER & RICHTER, 1941a	Herrerias Marl, Spain	WEYMOUTHIIDAE	LCAM	
 Sestrostega	tosta	ÖPIK, 1982	Beetle Creek Fm, Queensland, Australia	DOLICHOMETOPIDAE	MCAM	
 Severina	parmata	EGOROVA in EGOROVA & SAVITSKY, 1969	Suludinsk Fm, Mayaian, N Siberia, Russia	PROASAPHISCIDAE	MCAM	
@@ -4348,7 +4348,7 @@ Shuizuia	laevigata	LU & ZHOU, 1990	Maotian Fm, Guizhou, China	KINGSTONIIDAE	UCAM
 Shumardella		PŘIBYL & VANK, 1980				[preocc., replaced by Shumardoella]
 Shumardia	granulosa	BILLINGS, 1862	Shumardia Lst, Quebec, Canada	SHUMARDIIDAE	MORD	
 Shumardoella	Shumardia bohemica MAREK, 1964	PEK & VANK, 1989	Dobrotiva Fm, Czech Republic	SHUMARDIIDAE	MORD	[replacement name for Shumardella]
-Shumardops	Shumardia longifrons TROEDSSON, 1937	HUPE, 1955	Charchaq Fm, Xinjiang, China	SHUMARDIIDAE	LORD	
+Shumardops	Shumardia longifrons TROEDSSON, 1937	HUPÉ, 1955	Charchaq Fm, Xinjiang, China	SHUMARDIIDAE	LORD	
 Sibiriaspis	chomentovskii	REPINA in KHALFIN, 1960	Bazaikh Horizon, Kuznetsk Alatau, Russia	ABADIELLIDAE	LCAM	
 Sibiriopleura	Rhadinopleura (Sibiriopleura) picta	PETRUNINA, 1973	Taimensk Fm, Kuznetsk Alatau, W Siberia, Russia	ALSATASPIDIDAE	LORD	
 Sibiroproetus	Pseudoproetus bellus MAKSIMOVA, 1961	PŘIBYL, 1970	Wilujskoje Plateau, Siberia, Russia	PROETIDAE	LSIL	[j.s.s. of Astroproetus, fide OWENS, 1973b]
@@ -4399,7 +4399,7 @@ Sneedvillia	typicalis	RESSER, 1938b	Nolichucky Fm, Tennessee, USA	CREPICEPHALIDA
 Snoderaspis	Dudleyaspis (Snoderaspis) krausi	RAMSKOLD, 1984	Eke Fm, Gotland, Sweden	ODONTOPLEURIDAE	USIL	[j.s.s. of Taemasaspis, fide ADRAIN, herein]
 Sobovaspis	tuberculata	DEAN, 1973	Sobova Fm, Turkey	LEIOSTEGIIDAE	LORD	
 Sohopleura	drakensis	JAGO & WEBERS, 1992	Drake Icefall Fm, Antarctica	SOLENOPLEURIDAE	MCAM	
-Sokhretia	Dalmanites solitaria BARRANDE, 1852	HUPE in CHOUBERT et al., 1956	Zhahorany Fm, Czech Republic	ACASTIDAE	UORD	
+Sokhretia	Dalmanites solitaria BARRANDE, 1852	HUPÉ in CHOUBERT et al., 1956	Zhahorany Fm, Czech Republic	ACASTIDAE	UORD	
 Solariproetus	triangularis	QU, 1986	Shichengzi Fm, Qinghai, China	RORRINGTONIIDAE	UORD	
 Solenagnostus	Agnostus longifrons NICHOLAS, 1915	WHITEHOUSE, 1936	Upper Caered Mdst Fm, Wales	PTYCHAGNOSTIDAE	MCAM	[j.s.s. of Triplagnostus, fide SHERGOLD et al., 1990]
 Solenoparia	Ptychoparia (Liostracus) toxeus WALCOTT, 1905	KOBAYASHI, 1935c	Hsuchuang Fm, Shandong, China	SOLENOPLEURIDAE	MCAM	
@@ -4583,7 +4583,7 @@ Tamdaspis	tamdensis	LISOGOR, 1977a	Shabaktin Fm, Kazakhstan	CERATOPYGIDAE	UCAM
 Tangbailaspis	beijiangensis	XIANG & ZHANG in T. ZHANG, 1983	Tangbai, Xinjiang, China	PHACOPIDAE	LDEV	
 Tangjiaella	bilira	QIU in QIU et al., 1983	Tangcun Fm, Anhui, China	KAOLISHANIIDAE	UCAM	
 Tangshanaspis	zhaogezhuangensis	ZHOU & ZHANG, 1978	Fengshan Fm, Hebei, China	MISSISQUOIIDAE	UCAM	[j.s.s. of Missisquoia (=Parakoldinioidia), fide LUDVIGSEN, 1982]
-Tangshihella	Bailiella ulrichi RESSER & ENDO, 1937	HUPE, 1953c	Hsuchuang Fm, Liaoning, China	CONOCORYPHIDAE	MCAM	[j.s.s. of Bailiella, fide W. ZHANG & JELL, 1987]
+Tangshihella	Bailiella ulrichi RESSER & ENDO, 1937	HUPÉ, 1953c	Hsuchuang Fm, Liaoning, China	CONOCORYPHIDAE	MCAM	[j.s.s. of Bailiella, fide W. ZHANG & JELL, 1987]
 Tangshihlingia	subtriangulata	ZHU, 1959	Kushan Fm, Liaoning, China	DICERATOCEPHALIDAE	UCAM	
 Tangwangzhaia	tangwangzhaiensis	M. ZHANG & PENG, 1998	Changshan Fm, Shandong, China	SOLENOPLEURIDAE	UCAM	
 Tangyaia	scutelloides	LU in LU et al., 1974a	Miaopo Fm, Hubei, China	ASAPHIDAE	UORD	[j.s.s. of Lisogorites, fide ZHOU et al., 1995]
@@ -4633,7 +4633,7 @@ Teratokoptura	decora	XIANG & ZHANG, 1985	Kensay Fm, Xinjiang, China	PROASAPHISCI
 Teratorhynchus	Remopleurides (Teratorhynchus) bicornis	REED, 1903	Balclatchie Fm, Scotland	REMOPLEURIDIDAE	UORD	
 Terechtaspis	coronaria	REPINA, 1960	Kameshkov Fm, E Sayan, Russia	CHENGKOUASPIDIDAE	LCAM	
 Termieraspis	poletaevae	REPINA, 1960	Kolbinsk Fm, E Sayan, Russia	ELLIPSOCEPHALIDAE	LCAM	
-Termierella	latifrons	HUPE, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
+Termierella	latifrons	HUPÉ, 1953a	Issafen Fm, Morocco	ELLIPSOCEPHALIDAE	LCAM	
 Terranovella	obscura	LOCHMAN, 1938b	Shallow Bay Fm, W Newfoundland, Canada	LONCHOCEPHALIDAE	UCAM	
 Terranovia	nalivkini	MAKSIMOVA, 1977a	Valnevsk Horizon, Novaya Zemlya, N Siberia, Russia	LICHIDAE	LDEV	
 Tersella	strobilata	PETRUNINA, 1973	Taimensk Fm, Kuznetsk Alatau, W Siberia, Russia	HYSTRICURIDAE	LORD	
@@ -4662,7 +4662,7 @@ Thomastus	thomastus	ÖPIK, 1953	Wapentake Fm, Victoria, Australia	STYGINIDAE	LSI
 Thomondia	globosa	HARPER, 1942	Ballyvorgal Group, Ireland	SHUMARDIIDAE	UORD	
 Thompsonaspis	obscura	DEISS, 1939	Steamboat Lst, Montana, USA	ALOKISTOCARIDAE	MCAM	[j.s.s. of Parehmania, fide HOWELL in MOORE, 1959]
 Thoracocare	Vistoia ? minuta RESSER, 1939a	ROBISON & CAMPBELL, 1974	Spence Sh, Idaho, USA	ZACANTHOIDIDAE	MCAM	
-Thoralaspis	Olenopsis thorali COBBOLD, 1931b	HUPE, 1953a	Montagne Noire, France	ELLIPSOCEPHALIDAE	LCAM	
+Thoralaspis	Olenopsis thorali COBBOLD, 1931b	HUPÉ, 1953a	Montagne Noire, France	ELLIPSOCEPHALIDAE	LCAM	
 Thoralocolus	Aegalina azaizi THORAL, 1935	PILLET & COURTESSOLE, 1985	Montagne Noire, France	ISOCOLIDAE	LORD	
 Thoralocoryphe	escudiei	COURTESSOLE, PILLET & VIZCAINO in COURTESSOLE et al., 1983	Schistes de Landeyran, Montagne Noire, France	CALYMENIDAE	LORD	[j.s.s. of Col-pocoryphe, fide COURTESSOLE et al., 1991]
 Thorslundops	Harpes dalecarlicus THORSLUND, 1930	PŘIBYL & VANK, 1981b	Boda Lst, Dalarne, Sweden	HARPETIDAE	MORD	[j.s.s. of Hibbertia, fide EBACH & McNAMARA, 2002]
@@ -5048,7 +5048,7 @@ Yorkella	Conocephalites australis WOODWARD, 1884b	KOBAYASHI, 1942e	Parara Lst, S
 Yosimuraspis	vulgaris	KOBAYASHI, 1960a	Bankoku Fm, South Korea	REMOPLEURIDIDAE	LORD	
 Youngia	Cheirurus trispinosus YOUNG, 1868	LINDSTROM, 1885	Wood Burn Fm, Scotland	CHEIRURIDAE	LSIL	
 Yoyarria	puelchana	RUSCONI, 1955b	Mendoza, Argentina	UNCERTAIN	ORD	
-Yuehsienszeella	Ptychoparia szechuanensis SUN in LU, 1939	W. ZHANG in LU et al., 1963	Tsanglangpu Fm, Yunnan, China	ANTAGMIDAE	LCAM	
+Yuehsienszella	Ptychoparia szechuanensis SUN in LU, 1939	W. ZHANG in LU et al., 1963	Tsanglangpu Fm, Yunnan, China	ANTAGMIDAE	LCAM	
 Yuepingia	niobiformis	LU, 1956	Guizhou, China	CERATOPYGIDAE	UCAM	[j.s.s. of Haniwoides, fide HUGHES & RUSHTON, 1990]
 Yuepingioides	parallelus	LU & LIN, 1984	Si-yangshan Fm, Zhejiang, China	?ASAPHIDAE	UCAM	
 Yujinia	magna	ZHANG & YUAN in W. ZHANG et al., 1980b	Changhia Fm, Shanxi, China	PROASAPHISCIDAE	MCAM	

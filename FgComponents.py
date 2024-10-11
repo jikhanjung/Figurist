@@ -1,14 +1,15 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QTreeView, QSizePolicy, QHeaderView, QLabel, QInputDialog, QSpinBox
-from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QRect, QSize, QMargins, QObject, QEvent, QMimeData, pyqtSignal
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QTreeView, QSizePolicy, QHeaderView, QLabel, QInputDialog, QSpinBox, QComboBox
+from PyQt5.QtCore import Qt, QAbstractTableModel, QModelIndex, QRect, QSize, QMargins, QObject, QEvent, QMimeData, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen, QFont, QMouseEvent, QWheelEvent, QPainter, QDrag, QImage, QColor
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QStyleOptionViewItem, QListView, QStackedWidget, QAbstractItemView
 import time, math
 from PyQt5.QtCore import QByteArray
-from FgModel import FgCollection, FgReference
+from FgModel import FgCollection, FgReference, FgTreeOfLife
 import ollama
 from abc import ABC, abstractmethod
 from openai import OpenAI, OpenAIError # Import the error class directly
-
+import operator
+from functools import reduce
 import fitz
 import os
 from pyzotero import zotero
@@ -19,6 +20,7 @@ from types import SimpleNamespace
 import re
 import requests
 import ssl
+from peewee import *
 
 logger = logging.getLogger(__name__)
 
@@ -1140,3 +1142,80 @@ class PDFViewWidget(QWidget):
 
         self.update()
 
+class SearchableComboBox(QComboBox):
+    entrySelected = pyqtSignal(object)  # Signal to emit when an entry is selected
+
+    def __init__(self, parent=None):
+        super(SearchableComboBox, self).__init__(parent)
+        
+        self.setEditable(True)
+        self.setInsertPolicy(QComboBox.NoInsert)
+        self.setMaxVisibleItems(10)
+        
+        completer = self.completer()
+        completer.setCompletionMode(completer.PopupCompletion)
+        completer.setFilterMode(Qt.MatchContains)
+        completer.setCaseSensitivity(Qt.CaseInsensitive)
+
+        self.model = QStandardItemModel()
+        self.setModel(self.model)
+
+        self.current_entry = None
+        self._skip_search = False
+
+        self.lineEdit().textEdited.connect(self.on_text_changed)
+        self.activated.connect(self.on_item_selected)
+
+    @pyqtSlot(str)
+    def on_text_changed(self, text):
+        if len(text) == 0:
+            self.setEntry(None)
+            
+        if self._skip_search or len(text) < 2:
+            return
+        
+        self._skip_search = True
+        self.model.clear()
+        
+        if text:
+            results = self.search_fg_tree_of_life(text)
+            for result in results:
+                item = QStandardItem(f"{result.rank} {result.name}")
+                item.setData(result, Qt.UserRole)
+                self.model.appendRow(item)
+        
+        self.setCurrentIndex(-1)
+        self.setEditText(text)
+        #
+        self._skip_search = False
+
+    def search_fg_tree_of_life(self, search_term):
+        search_term = search_term.lower()
+        fields_to_search = [
+            FgTreeOfLife.name,
+        ]
+        
+        query = FgTreeOfLife.select()
+        conditions = [fn.Lower(field).contains(search_term) for field in fields_to_search]
+        query = query.where(reduce(operator.or_, conditions))
+        return query.limit(50)  # Limit results to prevent performance issues
+    
+    def setEntry(self, entry):
+        if entry is None:
+            self.current_entry = None
+            self.setCurrentText('')            
+            return
+        self._skip_search = True
+        self.setCurrentText(f"{entry.rank} {entry.name}")
+        self.current_entry = entry
+        self._skip_search = False
+
+    @pyqtSlot(int)
+    def on_item_selected(self, index):
+        if index >= 0:
+            item = self.model.item(index)
+            self.current_entry = item.data(Qt.UserRole)
+            self.entrySelected.emit(self.current_entry)
+
+    def getCurrentEntry(self):
+        return self.current_entry

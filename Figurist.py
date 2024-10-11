@@ -27,7 +27,7 @@ import time
 logger = setup_logger(fg.PROGRAM_NAME)
 
 ICON = {'new_reference': 'icons/new_reference.png', 'about': 'icons/about.png', 'exit': 'icons/exit.png', 'preferences': 'icons/preferences.png',
-        'new_collection': 'icons/new_collection.png', 'reference': 'icons/reference.png' , 'collection': 'icons/collection.png',
+        'new_collection': 'icons/new_collection.png', 'reference': 'icons/reference.png' , 'collection': 'icons/collection.png', 'TOL': 'icons/TOL_2.png',
         'reference_zotero': 'icons/reference_zotero.png', 'collection_zotero': 'icons/collection_zotero.png', 'import_collection': 'icons/import_collection.png',} 
 
 class FiguristMainWindow(QMainWindow):
@@ -178,11 +178,12 @@ class FiguristMainWindow(QMainWindow):
         self.actionAbout.setShortcut(QKeySequence("F1"))
         self.actionPreferences = QAction(QIcon(fg.resource_path(ICON['preferences'])),self.tr("Preferences"), self)
         self.actionPreferences.triggered.connect(self.on_action_preferences_triggered)
-        self.actionTOL = QAction(QIcon(fg.resource_path(ICON['preferences'])),self.tr("TOL"), self)
+        self.actionTOL = QAction(QIcon(fg.resource_path(ICON['TOL'])),self.tr("TreeOfLife"), self)
         self.actionTOL.triggered.connect(self.on_action_TOL_triggered)
 
         self.toolbar.addAction(self.actionNewCollection)
         self.toolbar.addAction(self.actionNewReference)
+        self.toolbar.addAction(self.actionTOL)
         self.toolbar.addAction(self.actionPreferences)
         self.toolbar.addAction(self.actionAbout)
         self.addToolBar(self.toolbar)

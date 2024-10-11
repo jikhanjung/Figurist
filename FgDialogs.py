@@ -2580,12 +2580,94 @@ class ImportCollectionDialog(QDialog):
     def on_btn_cancel_clicked(self):
         self.reject()
 
+class TOLNodeDialog(QDialog):
+    def __init__(self, node, parent=None):
+        super(TOLNodeDialog, self).__init__(parent)
+        self.m_app = parent
+        self.node = node
+        self.setWindowTitle(self.tr("Edit TOL Node"))
+        self.resize(400, 300)
+        self.init_ui()
+
+    def init_ui(self):
+        self.form_layout = QFormLayout()
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        self.lblName = QLabel(self.tr("Name"))
+        self.edtName = QLineEdit()
+        self.edtName.setText(self.node.name)
+        self.form_layout.addRow(self.lblName, self.edtName)
+
+        self.lblRank = QLabel(self.tr("Rank"))
+        self.edtRank = QLineEdit()
+        self.edtRank.setText(self.node.rank)
+        self.form_layout.addRow(self.lblRank, self.edtRank)
+
+        self.lblAuthor = QLabel(self.tr("Author"))
+        self.edtAuthor = QLineEdit()
+        self.edtAuthor.setText(self.node.author)
+        self.form_layout.addRow(self.lblAuthor, self.edtAuthor)
+
+        self.lblComments = QLabel(self.tr("Comments"))
+        self.edtComments = QLineEdit()
+        self.edtComments.setText(self.node.comments)
+        self.form_layout.addRow(self.lblComments, self.edtComments)
+
+        self.lblSource = QLabel(self.tr("Source"))
+        self.edtSource = QLineEdit()
+        self.edtSource.setText(self.node.source)
+        self.form_layout.addRow(self.lblSource, self.edtSource)
+
+        self.lblCommonName = QLabel(self.tr("Common Name"))
+        self.edtCommonName = QLineEdit()
+        self.edtCommonName.setText(self.node.common_name)
+        self.form_layout.addRow(self.lblCommonName, self.edtCommonName)
+
+        self.lblRedirectTo = QLabel(self.tr("Redirect To"))
+        self.edtRedirectTo = SearchableComboBox()
+        self.edtRedirectTo.setEntry(self.node.redirect_to)
+        self.form_layout.addRow(self.lblRedirectTo, self.edtRedirectTo)
+
+        self.lblRedirectReason = QLabel(self.tr("Redirect Reason"))
+        self.edtRedirectReason = QLineEdit()
+        self.edtRedirectReason.setText(self.node.redirect_reason)
+        self.form_layout.addRow(self.lblRedirectReason, self.edtRedirectReason)
+
+        self.button_layout = QHBoxLayout()
+        self.btnSave = QPushButton(self.tr("Save"))
+        self.btnSave.clicked.connect(self.on_btn_save_clicked)
+        self.button_layout.addWidget(self.btnSave)
+
+        self.btnCancel = QPushButton(self.tr("Cancel"))
+        self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
+        self.button_layout.addWidget(self.btnCancel)
+
+        self.main_layout.addLayout(self.form_layout)
+        self.main_layout.addLayout(self.button_layout)
+
+    def on_btn_save_clicked(self):
+        self.node.name = self.edtName.text()
+        self.node.rank = self.edtRank.text()
+        self.node.author = self.edtAuthor.text()
+        self.node.comments = self.edtComments.text()
+        self.node.source = self.edtSource.text()
+        self.node.common_name = self.edtCommonName.text()
+        self.node.redirect_to = self.edtRedirectTo.getCurrentEntry()
+        self.node.redirect_reason = self.edtRedirectReason.text()
+        #print("redirect:", self.node.redirect_to)
+        self.accept()
+
+    def on_btn_cancel_clicked(self):
+        self.reject()
+
 class TOLDialog(QDialog):
     def __init__(self, parent=None):
         super(TOLDialog, self).__init__(parent)
         self.m_app = parent
+        self.setWindowIcon(QIcon(fg.resource_path('icons/TOL.png')))
         self.setWindowTitle(self.tr("Tree of Life"))
-        self.resize(400, 300)
+        self.resize(800, 600)
         self.read_settings()
         self.init_ui()
 
@@ -2594,23 +2676,44 @@ class TOLDialog(QDialog):
         self.setLayout(self.layout)
 
         self.treeTOL = QTreeView()
+        self.treeTOL.setHeaderHidden(True)
         self.layout.addWidget(self.treeTOL)
+
+        self.button_layout = QHBoxLayout()
 
         self.btnImport = QPushButton(self.tr("Import"))
         self.btnImport.clicked.connect(self.on_btn_import_clicked)
-        self.layout.addWidget(self.btnImport)
+        self.button_layout.addWidget(self.btnImport)
 
         self.btnExport = QPushButton(self.tr("Export"))
         self.btnExport.clicked.connect(self.on_btn_export_clicked)
-        self.layout.addWidget(self.btnExport)
+        self.button_layout.addWidget(self.btnExport)
 
         self.btnCancel = QPushButton(self.tr("Cancel"))
         self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
-        self.layout.addWidget(self.btnCancel)
+        self.button_layout.addWidget(self.btnCancel)
+        self.layout.addLayout(self.button_layout)
+
+        # double click tree item to edit entry
+        self.treeTOL.setEditTriggers(QTreeView.NoEditTriggers)
+        self.treeTOL.doubleClicked.connect(self.on_tree_double_clicked)
 
         # load tree
         self.load_tree()
     
+    def on_tree_double_clicked(self, index):
+        item = self.treeTOL.model().itemFromIndex(index)
+        node = item.data()
+        if not node:
+            return
+
+        dialog = TOLNodeDialog(node, self)
+        if dialog.exec_():
+            # update node
+            node.save()
+            # update tree
+            self.load_tree()
+
     def load_tree(self):
         # load FgTreeOfLife into treeview
         # create a model
@@ -2650,9 +2753,38 @@ class TOLDialog(QDialog):
         pass
 
     def on_btn_import_clicked(self):
-        directory = QFileDialog.getExistingDirectory(self, self.tr("Select TOL data file"))
-        if directory:
-            self.edtCollection.setText(directory)
+        # get filename
+        open_file_name = QFileDialog.getOpenFileName(self, self.tr("Open TOL data file"), "", "JSON Files (*.json)")
+        if not open_file_name or open_file_name[0] == "":
+            return
+        
+        # read json file
+        with open(open_file_name[0], 'r', encoding='utf-8') as f:
+            tree = json.load(f)
+
+        # wait cursor
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        with gDatabase.atomic():
+            self.import_tree(tree)
+        # restore cursor
+        QApplication.restoreOverrideCursor()
+        self.load_tree()
+
+    def import_tree(self, tree, parent=None):
+        for item in tree:
+            node = FgTreeOfLife()
+            node.name = item["name"]
+            node.rank = item["rank"]
+            node.author = item["author"]
+            node.comments = item["comments"]
+            node.source = item["source"]
+            node.common_name = item["common_name"]
+            node.redirect_reason = item["redirect_reason"]
+            node.save()
+            if parent:
+                node.parent = parent
+                node.save()
+            self.import_tree(item["children"], node)
 
     def on_btn_export_clicked(self):
 

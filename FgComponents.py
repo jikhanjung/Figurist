@@ -1161,6 +1161,7 @@ class SearchableComboBox(QComboBox):
         self.setModel(self.model)
 
         self.current_entry = None
+        self.current_rank = None
         self._skip_search = False
 
         self.lineEdit().textEdited.connect(self.on_text_changed)
@@ -1174,11 +1175,15 @@ class SearchableComboBox(QComboBox):
         if self._skip_search or len(text) < 2:
             return
         
+        rank = self.current_rank if self.current_rank is not None else None
+        #rank = self.current_entry.rank if self.current_entry is not None else None
+        
         self._skip_search = True
         self.model.clear()
         
         if text:
-            results = self.search_fg_tree_of_life(text)
+            #print("search_fg_tree_of_life:", text, rank)
+            results = self.search_fg_tree_of_life(text, rank)
             for result in results:
                 item = QStandardItem(f"{result.rank} {result.name}")
                 item.setData(result, Qt.UserRole)
@@ -1189,7 +1194,7 @@ class SearchableComboBox(QComboBox):
         #
         self._skip_search = False
 
-    def search_fg_tree_of_life(self, search_term):
+    def search_fg_tree_of_life(self, search_term, rank=None):
         search_term = search_term.lower()
         fields_to_search = [
             FgTreeOfLife.name,
@@ -1198,9 +1203,15 @@ class SearchableComboBox(QComboBox):
         query = FgTreeOfLife.select()
         conditions = [fn.Lower(field).contains(search_term) for field in fields_to_search]
         query = query.where(reduce(operator.or_, conditions))
+        if rank is not None:
+            query = query.where(FgTreeOfLife.rank == rank)
+        #print("query:", query)
         return query.limit(50)  # Limit results to prevent performance issues
     
-    def setEntry(self, entry):
+    def setEntry(self, entry, rank=None):
+        #print("setEntry:", entry, rank)
+        if rank is not None:
+            self.current_rank = rank
         if entry is None:
             self.current_entry = None
             self.setCurrentText('')            

@@ -1,4 +1,4 @@
-Clade Archaeocyata	Vologdin, 1937
+Clade Archaeocyatha	Vologdin, 1937
   Family Ajacicyathidae	Bedford & Bedford, 1939
     Genus Aldanocyathus	Voronin, 1971
     Genus Neoloculicyathus	Voronin, 1974

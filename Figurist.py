@@ -1029,6 +1029,8 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
         router.run()
 
         # prepare initial trilobite data
+        return
+
         trilobite_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Trilobite").count()
         #print("trilobite count:", trilobite_count)
         if trilobite_count == 0:

@@ -2609,10 +2609,20 @@ class TOLNodeDialog(QDialog):
         self.edtAuthor.setText(self.node.author)
         self.form_layout.addRow(self.lblAuthor, self.edtAuthor)
 
-        self.lblComments = QLabel(self.tr("Comments"))
-        self.edtComments = QLineEdit()
-        self.edtComments.setText(self.node.comments)
-        self.form_layout.addRow(self.lblComments, self.edtComments)
+        self.lblYear = QLabel(self.tr("Year"))
+        self.edtYear = QLineEdit()
+        self.edtYear.setText(self.node.year)
+        self.form_layout.addRow(self.lblYear, self.edtYear)
+
+        self.lblLocality = QLabel(self.tr("Locality"))
+        self.edtLocality = QLineEdit()
+        self.edtLocality.setText(self.node.locality)
+        self.form_layout.addRow(self.lblLocality, self.edtLocality)
+
+        self.lblAge = QLabel(self.tr("Age"))
+        self.edtAge = QLineEdit()
+        self.edtAge.setText(self.node.age)
+        self.form_layout.addRow(self.lblAge, self.edtAge)
 
         self.lblSource = QLabel(self.tr("Source"))
         self.edtSource = QLineEdit()
@@ -2626,13 +2636,19 @@ class TOLNodeDialog(QDialog):
 
         self.lblRedirectTo = QLabel(self.tr("Redirect To"))
         self.edtRedirectTo = SearchableComboBox()
-        self.edtRedirectTo.setEntry(self.node.redirect_to)
+        self.edtRedirectTo.setEntry(self.node.redirect_to, self.node.rank)
+        #print("redirect to:", self.node.redirect_to, self.node.rank)
         self.form_layout.addRow(self.lblRedirectTo, self.edtRedirectTo)
 
         self.lblRedirectReason = QLabel(self.tr("Redirect Reason"))
         self.edtRedirectReason = QLineEdit()
         self.edtRedirectReason.setText(self.node.redirect_reason)
         self.form_layout.addRow(self.lblRedirectReason, self.edtRedirectReason)
+
+        self.lblComments = QLabel(self.tr("Comments"))
+        self.edtComments = QLineEdit()
+        self.edtComments.setText(self.node.comments)
+        self.form_layout.addRow(self.lblComments, self.edtComments)
 
         self.button_layout = QHBoxLayout()
         self.btnSave = QPushButton(self.tr("Save"))
@@ -2763,27 +2779,51 @@ class TOLDialog(QDialog):
             tree = json.load(f)
 
         # wait cursor
+        self.synonym_list = []
         QApplication.setOverrideCursor(Qt.WaitCursor)
         with gDatabase.atomic():
             self.import_tree(tree)
+        for synonym in self.synonym_list:
+            node = FgTreeOfLife.select().where(FgTreeOfLife.name == synonym[0], FgTreeOfLife.rank == synonym[1]).first()
+            redirect_to = FgTreeOfLife.select().where(FgTreeOfLife.name == synonym[2], FgTreeOfLife.rank == synonym[1]).first()
+            if node and redirect_to:
+                node.redirect_to = redirect_to
+                node.redirect_reason = synonym[3]
+                node.save()
         # restore cursor
         QApplication.restoreOverrideCursor()
         self.load_tree()
 
     def import_tree(self, tree, parent=None):
         for item in tree:
-            node = FgTreeOfLife()
+            # check if node with same name and rank already exists
+            node = FgTreeOfLife.select().where(FgTreeOfLife.name == item["name"], FgTreeOfLife.rank == item["rank"]).first()
+            if not node:
+                node = FgTreeOfLife()
             node.name = item["name"]
             node.rank = item["rank"]
             node.author = item["author"]
+            if "year" in item and item["year"] != "":
+                node.year = item["year"]
+            else:
+                author_year = item["author"]
+                if author_year and "," in author_year:
+                    year = author_year.split(",")[-1].strip()
+                    # if year is 1974a format, then 1974
+                    if len(year) > 4 and year[-1].isalpha():
+                        year = year[:-1]
+                    node.year = year
+            node.locality = item["locality"] if "locality" in item else ""
+            node.age = item["age"] if "age" in item else ""
             node.comments = item["comments"]
             node.source = item["source"]
             node.common_name = item["common_name"]
-            node.redirect_reason = item["redirect_reason"]
-            node.save()
+            if "redirect_to" in item and item["redirect_to"] != "":
+                self.synonym_list.append([item["name"], item["rank"], item["redirect_to"], item["redirect_reason"]])
+            #node.redirect_reason = item["redirect_reason"]
             if parent:
                 node.parent = parent
-                node.save()
+            node.save()
             self.import_tree(item["children"], node)
 
     def on_btn_export_clicked(self):
@@ -2799,6 +2839,9 @@ class TOLDialog(QDialog):
                 "name": node.name,
                 "rank": node.rank if node.rank else "",
                 "author": node.author if node.author else "",
+                "year": node.year if node.year else "",
+                "locality": node.locality if node.locality else "",
+                "age": node.age if node.age else "",
                 "comments": node.comments if node.comments else "",
                 "redirect_to": node.redirect_to.name if node.redirect_to else "",
                 "redirect_reason": node.redirect_reason if node.redirect_reason else "",

@@ -1882,6 +1882,63 @@ class AddFiguresDialog(QDialog):
         for index in selection_model.selectedIndexes():
             self.tempModel.setData(index, value, Qt.EditRole)
 
+    def on_action_fill_sequence_triggered(self):
+        selected_cells = self.tempFigureView.selectedIndexes()
+        if len(selected_cells) == 0:
+            return
+        selected_cells.sort(key=lambda x: (x.row(), x.column()))
+        # make sure all the cells are in the column 1
+        # get column number of all the cells
+        column_numbers = [cell.column() for cell in selected_cells]
+        if len(set(column_numbers)) > 1:# or column_numbers[0] != 1:
+            return
+        
+        # get the first cell
+        first_cell = selected_cells[0]
+        first_row = first_cell.row()
+        column_0_index = self.tempFigureView.model().index(first_row, 0)
+        object_id = self.tempFigureView.model().data(column_0_index, Qt.DisplayRole)
+        sequence = self.tempFigureView.model().data(first_cell, Qt.DisplayRole)
+        try:
+            sequence = int(sequence)
+        except:
+            sequence = 1
+        # get user input
+
+        sequence, ok = QInputDialog.getInt(self, "Fill Sequence", "Enter starting sequence number", sequence)
+        if not ok:
+            return
+        # get increment
+        increment, ok = QInputDialog.getInt(self, "Fill Sequence", "Enter increment", 1)
+        if not ok:
+            return
+        # fill the sequence
+        for cell in selected_cells:
+            row = cell.row()
+            col = cell.column()
+            index = self.tempFigureView.model().index(row, col)
+            self.tempFigureView.model().setData(index, sequence, Qt.EditRole)
+            sequence += increment
+
+
+    def on_action_fill_value_triggered(self):
+        selection_model = self.tempFigureView.selectionModel()
+        if not selection_model.hasSelection():
+            return
+        selected_indices = self.tempFigureView.selectedIndexes()
+        if len(selected_indices) == 0:
+            return
+
+        first_index = selected_indices[0]
+        value = str(self.tempFigureView.model().data(first_index, Qt.DisplayRole))
+        value, ok = QInputDialog.getText(self, "Fill Values", "Enter value", text=value)
+        if not ok:
+            return
+        # fill the values
+        for index in selection_model.selectedIndexes():
+            self.tempModel.setData(index, value, Qt.EditRole)
+
+
     def move_up(self):
         #print("Move up")
         row = -1
@@ -1960,8 +2017,10 @@ class AddFiguresDialog(QDialog):
         menu = QMenu()
         paste_action = menu.addAction("Paste data")
         paste_action.triggered.connect(self.paste_to_table)
-        fill_action = menu.addAction("Fill Cells")
-        fill_action.triggered.connect(self.fill_selected_cells)
+        fill_action = menu.addAction(self.tr("Fill value"))
+        fill_action.triggered.connect(self.on_action_fill_value_triggered)
+        fill_sequence = menu.addAction(self.tr("Fill sequence"))
+        fill_sequence.triggered.connect(self.on_action_fill_sequence_triggered)
         delete_action = menu.addAction("Delete")
         delete_action.triggered.connect(self.on_delete_subfigure)
         menu.exec_(self.tempFigureView.viewport().mapToGlobal(pos))
@@ -2646,7 +2705,7 @@ class TOLNodeDialog(QDialog):
         self.form_layout.addRow(self.lblRedirectReason, self.edtRedirectReason)
 
         self.lblComments = QLabel(self.tr("Comments"))
-        self.edtComments = QLineEdit()
+        self.edtComments = QTextEdit()
         self.edtComments.setText(self.node.comments)
         self.form_layout.addRow(self.lblComments, self.edtComments)
 
@@ -2666,7 +2725,7 @@ class TOLNodeDialog(QDialog):
         self.node.name = self.edtName.text()
         self.node.rank = self.edtRank.text()
         self.node.author = self.edtAuthor.text()
-        self.node.comments = self.edtComments.text()
+        self.node.comments = self.edtComments.toPlainText()
         self.node.source = self.edtSource.text()
         self.node.common_name = self.edtCommonName.text()
         self.node.redirect_to = self.edtRedirectTo.getCurrentEntry()

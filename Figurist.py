@@ -138,6 +138,7 @@ class FiguristMainWindow(QMainWindow):
 
 
         self.referenceView.doubleClicked.connect(self.on_referenceView_doubleClicked)
+        self.taxonView.doubleClicked.connect(self.on_taxonView_doubleClicked)
         self.referenceView.setContextMenuPolicy(Qt.CustomContextMenu)
         self.referenceView.customContextMenuRequested.connect(self.open_referenceView_menu)
         self.taxonView.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -524,6 +525,22 @@ class FiguristMainWindow(QMainWindow):
         else:
             self.on_action_edit_collection_triggered()
 
+    def on_taxonView_doubleClicked(self):
+        if self.selected_taxa is not None:
+            self.on_action_edit_taxon_triggered()
+
+    def on_action_edit_taxon_triggered(self):
+        if self.selected_taxa is None or len(self.selected_taxa) == 0:
+            return
+        taxa = self.selected_taxa[0]
+        #print("edit reference:", taxa)
+        dialog = TaxonDialog(taxa, self)
+        #dialog.set_taxon(self.selected_taxa)
+        dialog.exec_()
+        self.reset_taxonView()
+        self.load_taxa()
+        #print("edit taxa done:", taxa)
+        self.select_taxon(taxa)
 
     def reset_referenceView(self):
         self.reference_model = QStandardItemModel()
@@ -1027,9 +1044,9 @@ THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
         # Auto-discover and run migrations
         router.run()
+        return
 
         # prepare initial trilobite data
-        return
 
         trilobite_count = FgTreeOfLife.select().where(FgTreeOfLife.common_name == "Trilobite").count()
         #print("trilobite count:", trilobite_count)

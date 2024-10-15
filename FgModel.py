@@ -276,7 +276,7 @@ def process_taxon_name(taxon_name, taxon_rank = "Species", reference_abbr = None
     comments = ""
     if reference_abbr:
         comments = "Reference:" + reference_abbr + "\n"
-    
+
     # finding "sp. nov." or "n. sp." in the taxon name
     new_species_string = [ "sp. nov.", "n. sp.", "nov. sp.", "sp.nov.", "n.sp."]
     for new_species in new_species_string:

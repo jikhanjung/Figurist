@@ -2673,6 +2673,11 @@ class TOLNodeDialog(QDialog):
         self.edtYear.setText(self.node.year)
         self.form_layout.addRow(self.lblYear, self.edtYear)
 
+        self.lblParent = QLabel(self.tr("Parent"))
+        self.edtParent = SearchableComboBox()
+        self.edtParent.setEntry(self.node.parent)
+        self.form_layout.addRow(self.lblParent, self.edtParent)
+
         self.lblLocality = QLabel(self.tr("Locality"))
         self.edtLocality = QLineEdit()
         self.edtLocality.setText(self.node.locality)
@@ -2725,11 +2730,14 @@ class TOLNodeDialog(QDialog):
         self.node.name = self.edtName.text()
         self.node.rank = self.edtRank.text()
         self.node.author = self.edtAuthor.text()
+        self.node.year = self.edtYear.text()
+        self.node.parent = self.edtParent.getCurrentEntry()
         self.node.comments = self.edtComments.toPlainText()
         self.node.source = self.edtSource.text()
         self.node.common_name = self.edtCommonName.text()
         self.node.redirect_to = self.edtRedirectTo.getCurrentEntry()
         self.node.redirect_reason = self.edtRedirectReason.text()
+        self.node.save()
         #print("redirect:", self.node.redirect_to)
         self.accept()
 
@@ -2784,8 +2792,6 @@ class TOLDialog(QDialog):
 
         dialog = TOLNodeDialog(node, self)
         if dialog.exec_():
-            # update node
-            node.save()
             # update tree
             self.load_tree()
 
@@ -2944,3 +2950,73 @@ class TOLDialog(QDialog):
 
     def on_btn_cancel_clicked(self):
         self.reject()
+
+class TaxonDialog(QDialog):
+    def __init__(self, taxon, parent=None):
+        super(TaxonDialog, self).__init__(parent)
+        self.m_app = parent
+        self.taxon = taxon
+        self.setWindowTitle(self.tr("Edit Taxon"))
+        self.resize(400, 300)
+        self.init_ui()
+
+    def init_ui(self):
+        self.form_layout = QFormLayout()
+        self.main_layout = QVBoxLayout()
+        self.setLayout(self.main_layout)
+
+        self.lblName = QLabel(self.tr("Name"))
+        self.edtName = QLineEdit()
+        self.edtName.setText(self.taxon.name)
+        self.form_layout.addRow(self.lblName, self.edtName)
+
+        self.lblRank = QLabel(self.tr("Rank"))
+        self.edtRank = QLineEdit()
+        self.edtRank.setText(self.taxon.rank)
+        self.form_layout.addRow(self.lblRank, self.edtRank)
+
+        self.lblAuthor = QLabel(self.tr("Author"))
+        self.edtAuthor = QLineEdit()
+        self.edtAuthor.setText(self.taxon.author)
+        self.form_layout.addRow(self.lblAuthor, self.edtAuthor)
+
+        self.lblYear = QLabel(self.tr("Year"))
+        self.edtYear = QLineEdit()
+        self.edtYear.setText(self.taxon.year)
+        self.form_layout.addRow(self.lblYear, self.edtYear)
+
+        self.lblParent = QLabel(self.tr("Parent"))
+        self.edtParent = SearchableComboBox(target="taxon")
+        self.edtParent.setEntry(self.taxon.parent)
+        self.form_layout.addRow(self.lblParent, self.edtParent)
+
+        self.lblComments = QLabel(self.tr("Comments"))
+        self.edtComments = QTextEdit()
+        self.edtComments.setText(self.taxon.comments)
+        self.form_layout.addRow(self.lblComments, self.edtComments)
+
+        self.button_layout = QHBoxLayout()
+        self.btnSave = QPushButton(self.tr("Save"))
+        self.btnSave.clicked.connect(self.on_btn_save_clicked)
+        self.button_layout.addWidget(self.btnSave)
+
+        self.btnCancel = QPushButton(self.tr("Cancel"))
+        self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
+        self.button_layout.addWidget(self.btnCancel)
+
+        self.main_layout.addLayout(self.form_layout)
+        self.main_layout.addLayout(self.button_layout)
+
+    def on_btn_save_clicked(self):
+        self.taxon.name = self.edtName.text()
+        self.taxon.rank = self.edtRank.text()
+        self.taxon.author = self.edtAuthor.text()
+        self.taxon.year = self.edtYear.text()
+        self.taxon.parent = self.edtParent.getCurrentEntry()
+        self.taxon.comments = self.edtComments.toPlainText()
+        self.taxon.save()
+        #print("redirect:", self.node.redirect_to)
+        self.accept()
+
+    def on_btn_cancel_clicked(self):
+        self.reject()    

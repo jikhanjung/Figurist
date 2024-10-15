@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon, QStandardItemModel, QPixmap, QStandardItem, QPen,
 from PyQt5.QtWidgets import QStyledItemDelegate, QStyle, QStyleOptionViewItem, QListView, QStackedWidget, QAbstractItemView
 import time, math
 from PyQt5.QtCore import QByteArray
-from FgModel import FgCollection, FgReference, FgTreeOfLife
+from FgModel import FgCollection, FgReference, FgTreeOfLife, FgTaxon
 import ollama
 from abc import ABC, abstractmethod
 from openai import OpenAI, OpenAIError # Import the error class directly
@@ -1145,7 +1145,7 @@ class PDFViewWidget(QWidget):
 class SearchableComboBox(QComboBox):
     entrySelected = pyqtSignal(object)  # Signal to emit when an entry is selected
 
-    def __init__(self, parent=None):
+    def __init__(self, target="TOL", parent=None):
         super(SearchableComboBox, self).__init__(parent)
         
         self.setEditable(True)
@@ -1163,6 +1163,7 @@ class SearchableComboBox(QComboBox):
         self.current_entry = None
         self.current_rank = None
         self._skip_search = False
+        self.target = target
 
         self.lineEdit().textEdited.connect(self.on_text_changed)
         self.activated.connect(self.on_item_selected)
@@ -1183,7 +1184,7 @@ class SearchableComboBox(QComboBox):
         
         if text:
             #print("search_fg_tree_of_life:", text, rank)
-            results = self.search_fg_tree_of_life(text, rank)
+            results = self.search_taxa(text, rank)
             for result in results:
                 item = QStandardItem(f"{result.rank} {result.name}")
                 item.setData(result, Qt.UserRole)
@@ -1194,20 +1195,24 @@ class SearchableComboBox(QComboBox):
         #
         self._skip_search = False
 
-    def search_fg_tree_of_life(self, search_term, rank=None):
+    def search_taxa(self, search_term, rank=None):
         search_term = search_term.lower()
+        if self.target == "TOL":
+            target_table = FgTreeOfLife
+        else:
+            target_table = FgTaxon
         fields_to_search = [
-            FgTreeOfLife.name,
+            target_table.name,
         ]
         
-        query = FgTreeOfLife.select()
+        query = target_table.select()
         conditions = [fn.Lower(field).contains(search_term) for field in fields_to_search]
         query = query.where(reduce(operator.or_, conditions))
         if rank is not None:
-            query = query.where(FgTreeOfLife.rank == rank)
+            query = query.where(target_table.rank == rank)
         #print("query:", query)
         return query.limit(50)  # Limit results to prevent performance issues
-    
+
     def setEntry(self, entry, rank=None):
         #print("setEntry:", entry, rank)
         if rank is not None:

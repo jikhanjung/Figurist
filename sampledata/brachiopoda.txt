@@ -1,0 +1,158 @@
+Phylum Brachiopoda Dumeril, 1806
+  Class Inarticulata Huxley, 1869
+    Order Lingulida Waagen, 1885
+      Superfamily Lingulacea Menke, 1828
+        Family LINGULIDAE Menke, 1828
+          Lingula BRUGUIERE, 1797
+          Barroisella HALL & CLARKE, 1892
+          Dignomia HALL, 1871
+          Glottidia DALL, 1870
+          Langella MENDES, 1961
+          Lingulipora GIRTY, 1898,
+          Trigonoglossa DUNBAR & CONDRA, 1932
+        Family OBOLIDAE King, 1846
+          Subfamily OBOLINAE King, 1846
+            Obolus EICHWALD, 1829
+            Aulonotreta KUTORGA, 1848
+            Dieellomus HALL, 1871
+            Lingulobolus MATTHEW, 1895,
+            ?Obolopsis SAITO, 1936
+            Palaeobolus MATTHEW, 1899
+            Pseudobolus COOPER, 1956,
+            Pseudodicellomus BELL, 1962
+            Schmidtites SCHUCHERT & LEVENE, 1929
+            Thysanotos MICKWITZ, 1896
+          Subfamily LINGULELLINAE Schuchert, 1893
+            Lingulella SALTER, 1866
+            Fordinia WALCOTT, 1908
+            ?Lingulepis HALL, 1863
+            Pseudolingula MICKWITZ, 1909
+            Spinilingula COOPER, 1956
+            Westonia WALCOTT, 1901
+          Subfamily GLOSSELLINAE Cooper, 1956
+            Glossella COOPER, 1956
+            Ectenoglossa StNCLAIR, 1945
+            Glyptoglossella COOPER, 1960
+            Leptobolus HALL, 1871
+            Pachyglossella COOPER, 1960
+            Plectoglossa COOPER, 1956
+            Rowellella WRIGHT, 1963
+          Subfamily ACANTHAMBONlINAE Cooper, 1956
+            Acanthambonia COOPER, 1956
+          Subfamily UNCERTAIN
+            Bistramia HOEK, 1912
+            Palacoglossa COCKERELL, 1911
+            Tomasina HALL & CLARKE, 1892
+        Family ELKANIIDAE Walcott & Schuchert, 1908
+          Broeggeria WALCOTT, 1902
+          Monobilina SALTER, 1866
+        Family LINGULASMATIDAE Winchell & Schuchert, 1893
+          Lingulasma ULRICH, 1889
+        Family ANDOBOLIDAE Kozlowski, 1930
+          Andobolus KOZLOWSKI, 1930
+        Family PATERULIDAE Cooper, 1956
+          Paterula BARRANDE, 1879
+          Elliptoglossa COOPER, 1956
+          Lingulops HALL, 1872
+        Family CRANIOPSIDAE Williams, 1963
+          Craniops HALL, 1859
+          Lingulapholis SCHUCHERT, 1913
+          Paracraniops WILLIAMS, 1963
+          Pseudopholidops BEKKER, 1921
+      Superfamily Trimerellacea Davidson & King, 1872
+        Family TRIMERELLIDAE Davidson & King, 1872
+          Trimerella BILLINGS, 1862
+          Dinobolus HALL, 1871
+          Eodinobolus ROWELL, 1963
+          Monomerella BILLINGS, 1871
+          Rhynobolus HALL, 1871
+    Order Acrotretida Kuhn, 1949
+      Suborder Acrotretidina Kuhn, 1949
+        Superfamily Acrotretacea Schuchert, 1893
+Family ACROTRETIDAE Schuchert, 1893
+Subfamily ACROTRETINAE Schuchert, 1893
+Acrotreta KUTORGA, 1848
+Angulotreta PALMER, 1955
+Apsotreta PALMER, 1955
+Conotreta WALCOTT, 1889
+Linnarssonella WALCOTT, 1902
+Prototreta BELL, 1938
+Spondylotreta COOPER, 1956
+
+        Superfamily Discinacea Gray, 1840
+        Superfamily Siphonotretacea Kutorga, 1848
+      Suborder Craniidina Waagen, 1885
+        Superfamily Craniacea Menke, 1828
+    Order Obolellida Rowell, n. order
+      Superfamily Obolellacea Walcott & Schuchert, 1908
+    Order Paterinida Rowell, n. order
+      Superfamily Paterinacea Schuchert, 1893
+  Class Uncertain
+    Order Kutorginida Kuhn, 1949
+      Superfamily Kutorginacea Schuchert, 1893
+  Class Articulata Huxley, 1869
+    Order Orthida Schuchert & Cooper, 1932
+      Suborder Orthidina Schuchert & Cooper, 1932
+        Superfamily Billingsellacea Schuchert, 1893
+        Superfamily Orthacea Woodward, 1852
+        Superfamily Enteletacea Waagen, 1884
+      Suborder Clitambonitidina Opik, 1934
+        Superfamily Clitambonitacea Winchell & Schuchert, 1893
+        Superfamily Gonambonitacea Schuchert & Cooper, 1931
+      Suborder Triplesiidina Moore, 1952
+        Superfamily Triplesiacea Schuchert, 1913
+    Order Uncertain
+      Suborder Dictyonellidina Cooper, 1956
+        Superfamily Eichwaldiacea Schuchert, 1893
+    Order Strophomenida Opik, 1934
+      Suborder Strophomenidina Opik, 1934
+        Superfamily Plectambonitacea Jones, 1928
+        Superfamily Strophomenacea King, 1846
+        Superfamily Davidsoniacea King, 1850
+      Suborder Chonetidina Muir-Wood, 1955
+        Superfamily Chonetacea Bronn, 1862
+        Superfamily Cadomellacea Schuchert, 1893
+      Suborder Productidina Waagen, 1883
+        Superfamily Strophalosiacea Schuchert, 1913
+        Superfamily Richthofeniacea Waagen, 1885
+        Superfamily Productacea Gray, 1840
+      Suborder Oldhaminidina Williams, 1953
+        Superfamily Lyttoniacea Waagen, 1883
+    Order Pentamerida Schuchert & Cooper, 1931
+      Suborder Syntrophiidina Ulrich & Cooper, 1936
+        Superfamily Porambonitacea Davidson, 1853
+      Suborder Pentameridina Schuchert & Cooper, 1931
+        Superfamily Pentameracea M'Coy, 1844
+    Order Rhynchonellida Kuhn, 1949
+      Superfamily Rhynchonellacea Gray, 1848
+      Superfamily Stenoscismatacea Oehlert, 1887 (1883)
+      Superfamily Rhynchoporacea Muir-Wood, 1955
+    Order Spiriferida Waagen, 1883
+      Suborder Atrypidina Moore, 1952
+        Superfamily Atrypacea Gill, 1871
+        Superfamily Dayiacea Waagen, 1883
+      Suborder Retziidina Boucot, Johnson, & Staton, 1964
+        Superfamily Retziacea Waagen, 1883
+        Superfamily Athyrisinacea Grabau, 1931
+      Suborder Athyrididina Boucat, Johnson & Staton, 1964
+        Superfamily Athyridacea M'Coy, 1844
+        Superfamily Konin~kinacea Davidson, 1853
+      Suborder Spiriferidina Waagen, 1883
+        Superfamily Cyrtiacea Frederiks, 1919 (1924)
+        Superfamily Suessiacea Waagen, 1883
+        Superfamily Spiriferacea King, 1846
+        Superfamily Spiriferinacea Davidson, 1884
+        Superfamily Reticulariacea Waagen, 1883
+    Order Terebratulida Waagen, 1883
+      Suborder Centronellidina Stehli, n. suborder
+        Superfamily Stringocephalacea King, 1850
+      Suborder Terebratulidina Waagen, 1883
+        Superfamily Dielasmatacea Schuchert, 1913
+        Superfamily Terebratulacea Gray, 1840
+      Suborder Terebratellidina Muir-Wood, 1955
+        Superfamily Cryptonellacea Thomson, 1926
+        Superfamily Zeilleriacea Allan, 1940
+        Superfamily Terebratellacea King, 1850
+    Order Uncertain
+      Suborder Thecideidina Elliott, 1958
+        Superfamily Thecideacea Gray, 1840

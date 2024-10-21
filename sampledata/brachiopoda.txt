@@ -78,6 +78,17 @@ Conotreta WALCOTT, 1889
 Linnarssonella WALCOTT, 1902
 Prototreta BELL, 1938
 Spondylotreta COOPER, 1956
+Undiferina COOPER, 1956
+Subfamily LINNARSSONllNAE Rowell, n. subfam.
+Linnarssonia WALCOTT, 1885
+Acrothyra MATTHEW, 1901
+Opisthotreta PALMER, 1955
+Subfamily CERATRETINAE Rowell, n. subfam.
+Ceratreta BELL, 1941
+Clistotrema ROWELL, 1963
+Subfamily SCAPHELASMATINAE Rowell, n. subfam.
+Scaphe1asma COOPER, 1956
+Artiotreta IRELAND, 1961
 
         Superfamily Discinacea Gray, 1840
         Superfamily Siphonotretacea Kutorga, 1848

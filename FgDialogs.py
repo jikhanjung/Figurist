@@ -2719,6 +2719,10 @@ class TOLNodeDialog(QDialog):
         self.btnSave.clicked.connect(self.on_btn_save_clicked)
         self.button_layout.addWidget(self.btnSave)
 
+        self.btnDelete = QPushButton(self.tr("Delete"))
+        self.btnDelete.clicked.connect(self.on_btn_delete_clicked)
+        self.button_layout.addWidget(self.btnDelete)
+
         self.btnCancel = QPushButton(self.tr("Cancel"))
         self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
         self.button_layout.addWidget(self.btnCancel)
@@ -2743,6 +2747,11 @@ class TOLNodeDialog(QDialog):
 
     def on_btn_cancel_clicked(self):
         self.reject()
+
+    def on_btn_delete_clicked(self):
+        # delete node
+        self.node.delete_instance()
+        self.accept()
 
 class TOLDialog(QDialog):
     def __init__(self, parent=None):
@@ -3000,6 +3009,10 @@ class TaxonDialog(QDialog):
         self.btnSave.clicked.connect(self.on_btn_save_clicked)
         self.button_layout.addWidget(self.btnSave)
 
+        self.btnDelete = QPushButton(self.tr("Delete"))
+        self.btnDelete.clicked.connect(self.on_btn_delete_clicked)
+        self.button_layout.addWidget(self.btnDelete)
+
         self.btnCancel = QPushButton(self.tr("Cancel"))
         self.btnCancel.clicked.connect(self.on_btn_cancel_clicked)
         self.button_layout.addWidget(self.btnCancel)
@@ -3020,3 +3033,12 @@ class TaxonDialog(QDialog):
 
     def on_btn_cancel_clicked(self):
         self.reject()    
+
+    def on_btn_delete_clicked(self):
+        # check if taxon has children
+        children = FgTaxon.select().where(FgTaxon.parent == self.taxon)
+        if children.count() > 0:
+            QMessageBox.warning(self, self.tr("Warning"), self.tr("This taxon has children. Please delete children first"))
+            return
+        self.taxon.delete_instance()
+        self.accept()

@@ -1,0 +1,237 @@
+Phylum: Brachiopoda
+   Class: Inarticulata
+     Order: Lingulida Waagen, 1885
+       Superfamily: LINGULALCEA Menke, 1828
+           Family: LINGULIDAE Menke, 1828
+               Genus: Lingula Bruguière, 1797
+               Genus: Barroisella Hall & Clarke, 1892
+               Genus: Dignomia Hall, 1871
+               Genus: Langella Mendes, 1961
+           Family: OBOLIDAE King, 1846
+               Subfamily: OBOLINAE King, 1846
+                   Genus: Obolus Eichwald, 1829
+                   Genus: Aulonotreta Kutorga, 1848
+                   Genus: Schmidtites Volborth, 1869
+                   Genus: Lingulobolus Matthew, 1895
+                   Genus: Pseudodicellomus Bell, 1962
+                   Genus: Thysanotos Mickwitz, 1896
+               Subfamily: LINGULELLINAE Schuchert, 1893
+                   Genus: Lingulella Salter, 1866
+                   Genus: Fordinia Walcott, 1908
+                   Genus: ?Lingulepis Hall, 1863
+                   Genus: Pseudolingula Mickwitz, 1909
+                   Genus: Spinilingula Cooper, 1956
+               Subfamily: GLOSSELLINAE Cooper, 1956
+                   Genus: Westonia Walcott, 1901
+                   Genus: Glossella Cooper, 1956
+                   Genus: Ectenoglossa Cooper, 1956
+                   Genus: Glyptoglossella Cooper, 1960
+                   Genus: Leptobolus Hall, 1871
+                   Genus: Pachyglossa Cooper, 1960
+                   Genus: Plectoglossa Cooper, 1956
+                   Genus: Rowellella Wright, 1963
+               Subfamily: ACANTHAMBONIINAE Cooper, 1956
+                   Genus: Acanthambonia Cooper, 1956
+               Subfamily: UNCERTAIN
+                   Genus: Bistramia Hook, 1912
+                   Genus: Palaeoglossa Cockerell, 1911
+                   Genus: Tomasina Hall & Clarke, 1892
+           Family: ELKANIIDAE Walcott & Schuchert, 1908
+               Genus: Elkania Ford, 1886
+               Genus: Broeggeria Walcott, 1902
+               Genus: Monobilina Salter, 1866
+               Genus: Palaeobolus Cobbold, 1921
+               Genus: Thysania Davidson & King, 1872
+           Family: LINGULASMATIDAE Winchell & Schuchert, 1893
+               Genus: Lingulasma Ulrich, 1889
+           Family: ANDOBOLIDAE Kozlowski, 1930
+               Genus: Andobolus Kozlowski, 1930
+           Family: PATERULIDAE Cooper, 1956
+               Genus: Paterula Barrande, 1879
+               Genus: Elliptoglossa Cooper, 1956
+               Genus: Lingulops Hall, 1872
+           Family: CRANIOPSIDAE Williams, 1963
+               Genus: Craniops Hall, 1859
+               Genus: Paracraniops Williams, 1963
+               Genus: Lingulopholus Bekker, 1921
+       Superfamily: TRIMERELLACEA Davidson & King, 1872
+       Superfamily: TRIMERELLACEA Davidson & King, 1872
+           Family: TRIMERELLIDAE Davidson & King, 1872
+               Genus: Trimerella Billings, 1862
+               Genus: Dinobolus Hall, 1871
+               Genus: Monomerella Billings, 1871
+               Genus: Rhinobolus Hall, 1871
+               Genus: Eodinobolus Rowell, 1963
+       Order: ACROTRETIDA Kuhn, 1949
+           Suborder: ACROTRETIDINA Kuhn, 1949
+               Superfamily: ACROTRETACEA Schuchert, 1893
+                   Family: ACROTRETIDAE Schuchert, 1893
+                   Subfamily: ACROTRETINAE Schuchert, 1893
+                       Genus: Acrotreta Kutorga, 1848
+                       Genus: Angulotreta Palmer, 1955
+                       Genus: Apsotreta Palmer, 1955
+                       Genus: Conotreta Walcott, 1889
+                       Genus: Linnarssonella Walcott, 1902
+                       Genus: Trematobolus Matthew, 1893
+                       Genus: Picnotreta Bell, 1938
+                       Genus: Spondylotreta Cooper, 1956
+                       Genus: Hadrotreta Rowell, 1966
+                   Subfamily: LINNARSSONIINAE Rowell, n. subfam.
+                       Genus: Opisthotreta Palmer, 1955
+                       Genus: Linnarssonia Walcott, 1885
+                       Genus: Acrothyra Matthew, 1901
+                       Genus: Ceratreta Bell, 1941
+                   Subfamily: SCAPHELASMATINAE Rowell, n. subfam.
+                       Genus: Scaphelasma Cooper, 1956
+                       Genus: Artiotreta Ireland, 1961
+                       Genus: ?Rhysotreta Cooper, 1956
+                   Subfamily: TORYNELASMATINAE Rowell, n. subfam.
+                       Genus: Torynelasma Cooper, 1956
+                       Genus: Acrotretella Ireland, 1961
+                   Subfamily: EPHIPPELASMATINAE Rowell, n. subfam.
+                       Genus: Ephippelasma Cooper, 1956
+                   Subfamily: UNCERTAIN
+                       Genus: Hsingrotreta Hessland, 1948
+                       Genus: Keyserllingia Pander, 1861
+                   Family: CURTICIIDAE Walcott & Schuchert, 1908
+                       Genus: Curticia Walcott, 1905
+                   Family: ACROTHELIDAE Walcott & Schuchert, 1908
+                       Subfamily: ACROTHELINAE Walcott & Schuchert, 1908
+                           Genus: Acrothele Linnarsson, 1876
+                           Genus: Orbithele Sdzuy, 1955
+                           Genus: Schizopholis Waagen, 1885 
+                           Genus: Redlichella Walcott, 1908
+                       Subfamily: CONODISCINAE Rowell, n. subfam.
+                           Genus: Conodiscus Ulrich & Cooper, 1936
+                           Genus: ?Discinopsis Matthew, 1892
+                   Family: BOTSFORDIIDAE Schindewolf, 1955
+                       Subfamily: BOTSFORDIINAE Schindewolf, 1955
+                           Genus: Botsfordia Matthew, 1891
+                           Genus: ?Glyptias Walcott, 1901
+                       Subfamily: NEOBOLINAE Walcott & Schuchert, 1908
+                           Genus: Neobolus Waagen, 1885
+                   Family: UNCERTAIN
+                       Genus: Discotreta Ulrich & Cooper, 1936
+               Superfamily: DISCINACEA Gray, 1840
+                   Family: TREMATIDAE Schuchert, 1893
+                       Genus: Trematis Sharpe, 1848
+                       Genus: Schizocrania HALL & WHITFIELD, 1875
+                   Family: DISCINIDAE Gray, 1840
+                       Subfamily: ORBICULOIDEINAE Schuchert & LeVene, 1929
+                           Genus: Orbiculoidea d'Orbigny, 1847
+                           Genus: Lindstroemella Hall & Clarke, 1890
+                           Genus: Lingulodiscina Whitfield, 1890
+                           Genus: Roemerella Hall & Clarke, 1890
+                           Genus: Schizotreta Kutorga, 1848
+                       Subfamily: DISCINISCINAE Schuchert & LeVene, 1929
+                           Genus: Discinisca Dall, 1871
+                           Genus: ?Oehlertella Hall & Clarke, 1890
+                           Genus: Pelagodiscus Dall, 1908
+                       Subfamily: DISCININAE Gray, 1840
+                           Genus: Discina Lamarck, 1819
+                   Family: UNCERTAIN
+                       Genus: Oxlosia Ulrich & Cooper, 1936
+                       Genus: Schizobolus Ulrich, 1886
+               Superfamily: SIPHONOTRETACEA Kutorga, 1848
+                   Family: SIPHONOTRETIDAE Kutorga, 1848
+                       Genus: Siphonotreta de Verneuil, 1845
+                       Genus: Dysoristus Bell, 1944
+                       Genus: Helmersenia Pander, 1861
+                       Genus: Multispinula Rowell, 1962
+                       Genus: Schizambon Walcott, 1884
+           Suborder: CRANIIDINA Waagen, 1885
+               Superfamily: CRANIACEA Menke, 1828
+                   Family: CRANIIDAE Menke, 1828
+                       Genus: Crania Retzius, 1781
+                       Genus: Acanthocrania Williams, 1943
+                       Genus: Ancistrocrania Dall, 1877
+                       Genus: Craniscus Dall, 1871
+                       Genus: Isocrania Jaekel, 1902
+                       Genus: Orthisocrania Rowell, 1963
+                       Genus: Petrocrania Raymond, 1911
+                       Genus: Philhedra Koken, 1889
+                       Genus: Philhedrella Kozlowski, 1929
+                       Genus: Pseudocrania M'Coy, 1851
+                       Genus: Valdiviathyris Helmcke, 1940
+                   Family Eoconulidae Rowell, n. fam.
+                       Genus: Eoconulus Cooper, 1956
+               GENERA DOUBTFULLY REFERRED TO CRANIACEA
+                   Genus: Angarella Asatkin, 1932
+                   Genus: Eleutherocania Von Huene, 1899
+                   Genus: Pseudometoptoma Von Huene, 1899
+       Order: OBOLELLIDA Rowell, n. order
+           Superfamily: OBOLELLACEA Walcott & Schuchert, 1908
+               Family: OBOLELLIDAE Walcott & Schuchert, 1908
+                   Genus: Obolella Billings, 1861
+                   Genus: Alisina Rowell, 1962
+                   Genus: Bicia Walcott, 1901
+                   Genus: Magnicanalis Rowell, 1962
+                   Genus: Trematobolus Matthew, 1893
+       Order: PATERINIDA Rowell, n. order
+           Superfamily: PATERINACEA Schuchert, 1893
+               Family: PATERINIDAE Schuchert, 1893
+                   Genus: Paterina Beecher, 1891
+                   Genus: Dictyonina Cooper, 1942
+                   Genus: Dictyonites Cooper, 1956
+                   Genus: Micromitra Meek, 1873
+           Superfamily: Uncertain
+                   Genus: Mickwitzia Schmidt, 1888
+                   Genus: Volborthia von Möller, 1873
+                   Genus: Walcottina Cobbold, 1921
+        Order: Uncertain
+            Family: PTYCHOPELTIDAE Horny, 1961
+                Genus: Ptychopeltis PERNER, 1903
+    Class: Uncertain
+        Order: KUTORGINIDA Kuhn, 1949
+            Superfamily: KUTORGINACEA Schuchert, 1893
+                Family: KUTORGINIDAE Schuchert, 1893
+                    Genus: Kutorgina Billings, 1861
+                    Genus: ?Schuchertina Walcott, 1905
+                Family: YORKIIDAE Rowell, 1962
+                    Genus: Yorkia Walcott, 1897
+
+   Class: ARTICULATA Huxley, 1869
+       Order: ORTHIDA Schuchert & Cooper, 1932
+           Suborder: ORTHIDINA Schuchert & Cooper, 1932
+               Superfamily: BILLINGSELLACEAE Schuchert, 1893
+                   Family: BILLINGSELLIDAE Schuchert, 1893
+                       Genus: Billingsella Hall & Clarke, 1892
+                       Genus: Cymbithyris Cooper, 1952
+                       Genus: Eosorthostrophia Wang, 1955
+                       Genus: Xenorthis ULRICH & COOPER, 1936
+                   Family: NISIUSIIDAE Walcott & Schuchert, 1908
+                       Genus: Nisiusia Walcott, 1905
+                       Genus: Eoconcha COOPER, 1951
+                       Genus: Kotujella ANDREEVA, 1962
+                       Genus: Matutella COOPER, 1951
+               Superfamily: ORTHACEA Woodward, 1852
+                   Family: EOORTHIDAE Walcott, 1908
+                       Genus: Eoorthis Walcott, 1908
+                       Genus: Apheoorthis Ulrich & Cooper, 1936
+                       Genus: Diraphora Bell, 1941
+                       Genus: Jamesella Walcott, 1905
+                       Genus: Ocnerorthis BELL, 1941
+                       Genus: Otusia WALCOTT, 1905
+                       Genus: Wimanella Walcott, 1908
+                   Family: PROTORTHIDAE Schuchert & Cooper, 1931
+                       Genus: Protorthis Hall & Clarke, 1892
+                       Genus: Arctorthis Cooper, 1959
+                       Genus: Loperia Walcott, 1905
+                   Family: HESPERONOMIIDAE Ulrich & Cooper, 1936
+                       Genus: Hesperonomia Ulrich & Cooper, 1936
+                       Genus: Hesperonomiella Ulrich & Cooper, 1936
+                       Genus: Jivinella Havlíček, 1949
+                   Family: ORTHIDIELLIDAE Ulrich & Cooper, 1936
+                       Genus: Orthidiella Ulrich & Cooper, 1936
+                       Genus: Eostrophomena WALCOTT, 1905
+                       Genus: Clelandia Hall & Clarke, 1892
+                       Genus: Portranella Wright, 1964
+                       Genus: Trematorthis Ulrich & Cooper, 1938
+                   Family: ORTHIDAE Woodward, 1852
+                       Subfamily: ORTHINAE Woodward, 1852
+                           Genus: Orthis Dalman, 1828
+                           Genus: Archaeorthis Schuchert & Cooper, 1931
+                           Genus: Bohemiella Schuchert & Cooper, 1931
+                           Genus: Cyrtonotella Schuchert & Cooper, 1931
+                           Genus: Glyptorthis Foerste, 1914
+                           Genus: Levenea Andreeva, 1955

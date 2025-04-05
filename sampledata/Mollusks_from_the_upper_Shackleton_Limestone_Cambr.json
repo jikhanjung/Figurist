@@ -1,0 +1,2187 @@
+{
+  "document": {
+    "file_path": "D:/projects/Figurist/sampledata/Mollusks_from_the_upper_Shackleton_Limestone_Cambr.pdf",
+    "total_pages": 23,
+    "current_page": 5,
+    "last_modified": 1722944634.8081899
+  },
+  "pages": {
+    "1": {
+      "page_number": 1,
+      "total_pages": 23,
+      "elements": [
+        {
+          "category": "header",
+          "content": {
+            "html": "<header id='0' style='font-size:14px'>PALEONTOLOGY F<br>O<br>Paleontological<br>A PUBLICATION OF THE s O C I E T Y</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.6256,
+              "y": 0.0439
+            },
+            {
+              "x": 0.931,
+              "y": 0.0439
+            },
+            {
+              "x": 0.931,
+              "y": 0.0821
+            },
+            {
+              "x": 0.6256,
+              "y": 0.0821
+            }
+          ],
+          "id": 0,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='1' data-category='paragraph' style='font-size:14px'>Journal of Paleontology, page 1 of 23<br>Copyright \u24b8 2019, The Paleontological Society. This is an Open Access article, distributed<br>the terms of the Creative Commons Attribution licence (http://creativecommons.org/<br>licenses/by/4.0/), which permits unrestricted re-use, distribution, and reproduction in any<br>medium, provided the original work is properly cited.<br>0022-3360/19/1937-2337<br>doi: 10.1017/jpa.2018.84</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0848,
+              "y": 0.041
+            },
+            {
+              "x": 0.5411,
+              "y": 0.041
+            },
+            {
+              "x": 0.5411,
+              "y": 0.1123
+            },
+            {
+              "x": 0.0848,
+              "y": 0.1123
+            }
+          ],
+          "id": 1,
+          "page": 1
+        },
+        {
+          "category": "heading1",
+          "content": {
+            "html": "<h1 id='2' style='font-size:22px'>Mollusks from the upper Shackleton Limestone (Cambrian Series 2),<br>Central Transantarctic Mountains, East Antarctica</h1>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0852,
+              "y": 0.1304
+            },
+            {
+              "x": 0.8575,
+              "y": 0.1304
+            },
+            {
+              "x": 0.8575,
+              "y": 0.1754
+            },
+            {
+              "x": 0.0852,
+              "y": 0.1754
+            }
+          ],
+          "id": 2,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='3' data-category='paragraph' style='font-size:20px'>Thomas M. Claybourn,1,2 Sarah M. Jacquet,3 Christian B. Skovsted,4 Timothy P. Topper,4,5<br>Lars E. Holmer, 1,5 and Glenn A. Brock2</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.086,
+              "y": 0.1936
+            },
+            {
+              "x": 0.8079,
+              "y": 0.1936
+            },
+            {
+              "x": 0.8079,
+              "y": 0.2306
+            },
+            {
+              "x": 0.086,
+              "y": 0.2306
+            }
+          ],
+          "id": 3,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='4' data-category='paragraph' style='font-size:18px'>1Department of Earth Sciences, Palaeobiology, Uppsala University, Villav. 16, SE-75236, Uppsala <thomas.clayboum@geo.uu.se><br><lars.holmer@pal.uu.se><br>2Department of Biological Sciences, Macquarie University, Sydney, NSW 2109 <glenn.brock @mq.edu.au><br>3Department of Geological Sciences, University of Missouri, Columbia, MO 65211 <jacquets @ missouri.edu><br>4Department of Palaeobiology, Swedish Museum of Natural History, Box 5007, SE-104 05, Stockholm <christian.skovsted@nrm.se><br>Shaanxi Key laboratory of Early Life and Environments, State Key Laboratory of Continental Dynamics and Department of Geology,<br>Key laboratory of<br>Northwest University, Xi'an 710069, China <timothy.topper@nwu.edu.cn></p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.086,
+              "y": 0.2443
+            },
+            {
+              "x": 0.8812,
+              "y": 0.2443
+            },
+            {
+              "x": 0.8812,
+              "y": 0.3473
+            },
+            {
+              "x": 0.086,
+              "y": 0.3473
+            }
+          ],
+          "id": 4,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='5' data-category='paragraph' style='font-size:18px'>Abstract.-An assemblage of Cambrian Series 2, Stages 3-4, conchiferan mollusks from the Shackleton Limestone,<br>Transantarctic Mountains, East Antarctica, is formally described and illustrated. The fauna includes one bivalve, one<br>macromollusk, and 10 micromollusks, including the first description of the species Xinjispira simplex Zhou and Xiao,<br>1984 outside North China. The new fauna shows some similarity to previously described micromollusks from lower<br>Cambrian glacial erratics from the Antarctic Peninsula. The fauna, mainly composed of steinkerns, is relatively low diver-<br>sity, but the presence of diagnostic taxa, including helcionelloid Davidonia rostrata (Zhou and Xiao, 1984), bivalve<br>Pojetaia runnegari Jell, 1980, cambroclavid Cambroclavus absonus Conway Morris in Bengtson et al., 1990, and<br>bradoriid Spinospitella coronata Skovsted et al., 2006, as well as the botsfordiid brachiopod Schizopholis yorkensis<br>(Ushatinskaya and Holmer in Gravestock et al., 2001), in the overlying Holyoake Formation correlates the succession<br>to the Dailyatia odyssei Zone (Cambrian Stages 3-4) in South Australia.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.1199,
+              "y": 0.3786
+            },
+            {
+              "x": 0.8982,
+              "y": 0.3786
+            },
+            {
+              "x": 0.8982,
+              "y": 0.5253
+            },
+            {
+              "x": 0.1199,
+              "y": 0.5253
+            }
+          ],
+          "id": 5,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='6' data-category='paragraph' style='font-size:20px'>Introduction</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0848,
+              "y": 0.5751
+            },
+            {
+              "x": 0.187,
+              "y": 0.5751
+            },
+            {
+              "x": 0.187,
+              "y": 0.5914
+            },
+            {
+              "x": 0.0848,
+              "y": 0.5914
+            }
+          ],
+          "id": 6,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='7' data-category='paragraph' style='font-size:18px'>During the early Cambrian, East Antarctica was sutured between<br>the now southern coast of Australia, Southeast Africa, and India<br>and located at tropical latitudes (Brock et al., 2000; Torsvik and<br>Cocks, 2013a, b). The Shackleton Limestone crops out meri-<br>dionally and episodically along the Central Transantarctic<br>Mountains (Fig. 1). While the true thickness of this carbonate<br>unit remains uncertain (Myrow et al., 2002), it is estimated to<br>be up to 2,000 m thick in places (Laird et al., 1971; Burgess<br>and Lammerink, 1979). The unit consists of many lithofacies<br>including sandy carbonates, pure limestones, and archaeocyath-<br>microbialite bioherms (Rees et al., 1989; Myrow et al., 2002).<br>The newly recovered fauna from measured stratigraphic sections<br>through autochthonous exposures of the Byrd Group, central<br>Transantarctic Mountains, includes archaeocyaths, brachiopods,<br>bradoriid arthropods, cambroclavids, chancelloriids, hyoliths,<br>sponge spicules, and tommotiids. This paper focusses on<br>descriptions and biostratigraphy of eight helcionelloids, two<br>pelagiellids, one scenellid, and the bivalve Pojetaia runnegari<br>Jell, 1980. Helcionelloids are typical components of 'small<br>shelly fossil' (SSF) assemblages in lower Cambrian (Terreneu-<br>vian, Cambrian Series 2) strata around the world (Bengtson,<br>2004; Kouchinsky et al., 2012). Widespread phosphatized stein-<br>kerns of micromorphic univalved helcionelloids appear in the</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0852,
+              "y": 0.6057
+            },
+            {
+              "x": 0.5017,
+              "y": 0.6057
+            },
+            {
+              "x": 0.5017,
+              "y": 0.9423
+            },
+            {
+              "x": 0.0852,
+              "y": 0.9423
+            }
+          ],
+          "id": 7,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='8' data-category='paragraph' style='font-size:18px'>pre-trilobitic Terreneuvian (Khomentovsky et al., 1990; Kou-<br>chinsky et al., 2012) and range through to the Early Ordovician<br>(Gubanov and Peel, 2001; Peel and Horny, 2004).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5152,
+              "y": 0.5761
+            },
+            {
+              "x": 0.9313,
+              "y": 0.5761
+            },
+            {
+              "x": 0.9313,
+              "y": 0.6187
+            },
+            {
+              "x": 0.5152,
+              "y": 0.6187
+            }
+          ],
+          "id": 8,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='9' data-category='paragraph' style='font-size:18px'>The taxonomic position of helcionelloids remains unre-<br>solved, with numerous authors suggesting different affinities<br>and phylogenetic relationships (Parkhaev 2008, table 3.1).<br>Early efforts placed some asymmetrically coiled helcionelloids<br>in the late Paleozoic macluritid gastropods and bilaterally sym-<br>metrical forms with the monoplacophoran tryblidiids-then<br>considered a 'primitive' gastropod taxon (Knight, 1952). Hel-<br>cionelloids have also been suggested by some authors to be<br>basal to the rest of the Gastropoda (e.g., Golikov and Staroboga-<br>tov, 1975; Runnegar and Jell, 1976; Parkhaev, 2017a); a poly-<br>phyletic approach was proposed by other authors, with some<br>helcionelloids considered ancestral to the major groups of mol-<br>lusks (Runnegar and Jell, 1976, fig. 4; Runnegar, 1983, fig. 1)<br>while others (the superfamily Helcionellacea Wenz, 1938)<br>were referred to the monoplacophorans. Problems with these<br>classification schemes are apparent, as a diagnostic criterion of<br>the gastropods is torsion (Salvini-Plawen, 1980; Ponder and<br>Lindberg, 1997), a characteristic obvious only in soft anatomy<br>and never convincingly demonstrated in any helcionelloid<br>taxon (but see Runnegar, 1981). A monoplacophoran affinity<br>is also difficult to demonstrate as helcionelloids invariably<br>lack the serially repeated muscles scars on the shell interior</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5148,
+              "y": 0.6203
+            },
+            {
+              "x": 0.9315,
+              "y": 0.6203
+            },
+            {
+              "x": 0.9315,
+              "y": 0.9395
+            },
+            {
+              "x": 0.5148,
+              "y": 0.9395
+            }
+          ],
+          "id": 9,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='10' data-category='paragraph' style='font-size:16px'>1</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5033,
+              "y": 0.9483
+            },
+            {
+              "x": 0.5122,
+              "y": 0.9483
+            },
+            {
+              "x": 0.5122,
+              "y": 0.9589
+            },
+            {
+              "x": 0.5033,
+              "y": 0.9589
+            }
+          ],
+          "id": 10,
+          "page": 1
+        },
+        {
+          "category": "footer",
+          "content": {
+            "html": "<br><footer id='11' style='font-size:14px'>Downloaded from https://www.cambridge.org/core. IP address: 178.171.69.59, on 09 Jan 2019 at 17:22:38, subject to the Cambridge Core terms of use, available at https://www.cambridge.org/core/terms.<br>https://doi.org/10.1017/jpe.2018.84</footer>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0238,
+              "y": 0.9613
+            },
+            {
+              "x": 0.9674,
+              "y": 0.9613
+            },
+            {
+              "x": 0.9674,
+              "y": 0.9837
+            },
+            {
+              "x": 0.0238,
+              "y": 0.9837
+            }
+          ],
+          "id": 11,
+          "page": 1
+        }
+      ],
+      "timestamp": 1743818362.35703
+    },
+    "2": {
+      "page_number": 2,
+      "total_pages": 23,
+      "elements": [
+        {
+          "category": "header",
+          "content": {
+            "html": "<header id='0' style='font-size:14px'>2</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0685,
+              "y": 0.0313
+            },
+            {
+              "x": 0.0835,
+              "y": 0.0313
+            },
+            {
+              "x": 0.0835,
+              "y": 0.0452
+            },
+            {
+              "x": 0.0685,
+              "y": 0.0452
+            }
+          ],
+          "id": 0,
+          "page": 1
+        },
+        {
+          "category": "header",
+          "content": {
+            "html": "<br><header id='1' style='font-size:20px'>Journal of Paleontology:1-23</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.3794,
+              "y": 0.0295
+            },
+            {
+              "x": 0.6025,
+              "y": 0.0295
+            },
+            {
+              "x": 0.6025,
+              "y": 0.0473
+            },
+            {
+              "x": 0.3794,
+              "y": 0.0473
+            }
+          ],
+          "id": 1,
+          "page": 1
+        },
+        {
+          "category": "figure",
+          "content": {
+            "html": "<figure id='2'><img style='font-size:22px' alt=\"0\u00b0 82\u00b000.158\u00b0 159\u00b0 160\u00b0 161 \u3002 162\u00b0\nAlice Glacier\n2\n1\nChurch Prince. Philip Glacier\nErrant\nHolyoake\nTransantarctic Mountains 10 km h\n80\u00b0\nMountains\nGlacier\n15'\nRange\n\n\u3001\nStudy area 30' Nimrod Glacier\n80 N\n160\u00b0 161 \u3002\nUpper Byrd Group:\nStarshot Formation\nCAMBRIAN HRA Section\nLower Byrd Group:\nShackleton Limestone and Errant\nHolyoake Formation\nNEOPROTEROZOIC Beardmore Group Prince Philip Glacier\nGlacier\n+\n82\u00b015'\n3 Holyoake\nTarakanov Ridge\nGroup\nStarshot Formation\nDou as\nConglomerate\nByrd\nFormation\nShackleton Limestone\u300d\nwww.newww.newww.methr\nBeardmore\nGoldie Formation\nGroup Cobham Formation\nGargoyle Ridge\n5 km\" data-coord=\"top-left:(124,133); bottom-right:(1072,1069)\" /></figure>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.1014,
+              "y": 0.0845
+            },
+            {
+              "x": 0.8766,
+              "y": 0.0845
+            },
+            {
+              "x": 0.8766,
+              "y": 0.6749
+            },
+            {
+              "x": 0.1014,
+              "y": 0.6749
+            }
+          ],
+          "id": 2,
+          "page": 1
+        },
+        {
+          "category": "caption",
+          "content": {
+            "html": "<caption id='3' style='font-size:14px'>Figure 1. (1) Map of Antarctica showing approximate extent of the Transantarctic Mountains and area shown in (2 \u2461 Map of Nimrod Glacier, Holyoake Range,<br>and Churchill Mountains. \u2462 Generalized relationship of Cambrian (Byrd Group) and Neoproterozoic (Beardmore Group) rock units of the Holyoake Range, adapted<br>from Myrow et al. (2002). \u2463 Simplified geological map of the Holyoake Range, adapted from Myrow et al. (2002).</caption>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0675,
+              "y": 0.6827
+            },
+            {
+              "x": 0.9169,
+              "y": 0.6827
+            },
+            {
+              "x": 0.9169,
+              "y": 0.7183
+            },
+            {
+              "x": 0.0675,
+              "y": 0.7183
+            }
+          ],
+          "id": 3,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='4' data-category='paragraph' style='font-size:16px'>reflecting the muscle attachment common to all extant monopla-<br>cophorans (Lindberg, 2009). Lindsey and Kier (1984) hypothe-<br>sized a separate paraphyletic class for some asymmetrical<br>helcionelloid mollusks (the Paragastropoda) on the basis that<br>they lacked evidence of both torsion and serially repeated mus-<br>cle scars, which included the pelagiellids. However, the asym-<br>metrically coiled pelagiellids are perhaps the best candidates<br>for inclusion in the gastropods. Preserved features such as mus-<br>cle scars similar to those found in torted gastropods (Landing<br>et al., 2002, fig. 9), a large mantle cavity, and potential anal<br>notch have been inferred by some authors as indirect evidence<br>of torsion (Landing et al., 2002). The class Helcionelloida<br>Peel, 1991a was erected to include bilaterally symmetrical<br>forms, excluding asymmetrical forms of the Paragastropoda.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0694,
+              "y": 0.737
+            },
+            {
+              "x": 0.4858,
+              "y": 0.737
+            },
+            {
+              "x": 0.4858,
+              "y": 0.9413
+            },
+            {
+              "x": 0.0694,
+              "y": 0.9413
+            }
+          ],
+          "id": 4,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='5' data-category='paragraph' style='font-size:18px'>Recognized sinistral and dextral asymmetrical deviations from<br>typically symmetric forms remain within Helcionelloida (Guba-<br>nov and Peel, 2000). Recent systematic treatment of pelagiellids<br>has them assigned to the helcionelloids (e.g., Skovsted and Peel,<br>2007; Topper et al., 2009; Wotte and Sundberg, 2017) or to the<br>gastropods (e.g., Landing et al. 2002; Parkhaev, 2007a, 2017a).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.4999,
+              "y": 0.7364
+            },
+            {
+              "x": 0.9142,
+              "y": 0.7364
+            },
+            {
+              "x": 0.9142,
+              "y": 0.8243
+            },
+            {
+              "x": 0.4999,
+              "y": 0.8243
+            }
+          ],
+          "id": 5,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='6' data-category='paragraph' style='font-size:16px'>While many authors have worked on the paleobiology of<br>the helcionelloids (e.g., Peel, 1991a; Brock, 1998; Parkhaev,<br>2000, 2001), these and other SSFs can also be utilized in biostra-<br>tigraphy, with certain caveats. Parkhaev in Gravestock et al.<br>(2001) created loosely defined molluscan assemblage 'zones'<br>for their work on the biostratigraphy of the lower Cambrian suc-<br>cession in the Stansbury Basin, South Australia. These were<br>defined according to the presence of certain key taxa, and four</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.4992,
+              "y": 0.8259
+            },
+            {
+              "x": 0.9139,
+              "y": 0.8259
+            },
+            {
+              "x": 0.9139,
+              "y": 0.9401
+            },
+            {
+              "x": 0.4992,
+              "y": 0.9401
+            }
+          ],
+          "id": 6,
+          "page": 1
+        },
+        {
+          "category": "footer",
+          "content": {
+            "html": "<footer id='7' style='font-size:14px'>Downloaded from https://www.cambridge.org/core. IP address: 178.171.69.59, on 09 Jan 2019 at 17:22:38, subject to the Cambridge Core terms of use, available at https://www.cambridge.org/core/terms.<br>https://doi.org/10.1017/jpe.2018.84</footer>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0242,
+              "y": 0.9608
+            },
+            {
+              "x": 0.9672,
+              "y": 0.9608
+            },
+            {
+              "x": 0.9672,
+              "y": 0.9836
+            },
+            {
+              "x": 0.0242,
+              "y": 0.9836
+            }
+          ],
+          "id": 7,
+          "page": 1
+        }
+      ],
+      "timestamp": 1743818362.35703
+    },
+    "3": {
+      "page_number": 3,
+      "total_pages": 23,
+      "elements": [
+        {
+          "category": "header",
+          "content": {
+            "html": "<header id='0' style='font-size:22px'>Claybourn et al.-Lower Cambrian mollusks from East Antarctica</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.2666,
+              "y": 0.0294
+            },
+            {
+              "x": 0.7513,
+              "y": 0.0294
+            },
+            {
+              "x": 0.7513,
+              "y": 0.047
+            },
+            {
+              "x": 0.2666,
+              "y": 0.047
+            }
+          ],
+          "id": 0,
+          "page": 1
+        },
+        {
+          "category": "header",
+          "content": {
+            "html": "<br><header id='1' style='font-size:16px'>3</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.917,
+              "y": 0.0313
+            },
+            {
+              "x": 0.9309,
+              "y": 0.0313
+            },
+            {
+              "x": 0.9309,
+              "y": 0.0451
+            },
+            {
+              "x": 0.917,
+              "y": 0.0451
+            }
+          ],
+          "id": 1,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='2' data-category='paragraph' style='font-size:20px'>'zones' were recognized (oldest to youngest): Pelagiella suban-<br>gulata, Bemella communis, Stenotheca drepanoida, and Pela-<br>giella madianensis 'zones. , Jacquet et al. (2017) criticized<br>these molluscan biozones noting they have very poorly defined<br>boundaries and are based on poorly preserved, long-ranging taxa<br>with considerable overlapping ranges. Close inspection of the<br>data provided by Gravestock et al. (2001) reveals clear temporal<br>discrepancies between the sections on Yorke and Fleurieu<br>peninsulas (see Jacquet et al., 2017, p. 1093-1094 for details;<br>Betts et al., 2016a).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0859,
+              "y": 0.0826
+            },
+            {
+              "x": 0.5013,
+              "y": 0.0826
+            },
+            {
+              "x": 0.5013,
+              "y": 0.228
+            },
+            {
+              "x": 0.0859,
+              "y": 0.228
+            }
+          ],
+          "id": 2,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='3' data-category='paragraph' style='font-size:18px'>Broad biostratigraphic correlations of lower Cambrian<br>rocks have proven difficult due to strong provincialism and<br>facies dependence in faunas (Landing, 1992; Mount and Signor,<br>1992; Steiner et al., 2004, 2007; Landing et al., 2013; Jacquet<br>et al., 2016a; Yun et al., 2016). Betts et al. (2016a, 2017) created<br>regional SSF biozones for the early Cambrian of South Australia<br>and used mollusks as key accessory taxa. The choice of the pri-<br>marily phosphatic tommotiid taxa Kulparina rostrata Conway<br>Morris and Bengtson in Bengtson et al., 1990, Micrina etherid-<br>gei (Tate, 1892), and Dailyatia odyssei Evans and Rowell, 1990<br>to define these zones avoided some of the taxonomic and tapho-<br>nomic problems associated with facies dependence and incom-<br>plete steinkern preservation in lower Cambrian carbonates<br>(Mount and Signor, 1992; Jacquet et al. 2016a). Molluskan<br>steinkerns are also often difficult to identify accurately to species<br>level due to lack of information on the shell exterior, especially<br>micro-ornament and other surficial features, an important criter-<br>ion for species differentiation (Skovsted, 2006a; Betts et al.,<br>2016b; Jacquet and Brock, 2016). The base of Cambrian<br>Series 2, Stage 3, remains unresolved, although the first<br>appearance datum of trilobites occurs around this boundary<br>(see Babcock et al., 2017 and Zhang et al., 2017 for recent<br>reviews). The use of SSFs, including mollusks, for establishing<br>regional bases of Series 2 and Stage 3 has been put forward by<br>some authors, for example, the Pelagiella subangulata taxon-<br>range zone for South China (Steiner et al., 2007, 2011).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0844,
+              "y": 0.2292
+            },
+            {
+              "x": 0.5021,
+              "y": 0.2292
+            },
+            {
+              "x": 0.5021,
+              "y": 0.6055
+            },
+            {
+              "x": 0.0844,
+              "y": 0.6055
+            }
+          ],
+          "id": 3,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='4' data-category='paragraph' style='font-size:18px'>The fossils described herein are almost exclusively stein-<br>kerns of calcium phosphate, with occasional external molds. Pri-<br>mary mineralized or secondarily replaced shells are not present,<br>but mineral imprints are present on the exterior of some stein-<br>kerns, which correspond to a variety of calcitic or aragonitic<br>crystal morphologies. Examples of this, among others, include<br>polygonal imprints that are interpreted as calcitic semi-nacre<br>(Kouchinsky, 2000; Vendrasco et al., 2010; Vendrasco and<br>Checa, 2015) and elongated crystal laths that are interpreted to<br>be aragonitic (Landing and Bartowski, 1996; Kouchinsky,<br>2000; Landing et al., 2002; Vendrasco et al., 2010; Li et al.,<br>2017). The chemical formation of phosphatic steinkerns is<br>biased toward micromorphic forms (Creveling et al., 2014), sug-<br>gesting some helcionelloid fossils might represent the juvenile<br>shells (protoconchs) of macroscopic univalved mollusks (see<br>Marti-Mus et al., 2008; Jacquet and Brock, 2016; Jacquet<br>et al., 2016b). One of the first quantitative analyses of the fidelity<br>of steinkern representation of the original shell identified the size<br>of the umbilicus of anisostrophically coiled Ordovician mol-<br>lusks as an indicator of the size of the original organism (Dattilo<br>et al., 2016. This indicated the size of the steinkerns of the micro-<br>molluskan fauna studied was taphonomically, not ecologically,<br>controlled. The basic size of the steinkern therefore cannot be</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0852,
+              "y": 0.6069
+            },
+            {
+              "x": 0.5018,
+              "y": 0.6069
+            },
+            {
+              "x": 0.5018,
+              "y": 0.9412
+            },
+            {
+              "x": 0.0852,
+              "y": 0.9412
+            }
+          ],
+          "id": 4,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='5' data-category='paragraph' style='font-size:18px'>used to indicate ontogeny, and morphological differences<br>between two steinkerns of the same size may not indicate taxo-<br>nomically meaningful differences. The term 'teilsteinkern' was<br>introduced to describe incomplete internal molds (Dattilo et al.,<br>2016).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5155,
+              "y": 0.0829
+            },
+            {
+              "x": 0.9316,
+              "y": 0.0829
+            },
+            {
+              "x": 0.9316,
+              "y": 0.1552
+            },
+            {
+              "x": 0.5155,
+              "y": 0.1552
+            }
+          ],
+          "id": 5,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='6' data-category='paragraph' style='font-size:18px'>Some evidence suggests that the preservation of phosphatic<br>steinkerns is tied to particular lithologies and depositional pro-<br>cesses. Phosphate replacement and coating of originally calcar-<br>eous fossils was related to phosphate precipitation and intense<br>denitrification within sediments or above an oxygen minimum<br>zone (Landing 1992; Landing et al., 2002). Subsequently, Jac-<br>quet et al. (2016a) noted the occurrence of abundant micromol-<br>luskan residues was linked to facies characterized by sediment<br>reworking (i.e., tempestites) or low sedimentation rates (i.e.,<br>firmgrounds and true hardgrounds).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.515,
+              "y": 0.1568
+            },
+            {
+              "x": 0.9313,
+              "y": 0.1568
+            },
+            {
+              "x": 0.9313,
+              "y": 0.3009
+            },
+            {
+              "x": 0.515,
+              "y": 0.3009
+            }
+          ],
+          "id": 6,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='7' data-category='paragraph' style='font-size:18px'>Geological setting and previous work.-The bulk of fossil<br>material recovered is derived from an archaeocyath-rich<br>biohermal unit near the top of a stratigraphic section (HRA)<br>measured through the Shackleton Limestone and the overlying<br>dark nodular carbonates and interbedded calc-siltsones of the<br>Holyoake Formation. These rock units make up part of the<br>Byrd Group (Figs. 1, 2), which crops out along the Central<br>Transantarctic Mountains (Myrow et al., 2002). The deposition<br>of the Shackleton Limestone was interrupted by the Ross<br>Orogenic events, involving a change in the East Antarctic plate<br>margin from passive to orogenic subduction regime (Boger and<br>Miller, 2004). Subsidence resulted in a brief marine<br>transgression across the continental shelf and deposition of the<br>deeper-water argillaceous Holyoake Formation (Goodge et al.,<br>1993, 2004; Myrow et al., 2002) at approximately 515-510 Ma<br>(Paulsen et al., 2007). This was followed by a shallowing<br>succession and ?syn-orogenic deposition of fine to medium<br>calcareous sandstones of the Starshot Formation and overlying<br>boulder conglomerates of the Douglas Conglomerate (Rowell<br>et al., 1988a; Myrow et al., 2002; Goodge et al., 2004; Paulsen<br>et al., 2007). Stratigraphic sections through the Shackleton<br>Limestone have proven difficult to interpret into a coherent in<br>situ stratigraphy due to pervasive folding and faulting<br>(including fault repetition) of the carbonate-dominated<br>succession, the result of tectonism associated with the Ross<br>Orogeny (Paulsen et al., 2007).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5141,
+              "y": 0.3149
+            },
+            {
+              "x": 0.9322,
+              "y": 0.3149
+            },
+            {
+              "x": 0.9322,
+              "y": 0.6927
+            },
+            {
+              "x": 0.5141,
+              "y": 0.6927
+            }
+          ],
+          "id": 7,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='8' data-category='paragraph' style='font-size:20px'>Paleontological studies on parautochthonous lower Cam-<br>brian rocks from the Shackleton Limestone have largely focused<br>on trilobites (Palmer and Gatehouse, 1972; Palmer and Rowell,<br>1995) and archaeocyaths (Debrenne and Kruse, 1986, 1989). In<br>terms of other clades, only tommotiids (Evans and Rowell,<br>1990), the helcionelloid mollusk Marocella mira Evans, 1992,<br>and a single bradoriid arthropod species, Bicarinellata evansi<br>Rode et al., 2003, have been formally described systematically.<br>Rowell et al., (1988b, figs. G, L, P, Q also illustrated some taxa,<br>including an elkaniid-like lingulid, Lingulella sp. and the mol-<br>lusk Latouchella sp., as well as an unnamed 'euomphalid mol-<br>lusk' but without formal description. Brachiopods, mollusks,<br>tommotiids, and other SSFs derived from allochthonous clasts<br>redeposited in a Miocene glacial-marine succession on King<br>George Island, near the tip of the Antarctic Peninsula, were<br>probably originally deposited within sediments equivalent to<br>the Shackleton Limestone (Wrona, 1989, 2003, 2004; Holmer</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5147,
+              "y": 0.6942
+            },
+            {
+              "x": 0.9315,
+              "y": 0.6942
+            },
+            {
+              "x": 0.9315,
+              "y": 0.9409
+            },
+            {
+              "x": 0.5147,
+              "y": 0.9409
+            }
+          ],
+          "id": 8,
+          "page": 1
+        },
+        {
+          "category": "footer",
+          "content": {
+            "html": "<footer id='9' style='font-size:14px'>Downloaded from https://www.cambridge.org/core. IP address: 178.171.69.59, on 09 Jan 2019 at 17:22:38, subject to the Cambridge Core terms of use, available at https://www.cambridge.org/core/terms.<br>https://doi.org/10.1017/jpa.2018.84</footer>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.024,
+              "y": 0.961
+            },
+            {
+              "x": 0.9668,
+              "y": 0.961
+            },
+            {
+              "x": 0.9668,
+              "y": 0.9836
+            },
+            {
+              "x": 0.024,
+              "y": 0.9836
+            }
+          ],
+          "id": 9,
+          "page": 1
+        }
+      ],
+      "timestamp": 1743818362.35703
+    },
+    "4": {
+      "page_number": 4,
+      "total_pages": 23,
+      "elements": [
+        {
+          "category": "header",
+          "content": {
+            "html": "<header id='0' style='font-size:18px'>4</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0683,
+              "y": 0.0316
+            },
+            {
+              "x": 0.0835,
+              "y": 0.0316
+            },
+            {
+              "x": 0.0835,
+              "y": 0.0447
+            },
+            {
+              "x": 0.0683,
+              "y": 0.0447
+            }
+          ],
+          "id": 0,
+          "page": 1
+        },
+        {
+          "category": "header",
+          "content": {
+            "html": "<br><header id='1' style='font-size:20px'>Journal of Paleontology:1-23</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.3793,
+              "y": 0.0292
+            },
+            {
+              "x": 0.6027,
+              "y": 0.0292
+            },
+            {
+              "x": 0.6027,
+              "y": 0.0476
+            },
+            {
+              "x": 0.3793,
+              "y": 0.0476
+            }
+          ],
+          "id": 1,
+          "page": 1
+        },
+        {
+          "category": "figure",
+          "content": {
+            "html": "<figure id='2'><img style='font-size:14px' alt=\"Distance from\nLithology HRA\nsection base (m)\nRock unit\nSSF sample\nSedimentary\nfeatures\n200 number\n\ufffdConglomerate\n0\nDouglas\n43 0\n0\n0. 0\n42- \u00b7\n0\nP.subangulata\nSSS\nZE4 0 0\nwiss\nyatesi\n41-\nFormation\nStarshot\nrunnegari\nrostrata\nsp.\n350 corrugata\nsp.\n40-\nD. X.\nsp.\nP.\nsp.\nYochelcionella\nProtowenella\ncf. cf. subangulata\nsubangulata\nXianfengella\n39 cf.\nStenotheca\nAnuliconus\nPelagiella\nDavidonia cf.\nDavidonia\nPelagiella\nPojetaia\n150- 38-\nP.\n\u00b7 sp.\n\u00b7 australis\n.\n,\n\u25c6\nYochelcionella\ncf.\npart)\n37- 1-1 3 \u00b7\ncf.\nsp.\nAnabarella\nPelagiella\n\u24e7 runnegari\n51- HRSR\n(lower\n36 \u24e7\npart)\n35 \u24e7\n300\n68 Pojetaia\n34 Scenella?\n\u00b7\nLimestone \u24e7\n33/14 \u00b7 50- \u24e7 6569\n70\n\u24e7\n71\n32-\n\u24e7\n\u24c7 72\n100- Limestone\n31- (upper\n\u24c7\nShackleton 29,30 \u24e7\u24e7 74\n28 \ufffd\n49\nO 75\nSS Shackleton 73\n27- \u24e7 48-\n26-\n25 Limestone\nsimplex\nsp.\n\u24e7 47-\n250 australis\nsp.\n24 subangulata\nYochelcionella\ncf.\n23 \u24e7 HRSK runnegari\ncf.\nAnuliconus\nAnabarella\n22-\nPelagiella\nXinjispira\n\u24e7\n\u24e7 77-82\n\u24e7\n50- 21- HF\n\u24c7 Shackleton\n\u24e7 45,46 Pojetaia\n\u00b7\n\u00b7\n\u00b7\n\u00b7\n\u00b7\n\u24e7 SL 0 \u00b7\n20-\n76,67,66\n19\nArchaeocyath bioherms\nExtensive calcite veins\n44\n18- SS Moderate bioturbation\nArchaeocyaths\n17, \uc694. Key* Nodules\n30 Douglas Conglomerate\nMixed conglomerate, sandstone and silty shale\n\u6b21\nStarshot Formation\n15 SS Calcareous siltstone, very fine sandstone\n16\nHolyoake Formation (HF)\nSection base coordinates: Calcareous shale and carbonate nodules\nHRA: 82\u00b0 13.106'S, 160\u00b0 18.306'E Shackleton Limestone (SL)\nHRSK: 82\u00b0 13.050'S, 160\u00b0 19.599'E Nodular carbonates, ribbon limestones, oolitic limestones\nHRSR: 82\u00b0 13.038'S, 160\u00b0 19.696'E with ocassional shale interbeds and archaeocyath bioherms\n*See Myrow et al. (2002) for detailed descriptions of rock units\" data-coord=\"top-left:(119,122); bottom-right:(1084,1443)\" /></figure>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0979,
+              "y": 0.0775
+            },
+            {
+              "x": 0.8864,
+              "y": 0.0775
+            },
+            {
+              "x": 0.8864,
+              "y": 0.9111
+            },
+            {
+              "x": 0.0979,
+              "y": 0.9111
+            }
+          ],
+          "id": 2,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='3' data-category='paragraph' style='font-size:16px'>Figure 2. Sedimentary columns with micromollusk occurrences of measured sections of the Holyoake Range. HF = Holyoake Formation; SL = Shackleton<br>Limestone.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0686,
+              "y": 0.9199
+            },
+            {
+              "x": 0.9178,
+              "y": 0.9199
+            },
+            {
+              "x": 0.9178,
+              "y": 0.9436
+            },
+            {
+              "x": 0.0686,
+              "y": 0.9436
+            }
+          ],
+          "id": 3,
+          "page": 1
+        },
+        {
+          "category": "footer",
+          "content": {
+            "html": "<footer id='4' style='font-size:16px'>Downloaded from https://www.cambridge.org/core. IP address: 178.171.69.59, on 09 Jan 2019 at 17:22:38, subject to the Cambridge Core terms of use, available at https://www.cambridge.org/core/terms.<br>https://doi.org/10.1017/jpa.2018.84</footer>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0245,
+              "y": 0.9611
+            },
+            {
+              "x": 0.9666,
+              "y": 0.9611
+            },
+            {
+              "x": 0.9666,
+              "y": 0.9839
+            },
+            {
+              "x": 0.0245,
+              "y": 0.9839
+            }
+          ],
+          "id": 4,
+          "page": 1
+        }
+      ],
+      "timestamp": 1743818362.35703
+    },
+    "5": {
+      "page_number": 5,
+      "total_pages": 23,
+      "elements": [
+        {
+          "category": "header",
+          "content": {
+            "html": "<header id='0' style='font-size:20px'>Claybourn et al.-Lower Cambrian mollusks from East Antarctica</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.2665,
+              "y": 0.0294
+            },
+            {
+              "x": 0.7512,
+              "y": 0.0294
+            },
+            {
+              "x": 0.7512,
+              "y": 0.0471
+            },
+            {
+              "x": 0.2665,
+              "y": 0.0471
+            }
+          ],
+          "id": 0,
+          "page": 1
+        },
+        {
+          "category": "header",
+          "content": {
+            "html": "<br><header id='1' style='font-size:14px'>5</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.9173,
+              "y": 0.0313
+            },
+            {
+              "x": 0.9311,
+              "y": 0.0313
+            },
+            {
+              "x": 0.9311,
+              "y": 0.045
+            },
+            {
+              "x": 0.9173,
+              "y": 0.045
+            }
+          ],
+          "id": 1,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='2' data-category='paragraph' style='font-size:18px'>et al., 1996). These discoveries have formed the bulk of knowl-<br>edge of lower Cambrian faunas from Antarctica and confirm<br>strong biostratigraphic and paleobiogeographic links with<br>South Australia (Brock et al., 2000; Betts et al., 2016a, 2017),<br>Northeast Greenland (Skovsted, 2004, 2006b), and North<br>China (Yang et al., 2015) during Cambrian Series 2, Stages<br>3-4.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0851,
+              "y": 0.082
+            },
+            {
+              "x": 0.501,
+              "y": 0.082
+            },
+            {
+              "x": 0.501,
+              "y": 0.1841
+            },
+            {
+              "x": 0.0851,
+              "y": 0.1841
+            }
+          ],
+          "id": 2,
+          "page": 1
+        },
+        {
+          "category": "heading1",
+          "content": {
+            "html": "<h1 id='3' style='font-size:22px'>Stratigraphic correlation</h1>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0848,
+              "y": 0.1983
+            },
+            {
+              "x": 0.2801,
+              "y": 0.1983
+            },
+            {
+              "x": 0.2801,
+              "y": 0.2147
+            },
+            {
+              "x": 0.0848,
+              "y": 0.2147
+            }
+          ],
+          "id": 3,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='4' data-category='paragraph' style='font-size:18px'>Antarctica.-Lower Cambrian limestone erratics have been<br>recovered within early Miocene glaciomarine deposits of King<br>George Island, north of the Antarctic Peninsula (Ga\ufffddzicki<br>and Wrona, 1986; Wrona, 1989); these contain a diverse fauna<br>of poriferan spicules and chancellorid, sachitiid, and tommotiid<br>sclerites (Wrona, 2004), organophosphatic brachiopods<br>(Holmer et al., 1996), bradoriids and phosphatocopids (Wrona,<br>2009), and mollusks (Wrona, 2003). The molluskan fauna<br>from the erratics is similar to the Shackleton Limestone<br>samples recovered from the Holyoake Range, including the<br>genera Yochelcionella Runnegar and Pojeta 1974, Anabarella<br>Vostokova, 1962, and Pelagiella (Matthew, 1895) (Wrona,<br>2003). The erratics most likely belong to the Shackleton<br>Limestone and host the age-diagnostic tommotiid Dailyatia<br>odyssei (Evans and Rowell, 1990; Wrona, 2004; Skovsted<br>et al., 2015).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0857,
+              "y": 0.2271
+            },
+            {
+              "x": 0.5012,
+              "y": 0.2271
+            },
+            {
+              "x": 0.5012,
+              "y": 0.4616
+            },
+            {
+              "x": 0.0857,
+              "y": 0.4616
+            }
+          ],
+          "id": 4,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='5' data-category='paragraph' style='font-size:16px'>South Australia. -Previous studies suggesting a link between<br>the Shackleton Limestone and South Australia were based on<br>relatively few in situ samples from Antarctica, particularly of<br>SSFs (see Brock et al., 2000; Topper et al., 2011; Yang et al.,<br>2015). Biostratigraphic correlation has previously been based<br>on trilobites (Palmer and Gatehouse, 1972; Palmer and<br>Rowell, 1995). Palmer and Rowell (1995) tentatively assigned<br>their six assemblages of trilobites to be from Atdabanian to<br>Toyonian in age, and their assemblage 4 was correlated to the<br>Pararaia janae zone of South Australia on the basis of<br>co-occurrence of Balcoracania (Jell in Bengtson et al., 1990).<br>Paterson and Brock (2007) described Yunnanocephalus<br>macromelos from the Mernmerna Formation, indicating a link<br>between Palmer and Rowell's (1995) Assemblage 1 (which<br>contains members of the genus) and the Pararaia<br>bunyenrooensis Zone. Caution was suggested in these ages<br>due to few easily compared species (Palmer and Rowell, 1995,<br>p. 4). Debrenne and Kruse (1986, 1989) indicated an<br>Atdabanian-Botoman age for Antarctic archaeocyaths and<br>considered most species to be found in common with the<br>Wilkawillina and Ajax Limestones (Debrenne and Kruse,<br>1989, p. 24). Accurately correlating the Shackleton Limestone<br>on the basis of the molluskan fauna alone is problematic due<br>to issues already discussed with steinkern formation<br>(Creveling et al., 2014; Jacquet et al., 2016a) and long<br>stratigraphic ranges of helcionelloids (Landing, 1988; Geyer<br>and Shergold, 2000; Jacquet et al., 2017; Zhang et al., 2017).<br>This problem was discussed by Betts et al. (2017, p. 202) and<br>Jacquet et al. (2017) in reference to the informal molluskan<br>assemblage biozonations in Gravestock et al. (2001). A close<br>correlation to the Dailyatia odyssei Zone in South Australia is<br>strengthened by the shared presence of the accessory taxa</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0846,
+              "y": 0.4733
+            },
+            {
+              "x": 0.5022,
+              "y": 0.4733
+            },
+            {
+              "x": 0.5022,
+              "y": 0.9432
+            },
+            {
+              "x": 0.0846,
+              "y": 0.9432
+            }
+          ],
+          "id": 5,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='6' data-category='paragraph' style='font-size:16px'>Cambroclavus absonus Conway Morris in Bengtson et al.,<br>1990 (Skovsted et al., 2006, fig. 2) in the biohermal facies at<br>the top of the Shackleton Limestone and Spinospitella<br>coronata in the overlying Holyoake Formation, both of which<br>co-occur in the D. odyssei Zone with accessory taxon<br>Schizopholis (=Karathele) yorkensis (Ushatinskaya and<br>Holmer in Gravestock et al., 2001). The presence of these taxa<br>exclude the biohermal unit from correlation with the<br>underlying Micrina etheridgei Zone, in which the steinkerns<br>of the mollusks Pojetaia runnegari, Pelagiella, Anabarella,<br>and Davidonia Parkhaev, 2017b also occur (Betts et al., 2017,<br>figs. 3, 4, 7, 8, 12). Xianfengella, Yochelcionella, and<br>Stenotheca are all restricted to the D. odyssei Zone in South<br>Australia, allowing for stronger correlation (Betts et al., 2017,<br>figs. 5, 10, 12). Protowenella Runnegar and Jell, 1976 is also<br>known from the Cambrian Series 3 in Australia (Runnegar<br>and Jell, 1976; Brock, 1998; Vendrasco et al., 2010), as well<br>as Cambrian Series 2, Stage 4 (Smith et al., 2015), but the<br>utility of this taxon in correlation with South Australia is<br>doubtful due to problems with consistent identification.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5147,
+              "y": 0.0819
+            },
+            {
+              "x": 0.9319,
+              "y": 0.0819
+            },
+            {
+              "x": 0.9319,
+              "y": 0.3721
+            },
+            {
+              "x": 0.5147,
+              "y": 0.3721
+            }
+          ],
+          "id": 6,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='7' data-category='paragraph' style='font-size:18px'>The Shackleton Limestone fauna has most similarity with<br>the Mernmerna Formation in the Arrowie Basin, which shares<br>the micromollusks Pojetaia runnegari, Davidonia, Pelagiella,<br>Anabarella, Stenotheca Hicks, 1872, and Xianfengella He and<br>Yang, 1982 (Topper et al., 2009). The macromollusk Marocella<br>mira not reported in this study is also present in the upper Mern-<br>merna Formation (Topper et al., 2009; Jacquet and Brock, 2016)<br>and the Shackleton Limestone that outcrops in the Churchill<br>Mountains (Evans, 1992). The Ajax Limestone in the Arrowie<br>Basin also contains Davidonia and Anabarella steinkerns as<br>well as Pelagiella subangulata (Tate, 1892) (Betts et al.,<br>2016a, fig. 2). Pojetaia runnegari has also been reported from<br>the Ajax Limestone (Bengtson et al., 1990, fig. 6) although<br>the range extends down into the underlying M. etheridgei<br>Zone. The Shackleton Limestone thus strongly correlates with<br>the D. oddysei zone in the upper Ajax Limestone (Betts et al.,<br>2016a, fig. 2). Yochelcionella chinensis Pei, 1985 has also<br>been reported from the younger Oraparinna Shale (Runnegar<br>in Bengtson et al., 1990) of the Pararaia janeae Zone (Jago<br>et al., 2012).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5146,
+              "y": 0.374
+            },
+            {
+              "x": 0.932,
+              "y": 0.374
+            },
+            {
+              "x": 0.932,
+              "y": 0.6645
+            },
+            {
+              "x": 0.5146,
+              "y": 0.6645
+            }
+          ],
+          "id": 7,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='8' data-category='paragraph' style='font-size:18px'>Highly diverse assemblages of micromollusks have been<br>reported from the lower Cambrian Stansbury Basin (Bengtson<br>et al., 1990; Gravestock et al., 2001), many of which also occur<br>in the Shackleton Limestone. Davidonia rostrata (Zhou and<br>Xiao, 1984), Pojetaia runnegari, as well as the genera<br>Anuliconus Parkhaev in Gravestock et al., 2001, Anabarella,<br>Pelagiella, and Stenotheca occur in the uppermost Kulpara<br>Formation and disconformably overlying Parara Limestone in<br>the western Stansbury Basin (Bengtson et al., 1990; Parkhaev<br>in Gravestock et al., 2001), indicating long stratigraphic ranges<br>of limited correlation potential. Xianfengella yatesi Parkhaev<br>in Gravestock et al., 2001 has a more restricted occurrence,<br>in the Parara Limestone at Yorke Peninsula (Parkhaev in<br>Gravestock et al., 2001). Betts et al. (2017, fig. 22) identified<br>the D. odyssei Zone in the Parara Limestone at Horse Gully<br>on Yorke Peninsula. A condensed Kulparina rostrata Zone<br>and overlying Micrina etheridgei Zone occurr in the<br>disconformably underlying Kulpara Formation (Betts et al.,<br>2017, p. 202).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5144,
+              "y": 0.6654
+            },
+            {
+              "x": 0.9326,
+              "y": 0.6654
+            },
+            {
+              "x": 0.9326,
+              "y": 0.9397
+            },
+            {
+              "x": 0.5144,
+              "y": 0.9397
+            }
+          ],
+          "id": 8,
+          "page": 1
+        },
+        {
+          "category": "footer",
+          "content": {
+            "html": "<footer id='9' style='font-size:14px'>Downloaded from https://www.cambridge.org/core. IP address: 178.171.69.59, on 09 Jan 2019 at 17:22:38, subject to the Cambridge Core terms of use, available at https://www.cambridge.org/core/terms.<br>https://doi.org/10.1017/jpa.2018.84</footer>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.024,
+              "y": 0.9609
+            },
+            {
+              "x": 0.9678,
+              "y": 0.9609
+            },
+            {
+              "x": 0.9678,
+              "y": 0.9838
+            },
+            {
+              "x": 0.024,
+              "y": 0.9838
+            }
+          ],
+          "id": 9,
+          "page": 1
+        }
+      ],
+      "timestamp": 1743818362.35703
+    },
+    "6": {
+      "page_number": 6,
+      "total_pages": 23,
+      "elements": [
+        {
+          "category": "header",
+          "content": {
+            "html": "<header id='0' style='font-size:14px'>6</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0689,
+              "y": 0.0316
+            },
+            {
+              "x": 0.0836,
+              "y": 0.0316
+            },
+            {
+              "x": 0.0836,
+              "y": 0.0453
+            },
+            {
+              "x": 0.0689,
+              "y": 0.0453
+            }
+          ],
+          "id": 0,
+          "page": 1
+        },
+        {
+          "category": "header",
+          "content": {
+            "html": "<br><header id='1' style='font-size:22px'>Journal of Paleontology:1-23</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.3798,
+              "y": 0.03
+            },
+            {
+              "x": 0.6025,
+              "y": 0.03
+            },
+            {
+              "x": 0.6025,
+              "y": 0.0471
+            },
+            {
+              "x": 0.3798,
+              "y": 0.0471
+            }
+          ],
+          "id": 1,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='2' data-category='paragraph' style='font-size:18px'>North China. Cambrian Series 2 strata from North China are<br>divided into three biozones: the informal Stenotheca<br>drepanoida-Pelagiella madianensis Biozone (Feng et al.,<br>1994), considered equivalent to the Pararaia janeae trilobite<br>zone of South Australia (Yun et al., 2016), and the overlying<br>Redlichia and Redlichia chinensis informal trilobite zones<br>(Yun et al., 2016). Mollusks from the Cambrian Series 2,<br>Stages 3-4, Xinji Formation in Shaanxi Province, Henan<br>Province, and Anhui Province on the southwestern, southern,<br>and southeastern margins of the North China Platform,<br>respectively, can be closely correlated to the Shackleton<br>Limestone based on shared genera Stenotheca, Pelagiella,<br>Yochelcionella, Yu and Rong, 1991, and Anabarella and<br>species Xinjispira simplex, Pojetaia runnegari, and Davidonia<br>rostrata (He et al., 1984; Zhou and Xiao, 1984; He and Pei,<br>1985; Pei, 1985; Li and Zhou, 1986; Yu and Rong, 1991;<br>Feng et al., 1994; Yun et al., 2016). The presence of<br>Xinjispira simplex in the Shackleton Limestone represents the<br>first discovery of the species outside North China and helps<br>strengthen this correlation. Putative Protowenella steinkerns<br>are also known from the Xinji Formation (Zhou and Xiao,<br>1984). However, it should be noted that diagnostic muscle<br>scars are not preserved on specimens from the Xinji<br>Formation or Shackleton Limestone (and other putative<br>pre-Series 3 specimens), making taxonomic assignment to this<br>genus tentatative at this stage (Berg-Madsen and Peel, 1978;<br>Brock, 1998).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0704,
+              "y": 0.0812
+            },
+            {
+              "x": 0.4837,
+              "y": 0.0812
+            },
+            {
+              "x": 0.4837,
+              "y": 0.4756
+            },
+            {
+              "x": 0.0704,
+              "y": 0.4756
+            }
+          ],
+          "id": 2,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='3' data-category='paragraph' style='font-size:18px'>South China.-Palmer and Rowell (1995) correlated their<br>Trilobite Assemblage 1 (tentatively 'Atdabanian') to the<br>Eoredlichia- Wutingaspis Zone of South China, which has<br>significant overlap with the Dailyatia odyssei Zone of South<br>Australia (Betts et al., 2017). The Eoredlichia- Wutingaspis<br>Zone is equivalent to the Pelagiella subangulata Zone of East<br>Yunnan and central Sichuan in South China (Steiner et al.,<br>2007). The uppermost Shiyantou, Yuanshan (Yunnan<br>Province) and upper Jiulaodong (Sichuan Province)<br>formations of this zone have no shared helcionelloids for<br>correlation to the Shackleton Limestone. The Yuanshan<br>Formation of East Yunnan is predominantly siliciclastic and<br>preserves phosphatic SSFs only in the lowermost phosphatic<br>conglomerate unit, which contains SSFs of the Sinosachites<br>flabelliformis-Tannuolina zhangwengtangi Zone (Steiner<br>et al., 2001), immediately below the Pelagiella subangulata<br>Zone (Steiner et al., 2007). This zone shares the taxon<br>Xianfengella with the Shackleton Limestone only, in the<br>Terreneuvian Yanjiahe Formation of Hubei (Guo et al., 2014)<br>and Zhujianqing Formation of Yunnan (Anabarites<br>trusulcatus-Protohertzina anabarica to Watsonella crosbyi<br>zones) (Parkhaev and Demidenko, 2010).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0696,
+              "y": 0.4879
+            },
+            {
+              "x": 0.4861,
+              "y": 0.4879
+            },
+            {
+              "x": 0.4861,
+              "y": 0.8104
+            },
+            {
+              "x": 0.0696,
+              "y": 0.8104
+            }
+          ],
+          "id": 3,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='4' data-category='paragraph' style='font-size:18px'>Davidonia rostrata, Yochelcionella, and Pelagiella. The<br>material from the Browns Pond Formation was collected from<br>the Elliptocephala asaphoides assemblage, recognized as part<br>of the Bonnia-Olenellus Zone by Siveter and Williams (1997).<br>Also from Eastern Laurentia, the Forteau Formation of<br>Newfoundland contains an abundant micromolluskan fauna<br>(Skovsted and Peel, 2007), which shares Pojetaia runnegari,<br>Davidonia, Stenotheca, and Pelagiella with the Shackleton<br>Limestone. The formation also belongs to the<br>Bonnia-Olenellus Zone as both trilobite genera occur there<br>(Schuchert and Dunbar, 1934; Knight et al., 2017). Betts et al.<br>(2017) recognized an overlap between the younger Olenellus<br>Zone (the base of which is the same as the Bonnia-Olenellus<br>Zone; Landing et al., 2013) and the uppermost part of the<br>Dailyatia odyssei Zone of South Australia. The Kinzers<br>Formation of Pennsylvania, of upper Cambrian Series 2 age,<br>also contains steinkerns of Yochelcionella and Pelagiella<br>(Atkins and Peel, 2008; Skovsted and Peel, 2010).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.4989,
+              "y": 0.0823
+            },
+            {
+              "x": 0.9155,
+              "y": 0.0823
+            },
+            {
+              "x": 0.9155,
+              "y": 0.3434
+            },
+            {
+              "x": 0.4989,
+              "y": 0.3434
+            }
+          ],
+          "id": 4,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='5' data-category='paragraph' style='font-size:16px'>Northeast Greenland has lower Cambrian SSFs recognized<br>as similar to those in South Australia and from the glacial erratics<br>recovered from King George Island, Antarctica (Malinky and<br>Skovsted, 2004; Skovsted, 2004; Skovsted and Holmer, 2005;<br>Skovsted, 2006b). Skovsted (2004) reported a micromolluskan<br>fauna from the Bastion Formation for Northeast Greenland,<br>also correlated to the Bonnia-Olenellus Zone (Skovsted,<br>2006b, fig. 5.1-5.3), placing them as Dyeran in age of Lauren-<br>tian regional scheme (Landing et al., 2013). The micromollusk<br>fauna of the Bastion Formation is very similar to that found in<br>the Shackleton Limestone and shared taxa include Davidonia<br>rostrata, Pojetaia runnegari, Anabarella, Stenotheca, and<br>Yochelcionella, (Skovsted, 2004) of which the latter four can<br>be more loosely correlated at the generic level.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.4988,
+              "y": 0.3449
+            },
+            {
+              "x": 0.9154,
+              "y": 0.3449
+            },
+            {
+              "x": 0.9154,
+              "y": 0.5473
+            },
+            {
+              "x": 0.4988,
+              "y": 0.5473
+            }
+          ],
+          "id": 5,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='6' data-category='paragraph' style='font-size:18px'>For western Laurentia, Skovsted (2006a) and Wotte and<br>Sundberg (2017) provided systematic descriptions of lower<br>Cambrian micromollusks from the Great Basins area. Pelagiella<br>and Anabarella appear widespread across the province, with<br>Pelagiella aff. P. subangulata occurring in the Emigrant Forma-<br>tion, Montenegro Member of the Campito Formation and the<br>Combined Metals Member of the Pioche Formation, in rocks<br>of upper Montezuman to Dyeran Stages (Wotte and Sundberg,<br>2017) given Cambrian Series 2, Stage 3 (Montezuman) and<br>Stages 3-4 (Dyeran) (Peng et al., 2012).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.4983,
+              "y": 0.549
+            },
+            {
+              "x": 0.9161,
+              "y": 0.549
+            },
+            {
+              "x": 0.9161,
+              "y": 0.6936
+            },
+            {
+              "x": 0.4983,
+              "y": 0.6936
+            }
+          ],
+          "id": 6,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='7' data-category='paragraph' style='font-size:20px'>Materials and methods</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5,
+              "y": 0.7068
+            },
+            {
+              "x": 0.6802,
+              "y": 0.7068
+            },
+            {
+              "x": 0.6802,
+              "y": 0.7222
+            },
+            {
+              "x": 0.5,
+              "y": 0.7222
+            }
+          ],
+          "id": 7,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='8' data-category='paragraph' style='font-size:18px'>Laurentia.-The SSF composition of eastern Laurentia suggests<br>a continuous shelf margin during the early Cambrian (Skovsted,<br>2006b; Skovsted and Peel, 2010). Landing and Bartowski<br>(1996) and Landing et al. (2002) reported diverse assemblages<br>of SSFs from the Browns Pond Formation of the Taconic<br>Allochthon of New York (Landing and Bartowski, 1996) and<br>the 'Anse Maranda Formation' of Quebec (Landing et al.,<br>2002), which contain a similar molluskan component of</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0697,
+              "y": 0.823
+            },
+            {
+              "x": 0.4856,
+              "y": 0.823
+            },
+            {
+              "x": 0.4856,
+              "y": 0.9412
+            },
+            {
+              "x": 0.0697,
+              "y": 0.9412
+            }
+          ],
+          "id": 8,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<br><p id='9' data-category='paragraph' style='font-size:18px'>Fossils were collected in the Austral summer during five weeks<br>of fieldwork in October-November, 2011 (by LEH, CBS, GAB)<br>from measured stratigraphic sections (HRA, HRSK, and HRSR)<br>in the Holyoake Range, Central Transantarctic Mountains (Figs.<br>1, 2). The sections intersect the upper carbonate-dominated suc-<br>cessions of the Shackleton Limestone, including inner shelf,<br>shoal, and archaeocyath-microbialite bioherm facies, and the<br>overlying and onlapping dark silty carbonates and argillites<br>from the Holyoake Formation. The most diverse and abundant<br>fossil materials are derived from well-exposed biohermal facies<br>at the top of the Shackleton Limestone (Fig. 2). Stratigraphically,<br>the sections are an extension of the section originally sampled<br>and illustrated by Myrow et al. (2002). Phosphatic residues<br>were extracted from the carbonate matrix with dilute 10% acetic</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.4994,
+              "y": 0.7366
+            },
+            {
+              "x": 0.9153,
+              "y": 0.7366
+            },
+            {
+              "x": 0.9153,
+              "y": 0.9402
+            },
+            {
+              "x": 0.4994,
+              "y": 0.9402
+            }
+          ],
+          "id": 9,
+          "page": 1
+        },
+        {
+          "category": "footer",
+          "content": {
+            "html": "<footer id='10' style='font-size:14px'>Downloaded from https://www.cambridge.org/core. IP address: 178.171.69.59, on 09 Jan 2019 at 17:22:38, subject to the Cambridge Core terms of use, available at https://www.cambridge.org/core/terms.<br>https://doi.org/10.1017/jpa.2018.84</footer>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0242,
+              "y": 0.961
+            },
+            {
+              "x": 0.9665,
+              "y": 0.961
+            },
+            {
+              "x": 0.9665,
+              "y": 0.9838
+            },
+            {
+              "x": 0.0242,
+              "y": 0.9838
+            }
+          ],
+          "id": 10,
+          "page": 1
+        }
+      ],
+      "timestamp": 1743818362.35703
+    },
+    "7": {
+      "page_number": 7,
+      "total_pages": 23,
+      "elements": [
+        {
+          "category": "header",
+          "content": {
+            "html": "<header id='0' style='font-size:20px'>Claybourn et al. -Lower Cambrian mollusks from East Antarctica</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.2665,
+              "y": 0.0293
+            },
+            {
+              "x": 0.7511,
+              "y": 0.0293
+            },
+            {
+              "x": 0.7511,
+              "y": 0.0472
+            },
+            {
+              "x": 0.2665,
+              "y": 0.0472
+            }
+          ],
+          "id": 0,
+          "page": 1
+        },
+        {
+          "category": "header",
+          "content": {
+            "html": "<br><header id='1' style='font-size:16px'>7</header>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.9162,
+              "y": 0.0307
+            },
+            {
+              "x": 0.9316,
+              "y": 0.0307
+            },
+            {
+              "x": 0.9316,
+              "y": 0.045
+            },
+            {
+              "x": 0.9162,
+              "y": 0.045
+            }
+          ],
+          "id": 1,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='2' data-category='paragraph' style='font-size:18px'>acid solution following standard acid-leaching protocols (see<br>Jeppsson et al., 1999). Images were taken with a Zeiss Supra<br>35 SEM at Uppsala University, a Hitachi S-4300 SEM at the<br>Natural History Museum, Stockholm, and a PHENOM XL<br>Benchtop SEM at Macquarie University.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0861,
+              "y": 0.0828
+            },
+            {
+              "x": 0.5025,
+              "y": 0.0828
+            },
+            {
+              "x": 0.5025,
+              "y": 0.1564
+            },
+            {
+              "x": 0.0861,
+              "y": 0.1564
+            }
+          ],
+          "id": 2,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='3' data-category='paragraph' style='font-size:18px'>Repository and institutional abbreviation.-All specimens are<br>deposited at the Swedish Museum of Natural History<br>(SMNH), Stockholm, Sweden.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0861,
+              "y": 0.1701
+            },
+            {
+              "x": 0.5013,
+              "y": 0.1701
+            },
+            {
+              "x": 0.5013,
+              "y": 0.2145
+            },
+            {
+              "x": 0.0861,
+              "y": 0.2145
+            }
+          ],
+          "id": 3,
+          "page": 1
+        },
+        {
+          "category": "heading1",
+          "content": {
+            "html": "<h1 id='4' style='font-size:22px'>Systematic paleontology</h1>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0846,
+              "y": 0.2341
+            },
+            {
+              "x": 0.2727,
+              "y": 0.2341
+            },
+            {
+              "x": 0.2727,
+              "y": 0.2517
+            },
+            {
+              "x": 0.0846,
+              "y": 0.2517
+            }
+          ],
+          "id": 4,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='5' data-category='paragraph' style='font-size:18px'>The phylogenetic relationships of the likely polyphyletic class<br>Helcionelloida Peel, 1991a is still unresolved. Many simple,<br>poorly preserved and minute cap-shaped steinkerns recovered<br>from the Shackleton Limestone during this study are not dealt<br>with here due to a lack of taxonomically informative features.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0853,
+              "y": 0.264
+            },
+            {
+              "x": 0.5029,
+              "y": 0.264
+            },
+            {
+              "x": 0.5029,
+              "y": 0.3372
+            },
+            {
+              "x": 0.0853,
+              "y": 0.3372
+            }
+          ],
+          "id": 5,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='6' data-category='paragraph' style='font-size:20px'>Phylum Mollusca Cuvier, 1797<br>Class Bivalvia Linnaeus, 1758<br>Order and family uncertain</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.188,
+              "y": 0.3477
+            },
+            {
+              "x": 0.3993,
+              "y": 0.3477
+            },
+            {
+              "x": 0.3993,
+              "y": 0.3928
+            },
+            {
+              "x": 0.188,
+              "y": 0.3928
+            }
+          ],
+          "id": 6,
+          "page": 1
+        },
+        {
+          "category": "figure",
+          "content": {
+            "html": "<br><figure id='7'><img style='font-size:14px' alt=\"3\n2\n5 6\n4\n8\" data-coord=\"top-left:(641,134); bottom-right:(1127,561)\" /></figure>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5243,
+              "y": 0.0846
+            },
+            {
+              "x": 0.9215,
+              "y": 0.0846
+            },
+            {
+              "x": 0.9215,
+              "y": 0.3547
+            },
+            {
+              "x": 0.5243,
+              "y": 0.3547
+            }
+          ],
+          "id": 7,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='8' data-category='paragraph' style='font-size:20px'>Genus Pojetaia Jell, 1980</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.205,
+              "y": 0.406
+            },
+            {
+              "x": 0.3809,
+              "y": 0.406
+            },
+            {
+              "x": 0.3809,
+              "y": 0.4218
+            },
+            {
+              "x": 0.205,
+              "y": 0.4218
+            }
+          ],
+          "id": 8,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='9' data-category='paragraph' style='font-size:18px'>Type species.-Pojetaia runnegari Jell, 1980, 'Salterella<br>Limestone, near Ardrossan, South Australia, by original<br>designation. This likely corresponds to the Parara Limestone at<br>Horse Gully, near Ardrossan, South Australia (cf. Jell, 1980,<br>p. 234; Bengtson et al., 1990, fig. 4).</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0855,
+              "y": 0.4342
+            },
+            {
+              "x": 0.502,
+              "y": 0.4342
+            },
+            {
+              "x": 0.502,
+              "y": 0.5079
+            },
+            {
+              "x": 0.0855,
+              "y": 0.5079
+            }
+          ],
+          "id": 9,
+          "page": 1
+        },
+        {
+          "category": "caption",
+          "content": {
+            "html": "<caption id='10' style='font-size:20px'>Pojetaia runnegari Jell, 1980<br>Figure 3</caption>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.1939,
+              "y": 0.5211
+            },
+            {
+              "x": 0.3932,
+              "y": 0.5211
+            },
+            {
+              "x": 0.3932,
+              "y": 0.5513
+            },
+            {
+              "x": 0.1939,
+              "y": 0.5513
+            }
+          ],
+          "id": 10,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='11' data-category='paragraph' style='font-size:18px'>See Elicki and G\ufffdrsu (2009, p. 281-282) for a detailed<br>synonymy.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0856,
+              "y": 0.5648
+            },
+            {
+              "x": 0.4996,
+              "y": 0.5648
+            },
+            {
+              "x": 0.4996,
+              "y": 0.5956
+            },
+            {
+              "x": 0.0856,
+              "y": 0.5956
+            }
+          ],
+          "id": 11,
+          "page": 1
+        },
+        {
+          "category": "table",
+          "content": {
+            "html": "<table id='12' style='font-size:20px'><tr><td>1980</td><td>Pojetaia runnegari Jell, p. 235, figs. 1-3.</td></tr><tr><td>2004a</td><td>Pojetaia runnegari; Parkhaev, p. 600, pl. 2, figs. 15-18.</td></tr><tr><td>2007</td><td>Pojetaia runnegari; Skovsted and Peel, p. 737,fig.4K,L.</td></tr><tr><td>2008</td><td>Pojetaia runnegari; Parkhaev, p. 38, fig. 3.4.</td></tr><tr><td>2009</td><td>Pojetaia runnegari; Elicki and G\ufffdrsu, p. 281,pl.1,pl.2, E-H.</td></tr><tr><td>2009</td><td>Pojetaia runnegari; Topper et al., p. 238, fig. 12K-M.</td></tr><tr><td>2010</td><td>Pojetaia runnegari; Heuse et al., p. 107, fig. 2.14.</td></tr><tr><td>2011</td><td>Pojetaia runegari; Vendrasco et al., pl. 1-4.</td></tr><tr><td>2015</td><td>Pojetaia runnegari; Vinther, fig. 2H.</td></tr><tr><td>2016</td><td>Pojetaia runnegari; Yun et al., fig. 5M.</td></tr><tr><td>2017</td><td>Pojetaia runnegari; Betts et al., fig. 170.</td></tr></table>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0858,
+              "y": 0.609
+            },
+            {
+              "x": 0.5006,
+              "y": 0.609
+            },
+            {
+              "x": 0.5006,
+              "y": 0.7864
+            },
+            {
+              "x": 0.0858,
+              "y": 0.7864
+            }
+          ],
+          "id": 12,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='13' data-category='paragraph' style='font-size:18px'>Holotype.-P59669, Paleontological collections, National Museum<br>of Victoria, Melbourne, Australia. Internal mold of articulated<br>valves, 'Salterella limestone, , lower Cambrian, South Australia.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.085,
+              "y": 0.8082
+            },
+            {
+              "x": 0.5011,
+              "y": 0.8082
+            },
+            {
+              "x": 0.5011,
+              "y": 0.8539
+            },
+            {
+              "x": 0.085,
+              "y": 0.8539
+            }
+          ],
+          "id": 13,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='14' data-category='paragraph' style='font-size:18px'>Occurrence. -See Elicki and G\ufffdrsu (2009, p. 273) for a full<br>review of global stratigraphic distribution. Distribution now<br>includes Cambrian unnamed Series 2, Stages 3-4, of<br>Newfoundland, Canada (Skovsted and Peel, 2007), and East<br>Antarctica.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0858,
+              "y": 0.8667
+            },
+            {
+              "x": 0.5012,
+              "y": 0.8667
+            },
+            {
+              "x": 0.5012,
+              "y": 0.94
+            },
+            {
+              "x": 0.0858,
+              "y": 0.94
+            }
+          ],
+          "id": 14,
+          "page": 1
+        },
+        {
+          "category": "caption",
+          "content": {
+            "html": "<br><caption id='15' style='font-size:14px'>Figure3. Pojetaia runnegari Jell, 1980 from the Shackleton Limestone. (1-4)<br>Specimen SMNH Mo185039 in (1) lateral view, \u2461 dorsal view, \u2462 magnifica-<br>tion of the central margin, showing laminar crystalline imprints, \u2463 magnifica-<br>tion of the cardinal teeth shown in \u2461 (5, 6) Specimen SMNH Mo185040,<br>\u2464 lateral view, \u2465 magnification of lateral surface, showing laminar crystalline<br>imprints. \u2466 Specimen SMNH Mo185041 in lateral view. \u2467 Specimen SMNH<br>Mo185042 in lateral view. \u2468 Specimen SMNH Mo185043. (5, 6, 8) imaged<br>under low vacuum settings. (1, 2, 6-9) Scale bars = 200 um; (3-5) scale bars<br>= 100 \ufffdm.</caption>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5165,
+              "y": 0.3642
+            },
+            {
+              "x": 0.9312,
+              "y": 0.3642
+            },
+            {
+              "x": 0.9312,
+              "y": 0.4629
+            },
+            {
+              "x": 0.5165,
+              "y": 0.4629
+            }
+          ],
+          "id": 15,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='16' data-category='paragraph' style='font-size:18px'>Description.\ufffdSmall equibivalved steinkerns, suboval or<br>subcircular in outline to slightly extended caudally, range from<br>0.8-1.5 mm in length, 0.4-1.1 mm in height. Umbo central to<br>subcentral and prosogyral. Shells 0.8-1.5 mm in length, 0.4-<br>1.1 mm in height. One to two cardinal teeth on straight dorsal<br>hinge but sometimes not preserved. Small, projecting auricle<br>present on posterior part of the hinge. Ventral margin slightly<br>convex, transition to anterior and posterior margins variable<br>from distinct bend to gentle curve. Ligament or muscle scars<br>not preserved. Prismatic imprints present on the internal mold,<br>covering the majority of the steinkern, becoming smaller but<br>clearer at the ventral margin.</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5157,
+              "y": 0.4898
+            },
+            {
+              "x": 0.9317,
+              "y": 0.4898
+            },
+            {
+              "x": 0.9317,
+              "y": 0.664
+            },
+            {
+              "x": 0.5157,
+              "y": 0.664
+            }
+          ],
+          "id": 16,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='17' data-category='paragraph' style='font-size:18px'>Materials.-Thirty-six steinkerns from localities HRSR 65, 68,<br>HRSK 66, and HRA 2, 4, and 6 (Fig. 2)</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5152,
+              "y": 0.6781
+            },
+            {
+              "x": 0.93,
+              "y": 0.6781
+            },
+            {
+              "x": 0.93,
+              "y": 0.7086
+            },
+            {
+              "x": 0.5152,
+              "y": 0.7086
+            }
+          ],
+          "id": 17,
+          "page": 1
+        },
+        {
+          "category": "paragraph",
+          "content": {
+            "html": "<p id='18' data-category='paragraph' style='font-size:18px'>Remarks.-Antarctic specimens are exclusively steinkerns,<br>which hinders comparison to specimens preserved as external<br>molds that are used to diagnose the species (e.g., Jell, 1980;<br>Runnegar and Bentley, 1983; Runnegar in Bengtson et al.,<br>1990; Skovsted, 2004; Elicki and G\ufffdrsu, 2009). The<br>specimens fit within the known size and morphological range<br>for P. runnegari (see Runnegar in Bengtson et al., 1990, figs.<br>165, 166; Parkhaev in Gravestock et al., 2001, p. 201-203, pl.<br>49, figs. 1-13, pl. 50, figs. 1-9; Elicki and G\ufffdrsu, 2009) and<br>have a similar distribution of foliated aragonite imprints on the<br>steinkern surface (Fig. 3.3, 3.5; cf. Runnegar and Bentley,<br>1983, fig. 6A, B, E, I; Bengtson et al., 1990, fig. 165E-G;<br>Vendrasco et al., 2011, pl. 3, 4). Compared to measured<br>specimens, height-to-length ratios and overall size of the<br>Antarctic specimens cover the range of values for Pojetaia</p>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.5154,
+              "y": 0.7226
+            },
+            {
+              "x": 0.9313,
+              "y": 0.7226
+            },
+            {
+              "x": 0.9313,
+              "y": 0.9411
+            },
+            {
+              "x": 0.5154,
+              "y": 0.9411
+            }
+          ],
+          "id": 18,
+          "page": 1
+        },
+        {
+          "category": "footer",
+          "content": {
+            "html": "<footer id='19' style='font-size:14px'>Downloaded from https://www.cambridge.org/core. IP address: 178.171.69.59, on 09 Jan 2019 at 17:22:38, subject to the Cambridge Core terms of use, available at https://www.cambridge.org/core/terms.<br>https://doi.org/10.1017/jpa.2018.84</footer>",
+            "markdown": "",
+            "text": ""
+          },
+          "coordinates": [
+            {
+              "x": 0.0245,
+              "y": 0.9608
+            },
+            {
+              "x": 0.9671,
+              "y": 0.9608
+            },
+            {
+              "x": 0.9671,
+              "y": 0.9839
+            },
+            {
+              "x": 0.0245,
+              "y": 0.9839
+            }
+          ],
+          "id": 19,
+          "page": 1
+        }
+      ],
+      "timestamp": 1743818362.35703
+    }
+  }
+}

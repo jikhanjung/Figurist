@@ -1452,5 +1452,4 @@ pylupdate5 Figurist.py -ts translations/Figurist_ja.ts
 
 linguist
 
-
 '''

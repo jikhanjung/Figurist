@@ -9,3 +9,4 @@ Output/
 download/
 .env
 cert/
+*.log

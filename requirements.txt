@@ -1,0 +1,10 @@
+PyQt5>=5.15.0
+peewee>=3.15.0
+Pillow>=9.0.0
+peewee-migrate>=1.1.0 
+ollama>=1.10.0
+pymupdf>=1.24.12
+requests>=2.28.1
+httpx>=0.24.1
+openai>=1.1.0
+pyzotero>=0.1.0
